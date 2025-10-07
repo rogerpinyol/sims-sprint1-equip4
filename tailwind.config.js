@@ -4,7 +4,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Colors únics
         'fons-pagina': '#C2B098',
         'fons-login': '#ffffff',
         'fons-input': '#FFE6CC',
