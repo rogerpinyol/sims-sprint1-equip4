@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pàgina principal</title>
+
+  <link href="../dist/output.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body class="relative font-sans bg-fons-pagina text-text-principal">
+
+  <nav
+    class="w-full flex items-center justify-between px-6 py-4 bg-fons-input shadow-md fixed top-0 left-0 z-20 backdrop-blur">
+    <button class="text-gray-600 text-2xl hover:text-color-titol transition">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <img src="Logo sense marca aigua.jpg" alt="Logo" class="mx-auto" style="height: 60px;">
+
+    <button class="text-gray-600 text-2xl hover:text-color-titol transition">
+      <i class="fas fa-search"></i>
+    </button>
+  </nav>
+
+  <div id="map" class="w-full h-[calc(100vh-4.5rem)] z-0 mt-[4.5rem]"></div>
+
+  <div id="login-screen" class="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4">
+    <div class="flex space-x-6 max-w-md w-full">
+      <a href="login.html"
+        class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-fons-input text-text-input font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
+        Iniciar sessió
+      </a>
+      <button id="guest-btn"
+        class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-fons-input text-text-input font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
+        Invitat
+      </button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const guestBtn = document.getElementById('guest-btn');
+    const loginScreen = document.getElementById('login-screen');
+    const mapDiv = document.getElementById('map');
+
+    let map;
+
+    guestBtn.addEventListener('click', function () {
+      loginScreen.style.display = 'none';
+      if (!map) initMap();
+    });
+
+    function initMap() {
+      const ampostaCoords = [40.7102, 0.5811];
+
+      const carData = [
+        { id: 1, name: "Cotxe 1", lat: 40.7115, lng: 0.5825, info: "Toyota Prius - Disponible" },
+        { id: 2, name: "Cotxe 2", lat: 40.7098, lng: 0.5795, info: "Renault Zoe - Batería baixa" },
+        { id: 3, name: "Cotxe 3", lat: 40.712, lng: 0.5832, info: "Nissan Leaf - En manteniment" },
+      ];
+
+      map = L.map("map").setView(ampostaCoords, 15);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      let carMarkers = {};
+
+      function createCarIcon() {
+        return L.divIcon({
+          html: '<i class="fa-solid fa-car" style="font-size: 30px; color: #FF7043;"></i>',
+          className: '',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+          popupAnchor: [0, -15],
+        });
+      }
+
+      carData.forEach(car => {
+        let marker = L.marker([car.lat, car.lng], { icon: createCarIcon() }).addTo(map);
+        marker.bindPopup(`<b>${car.name}</b><br>${car.info}`);
+        carMarkers[car.id] = marker;
+      });
+
+      function updateCarPositions() {
+        carData.forEach(car => {
+          car.lat += (Math.random() - 0.5) * 0.0005;
+          car.lng += (Math.random() - 0.5) * 0.0005;
+          let marker = carMarkers[car.id];
+          if (marker) marker.setLatLng([car.lat, car.lng]);
+        });
+      }
+
+      setInterval(updateCarPositions, 5000);
+    }
+
+    initMap();
+  </script>
+</body>
+
+</html>
