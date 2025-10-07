@@ -22,7 +22,7 @@
       onsubmit="validarFormulario(event)">
       
       <div class="flex flex-col">
-        <label for="email" class="block font-bold mb-1 text-text-principal">Correu electrònic</label>
+        <label for="email" class="block font-bold mb-1 text-text-input">Correu electrònic</label>
         <input type="text" id="email" name="email" 
           oninput="validarEmailRegister()"
           class="w-full px-3 py-2 rounded-full border border-black bg-fons-input text-text-input focus:outline-none focus:ring-2 focus:ring-focus-input focus:border-black">
@@ -30,7 +30,7 @@
       </div>
 
       <div class="flex flex-col">
-        <label for="password" class="block font-bold mb-1 text-text-principal">Contrasenya</label>
+        <label for="password" class="block font-bold mb-1 text-text-input">Contrasenya</label>
         <input type="password" id="password" name="password"
           class="w-full px-3 py-2 rounded-full border border-black bg-fons-input text-text-input focus:outline-none focus:ring-2 focus:ring-focus-input focus:border-black"
           oninput="mostrarRequisitosContrasenya()">
@@ -45,13 +45,15 @@
       </div>
 
       <button type="submit"
-        class="w-full font-bold py-2 rounded-full border border-bordi-input bg-color-titol text-text-principal hover:bg-color-titol-hover transition-colors">
+        class="w-full font-bold py-2 rounded-full border border-bordi-input bg-color-titol text-text-input hover:bg-color-titol-hover transition-colors">
         Registrar-se
       </button>
     </form>
 
-    <p class="mt-4 text-center text-sm">Ja tens compte? <a href="login.html"
-        class="text-color-enllaç hover:underline">Inicia sessió</a></p>
+    <p class="mt-4 text-center">
+      Ja tens compte? 
+      <a href="login.html" class="text-color-titol hover:underline">Inicia sessió</a>
+    </p>
   </div>
 
   <script src="validaregister.js"></script>

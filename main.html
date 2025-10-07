@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pàgina principal</title>
-
   <link href="../dist/output.css" rel="stylesheet">
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 </head>
+<body class="relative font-sans bg-color-navbar">
 
-<body class="relative font-sans bg-fons-pagina text-text-principal">
-
-  <nav
-    class="w-full flex items-center justify-between px-6 py-4 bg-fons-input shadow-md fixed top-0 left-0 z-20 backdrop-blur">
-    <button class="text-gray-600 text-2xl hover:text-color-titol transition">
+  <nav class="w-full flex items-center justify-between px-6 py-4 bg-color-navbar shadow-md fixed top-0 left-0 z-20 backdrop-blur">
+    <button class="text-white text-2xl hover:text-color-titol transition">
       <i class="fas fa-bars"></i>
     </button>
-
-    <img src="Logo sense marca aigua.jpg" alt="Logo" class="mx-auto" style="height: 60px;">
-
-    <button class="text-gray-600 text-2xl hover:text-color-titol transition">
+    
+    <img src="Logo EcoMotion Transparent 2.png" alt="Logo" class="mx-auto" style="height: 60px;">
+    
+    <button class="text-white text-2xl hover:text-color-titol transition">
       <i class="fas fa-search"></i>
     </button>
   </nav>
@@ -32,12 +27,12 @@
   <div id="login-screen" class="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4">
     <div class="flex space-x-6 max-w-md w-full">
       <a href="login.html"
-        class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-fons-input text-text-input font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
-        Iniciar sessió
+         class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-color-navbar text-white font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
+         Iniciar sessió
       </a>
       <button id="guest-btn"
-        class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-fons-input text-text-input font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
-        Invitat
+         class="flex-1 px-6 py-3 rounded-full border border-bordi-input bg-color-navbar text-white font-semibold text-center focus:outline-none focus:ring-2 focus:ring-focus-input hover:bg-gray-200 transition">
+         Invitat
       </button>
     </div>
   </div>
@@ -102,5 +97,4 @@
     initMap();
   </script>
 </body>
-
 </html>
