@@ -11,10 +11,6 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-if (!file_exists($jsonFile)) {
-    echo json_encode(['error' => 'El fitxer de usuaris no existeix.']);
-    exit;
-}
 
 $data = json_decode(file_get_contents($jsonFile), true);
 if (!is_array($data) || count($data) == 0) {

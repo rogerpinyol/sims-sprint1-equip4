@@ -5,24 +5,8 @@ function validarLogin() {
     const email = emailInput.value.trim();
     const pass = passwordInput.value.trim();
 
-    let emailError = document.getElementById("email-error-login");
-    let passwordError = document.getElementById("password-error-login");
-
-    // Si no existeixen els missatges d'error, els creem
-    if (!emailError) {
-        emailError = document.createElement("p");
-        emailError.id = "email-error-login";
-        emailError.className =
-            "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left";
-        emailInput.parentNode.appendChild(emailError);
-    }
-    if (!passwordError) {
-        passwordError = document.createElement("p");
-        passwordError.id = "password-error-login";
-        passwordError.className =
-            "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left";
-        passwordInput.parentNode.appendChild(passwordError);
-    }
+    const emailError = document.getElementById("email-error-login");
+    const passwordError = document.getElementById("password-error-login");
 
     emailError.textContent = "";
     passwordError.textContent = "";

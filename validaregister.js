@@ -39,7 +39,7 @@ function validarEmailRegister() {
     return true;
   }
 }
-
+//Cuando le damos al boton de registrar se hace una doble comprovacion, una mientras se va escrbiendo ValidarEmail y la otra cuando le damos al boton  registrar (ValidarFormulario)
 function validarFormulario(e) {
   e.preventDefault();
 
@@ -79,5 +79,5 @@ function validarFormulario(e) {
     passwordInput.style.borderColor = "black";
   }
 
-  if (valid) document.getElementById("form").submit();
+  if (valid) document.getElementById("form").submit(); //Aqui comunica con el php
 }
