@@ -8,19 +8,18 @@ function validarLogin() {
   let emailError = document.getElementById("email-error-login");
   let passwordError = document.getElementById("password-error-login");
 
-  // Crear i posar classes Tailwind als errors si no existeixen
   if (!emailError) {
     emailError = document.createElement("p");
     emailError.id = "email-error-login";
     emailError.className =
-      "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left"; // Afegida text-left
+      "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left";
     emailInput.parentNode.appendChild(emailError);
   }
   if (!passwordError) {
     passwordError = document.createElement("p");
     passwordError.id = "password-error-login";
     passwordError.className =
-      "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left"; // Afegida text-left
+      "mt-1 text-sm text-red-600 bg-red-100 rounded-md px-3 py-1 w-72 text-left";
     passwordInput.parentNode.appendChild(passwordError);
   }
 

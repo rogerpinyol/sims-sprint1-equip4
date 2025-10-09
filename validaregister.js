@@ -1,4 +1,3 @@
-// Mostrar requisits de la contrasenya mentre escrius
 function mostrarRequisitosContrasenya() {
   const pass = document.getElementById("password").value;
   const requisitos = document.getElementById("password-requisitos");
