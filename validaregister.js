@@ -11,7 +11,6 @@ function mostrarRequisitosContrasenya() {
     document.getElementById("req-especial").style.color = /[^A-Za-z0-9]/.test(pass) ? "green" : "red";
   }
 }
-
 function validarEmailRegister() {
   const emailInput = document.getElementById("email");
   const emailError = document.getElementById("email-error");

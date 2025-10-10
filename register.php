@@ -9,7 +9,7 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT); //Canviar la contrasenya que nunca se pueda revertir a su forma original
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT); //Canviar la contrasenya que nunca se pueda ver su forma original)
     
 if (file_exists($jsonFile)) {
     $data = json_decode(file_get_contents($jsonFile), true);

@@ -13,7 +13,6 @@ function validarLogin() {
 
     let valid = true;
 
-    // Validem l'email
     if (email === "") {
         emailError.textContent = "El correu electrònic no pot estar buit.";
         emailInput.classList.add("border-red-600");
@@ -44,7 +43,6 @@ function validarLogin() {
         passwordInput.classList.add("border-green-600");
     }
 
-    // Si les dades són vàlides, enviem la petició AJAX
     if (valid) {
         const formData = new FormData();
         formData.append("email", email);
@@ -71,8 +69,8 @@ function validarLogin() {
             passwordError.textContent = "Error en la connexió.";
         });
 
-        return false; // Evitem l'enviament normal del formulari
+        return false;
     }
 
-    return false; // Si no és vàlid, el formulari no s'envia
+    return false;
 }
