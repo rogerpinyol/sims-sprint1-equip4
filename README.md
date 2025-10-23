@@ -1,5 +1,3 @@
-# Blink
-
 ## How to use
 
 Run the full stack (PHP + Apache, PostgreSQL, and pgAdmin) with Docker. Configure your environment, start the services, and open the app in your browser.
