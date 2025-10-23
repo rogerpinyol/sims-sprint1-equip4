@@ -1,0 +1,94 @@
+/project-root
+│
+├── /app
+│   ├── /controllers
+│   │   ├── AuthController.php        # Login, registration, sessions
+│   │   ├── VehicleController.php     # Management of vehicles and their status
+│   │   ├── BookingController.php     # Bookings and payments
+│   │   ├── AdminController.php       # Administrator control panel
+│   │   ├── ApiController.php         # JSON endpoints for frontend or IoT
+│   │   └── ChatbotController.php     # Communication with the AI chatbot
+│   │   └── [...]
+│   │
+│   ├── /models
+│   │   ├── User.php
+│   │   ├── Tenant.php
+│   │   ├── Vehicle.php
+│   │   ├── Booking.php
+│   │   ├── Payment.php
+│   │   ├── SupportTicket.php
+│   │   └── Maintenance.php
+│   │   └── [...]
+│   │
+│   ├── /views
+│   │   ├── /auth
+│   │   │   ├── login.php
+│   │   │   └── register.php
+│   │   ├── /user
+│   │   │   ├── dashboard.php
+│   │   │   ├── map.php
+│   │   │   └── profile.php
+│   │   ├── /admin
+│   │   │   ├── dashboard.php
+│   │   │   ├── users.php
+│   │   │   ├── vehicles.php
+│   │   │   └── analytics.php
+│   │   ├── /partials
+│   │   │   ├── header.php
+│   │   │   ├── footer.php
+│   │   │   └── navbar.php
+│   │   └── /errors
+│   │       ├── 404.php
+│   │       └── 500.php
+│   │
+│   ├── /core
+│   │   ├── App.php                   # Router and controller loader
+│   │   ├── Controller.php            # Base class for controllers
+│   │   ├── Model.php                 # Base class for models
+│   │   ├── Database.php              # Connection (MariaDB and MongoDB)
+│   │   ├── Auth.php                  # Session and permission management
+│   │   └── Helpers.php               # Global helper functions
+│   │   └── [...]
+│   │
+│   └── /services
+│       ├── IoTService.php            # Reception and storage of IoT data
+│       ├── ChatbotService.php        # Integration with AI API
+│       └── PaymentGateway.php        # Interface to process payments
+│       └── [...]
+│
+├── /public
+│   ├── index.php                     # Main entry point
+│   ├── /css
+│   │   └── styles.css                # Compiled Tailwind
+│   ├── /js
+│   │   ├── register.js
+│   │   ├── login.js
+│   │   └── main.js
+│   ├── /images
+│   │   ├── logo.png
+│   │   └── icons/
+│   └── /uploads                      # User files (ID, images, etc.)
+│
+├── /config
+│   ├── config.php                    # Global variables and routes
+│   ├── database.php                  # DB credentials
+│   ├── tenants.php                   # Multi-tenant config
+│   └── chatbot.php                   # AI API keys
+│
+├── /scripts
+│   ├── seed_db.php                   # Initial data load
+│   ├── migrate.php                   # Database migrations
+│   └── test_iot.php                  # IoT logs simulation
+│
+├── /storage
+│   ├── /logs                         # Errors, audits
+│   ├── /cache                        # Temporary data
+│   └── /sessions                     # Session files if not using cookies
+│
+├── /docs
+│   ├── architecture.md               # Diagrams and technical documentation
+│   └── api_endpoints.md              # REST / AJAX documentation
+│
+├── composer.json                     # PHP dependencies (if using autoload)
+├── tailwind.config.js                # Tailwind configuration
+└── README.md
