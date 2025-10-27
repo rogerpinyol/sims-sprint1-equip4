@@ -1,5 +1,5 @@
 <?php
-// Cambia las variables de entorno para MariaDB
+
 $host = getenv('MARIADB_HOST') ?: 'localhost';
 $db   = getenv('MARIADB_DB') ?: 'ecomotiondb';
 $user = getenv('MARIADB_USER') ?: 'admin';
