@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../config/Database.php';
 
 class User {
-    private $db;
+    private \PDO $db;
     private $table = 'users';
 
     public $id;
@@ -45,4 +45,6 @@ class User {
             json_encode($accessibility_flags),
             $user_id
         ]);
-    }}
+    }
+
+}
