@@ -8,12 +8,12 @@ class User extends Model {
 
 
 // Functions
-    public function __construct() {
-        parent::__construct();
+    public function __construct(int $tenantId) {
+        parent::__construct('users', $tenantId);
     }
 
     // Superuser users creation with roles
-    public function createUserWithRole($tenant_id, $name, $email, $plain_password, $role) {
+    public function createUserWithRole(string $name, string $email, string $plain_password, string $role): int|false {
         $allowedRoles = ['client', 'manager', 'tenant_admin'];
         if (!in_array($role, $allowedRoles, true)) {
             throw new InvalidArgumentException('Invalid role');
@@ -21,29 +21,27 @@ class User extends Model {
 
         $hash = password_hash($plain_password, PASSWORD_BCRYPT);
         
-        return $this->create([
-            'tenant_id'=>$tenant_id,
+        return $this->insert([
             'name'=>$name, 
             'email'=>$email, 
             'password_hash'=>$hash, 
             'role'=>$role
-        ], true);
+        ]);
     }
     
-    public function register($tenant_id, $name, $email, $plain_password) {
+    public function register(string $name, string $email, string $plain_password): int|false {
         $hash = password_hash($plain_password, PASSWORD_BCRYPT);
-        return $this->create([
-            'tenant_id'=>$tenant_id,
+        return $this->insert([
             'name'=>$name,
             'email'=>$email,
             'password_hash'=>$hash,
             'role'=>'client'
-        ], true);
+        ]);
     }
 
 
-    public function getAllByTenant($tenant_id) {
-        return $this->findBy(['tenant_id' => $tenant_id]);
+    public function getAll(): array|false {
+    return $this->find();
     }
 
 
@@ -57,7 +55,7 @@ class User extends Model {
                 throw new InvalidArgumentException('Invalid email format');  
             }
 
-            $existing = $this->findBy(['email' => $data['email']]);
+            $existing = $this->find(['email' => $data['email']]);
             if (!empty($existing) && $existing[0]['id'] != $user_id) {
                 throw new RuntimeException('Email already in use');
             }
