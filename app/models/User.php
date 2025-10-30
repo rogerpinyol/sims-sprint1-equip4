@@ -1,50 +1,73 @@
 <?php
 
-require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../core/Model.php';
 
-class User {
-    private \PDO $db;
-    private $table = 'users';
+class User extends Model {
+    protected $table = 'users';
+    protected $fillable = ['name', 'email', 'phone', 'accessibility_flags'];
 
-    public $id;
-    public $name;
-    public $role;
-    public $email;
-    public $phone;
-    public $accessibility_flags;
-    public $is_active;
-    public $created_at;
 
+// Functions
     public function __construct() {
-        $this->db = Database::getInstance()->getConnection();
+        parent::__construct();
+    }
+
+    // Superuser users creation with roles
+    public function createUserWithRole($tenant_id, $name, $email, $plain_password, $role) {
+        $allowedRoles = ['client', 'manager', 'tenant_admin'];
+        if (!in_array($role, $allowedRoles, true)) {
+            throw new InvalidArgumentException('Invalid role');
+        }
+
+        $hash = password_hash($plain_password, PASSWORD_BCRYPT);
+        
+        return $this->create([
+            'tenant_id'=>$tenant_id,
+            'name'=>$name, 
+            'email'=>$email, 
+            'password_hash'=>$hash, 
+            'role'=>$role
+        ], true);
+    }
+    
+    public function register($tenant_id, $name, $email, $plain_password) {
+        $hash = password_hash($plain_password, PASSWORD_BCRYPT);
+        return $this->create([
+            'tenant_id'=>$tenant_id,
+            'name'=>$name,
+            'email'=>$email,
+            'password_hash'=>$hash,
+            'role'=>'client'
+        ], true);
     }
 
 
     public function getAllByTenant($tenant_id) {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE tenant_id = ?");
-        $stmt->execute([$tenant_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->findBy(['tenant_id' => $tenant_id]);
     }
 
 
-    public function register($tenant_id, $name, $email, $password_hash) {
-        $stmt = $this->db->prepare(
-            "INSERT INTO users (tenant_id, name, email, password_hash) VALUES (?, ?, ?, ?)"
-        );
-        return $stmt->execute([$tenant_id, $name, $email, $password_hash]);
+    public function updateDetails(int $user_id, array $data) {
+        if (isset($data['accessibility_flags']) && is_array($data['accessibility_flags'])) {
+            $data['accessibility_flags'] = json_encode($data['accessibility_flags']);
+        }
+
+        if (isset($data['email'])) {
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new InvalidArgumentException('Invalid email format');  
+            }
+
+            $existing = $this->findBy(['email' => $data['email']]);
+            if (!empty($existing) && $existing[0]['id'] != $user_id) {
+                throw new RuntimeException('Email already in use');
+            }
+        }
+
+        return $this->update($user_id, $data);
     }
 
-    public function updateDetails($user_id, $name, $email, $phone, $accessibility_flags) {
-        $stmt = $this->db->prepare(
-            "UPDATE users SET name = ?, email = ?, phone = ?, accessibility_flags = ? WHERE id = ?"
-        );
-        return $stmt->execute([
-            $name,
-            $email,
-            $phone,
-            json_encode($accessibility_flags),
-            $user_id
-        ]);
+    public function changePassword(int $user_id, string $plain_password) {
+        $hash = password_hash($plain_password, PASSWORD_BCRYPT);
+        return $this->update($user_id, ['password_hash' => $hash]);
     }
-
 }
