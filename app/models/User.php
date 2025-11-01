@@ -4,7 +4,7 @@ require_once __DIR__ . '/../core/Model.php';
 
 class User extends Model {
     protected $table = 'users';
-    protected $fillable = ['name', 'email', 'phone', 'accessibility_flags'];
+    protected $fillable = ['name', 'email', 'phone', 'accessibility_flags', 'password_hash', 'role'];
 
 
 // Functions
@@ -46,6 +46,12 @@ class User extends Model {
 
 
     public function updateDetails(int $user_id, array $data) {
+        
+        unset($data['role'], $data['password_hash']);
+        
+        $allowed = ['name' => true, 'email' => true, 'phone' => true, 'accessibility_flag' => true];
+        $data = array_intersect_key($data, $allowed);
+        
         if (isset($data['accessibility_flags']) && is_array($data['accessibility_flags'])) {
             $data['accessibility_flags'] = json_encode($data['accessibility_flags']);
         }
