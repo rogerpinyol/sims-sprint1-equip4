@@ -57,7 +57,7 @@
   <footer class="border-t border-slate-200 py-10">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-slate-500 flex items-center justify-between">
       <span>© <span id="year"></span> EcoMotion</span>
-      <a class="hover:text-emerald-600" href="/privacy.php">Privacy Policy</a>
+  <a class="hover:text-emerald-600" href="/privacy">Privacy Policy</a>
     </div>
   </footer>
 

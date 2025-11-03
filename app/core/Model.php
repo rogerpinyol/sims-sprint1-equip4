@@ -1,6 +1,4 @@
-
 <?php
-
 class Model
 {
     protected $pdo;
@@ -171,4 +169,3 @@ class Model
         @file_put_contents($logDir . '/model_errors.log', $msg, FILE_APPEND);
     }
 }
-?>

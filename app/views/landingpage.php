@@ -63,8 +63,8 @@
 					<a href="#testimonials" class="hover:text-brand-600">Customers</a>
 				</nav>
 				<div class="hidden md:flex items-center gap-3">
-					<a href="#pricing" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="#cta" class="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
+					<a href="/signIn" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
+					<a href="/register" class="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
 				</div>
 				<!-- Mobile menu button -->
 				<button id="menuBtn" class="md:hidden p-2 rounded-lg border border-slate-300" aria-label="Open menu">
@@ -79,7 +79,7 @@
 				<a href="#testimonials" class="block px-2 py-2 rounded hover:bg-slate-50">Customers</a>
 				<div class="pt-2 flex gap-2">
 					<a href="#pricing" class="flex-1 px-4 py-2 text-center rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="#cta" class="flex-1 px-4 py-2 text-center rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
+					<a href="/register" class="flex-1 px-4 py-2 text-center rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
 				</div>
 			</div>
 		</div>
@@ -98,7 +98,7 @@
 						EcoMotion gives operations and finance teams real-time insights into vehicle status, costs, and utilization—so you can scale sustainably.
 					</p>
 					<div class="mt-8 flex flex-col sm:flex-row gap-3">
-						<a href="#cta" class="px-6 py-3 rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700 text-center">Start free trial</a>
+						<a href="/register" class="px-6 py-3 rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700 text-center">Start free trial</a>
 						<a href="#features" class="px-6 py-3 rounded-xl border border-slate-300 font-medium hover:bg-slate-50 text-center">See features</a>
 					</div>
 					<div class="mt-6 flex items-center gap-6 text-sm text-slate-500">
@@ -214,7 +214,7 @@
 						<li>Basic reports</li>
 						<li>Email support</li>
 					</ul>
-					<a href="#cta" class="mt-6 block px-5 py-3 text-center rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800">Get started</a>
+					<a href="/register" class="mt-6 block px-5 py-3 text-center rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800">Get started</a>
 				</div>
 				<!-- Growth -->
 				<div class="rounded-2xl border-2 border-brand-500 p-6 bg-brand-50">
@@ -227,7 +227,7 @@
 						<li>API access</li>
 						<li>Priority support</li>
 					</ul>
-					<a href="#cta" class="mt-6 block px-5 py-3 text-center rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700">Try Growth</a>
+					<a href="/register" class="mt-6 block px-5 py-3 text-center rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700">Try Growth</a>
 				</div>
 				<!-- Enterprise -->
 				<div class="rounded-2xl border border-slate-200 p-6">
@@ -239,7 +239,7 @@
 						<li>SSO, audit logs, custom SLAs</li>
 						<li>Dedicated manager</li>
 					</ul>
-					<a href="#cta" class="mt-6 block px-5 py-3 text-center rounded-xl border border-slate-300 font-medium hover:bg-slate-50">Contact sales</a>
+					<a href="/register" class="mt-6 block px-5 py-3 text-center rounded-xl border border-slate-300 font-medium hover:bg-slate-50">Contact sales</a>
 				</div>
 			</div>
 		</div>
@@ -293,8 +293,8 @@
 				</div>
 				<div class="text-sm text-slate-500">© <span id="year"></span> EcoMotion. All rights reserved.</div>
 				<div class="flex gap-4 text-sm">
-								<a href="/privacy.php" class="hover:text-brand-600">Privacy</a>
-								<a href="/terms.php" class="hover:text-brand-600">Terms</a>
+								<a href="/privacy" class="hover:text-brand-600">Privacy</a>
+								<a href="/terms" class="hover:text-brand-600">Terms</a>
 					<a href="#" class="hover:text-brand-600">Security</a>
 				</div>
 			</div>
