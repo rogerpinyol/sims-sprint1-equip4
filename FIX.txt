@@ -1,0 +1,138 @@
+
+PROBLEMES I CORRECCIONS
+=========================================================
+
+4) Alta: Comportamiento consistente del controlador (API vs Vista)
+   - Archivos: app/controllers/UserController.php, app/views/users/*.php
+   - Problema: la mayoría de los métodos del controlador devuelven JSON (API), pero store() ahora renderiza una vista para formularios HTML. No hay un front controller central; las vistas se llaman directamente.
+   - Acción: decidir uno de dos flujos y estandarizar:
+     A) MVC: añadir front controller (`index.php`), `.htaccess` y `routes/web.php`; los controladores renderizan vistas para HTML y devuelven JSON para clientes API.
+     B) API + SPA: mantener controladores como API JSON y hacer que las vistas consuman la API via fetch/AJAX.
+   - Sugerencia: implementar el front controller (opción A) para mantener la organización.
+
+5) Alta: Añadir front controller + routing + rewrite
+   - Archivos a añadir: .htaccess (raíz), routes/web.php, index.php (front controller) o convertir la landing actual a PageController::home
+   - Problema: index.php actualmente es la landing; no existe routing. Los formularios envían a /users.php, que no está integrado.
+   - Acción: crear un router mínimo (routes/web.php) y un front controller `index.php` que despache a los controladores. Mover la landing a un PageController o añadir la ruta '/'.
+
+6) Media: Corregir action del formulario en las vistas y mapeo de rutas
+   - Archivos: app/views/users/create.php y otras vistas
+   - Problema: el action del formulario apunta a `/users.php` o a ficheros directos; después de añadir el front controller hay que cambiar actions a POST `/users` y enlaces a rutas limpias.
+   - Acción: actualizar los atributos action y asegurar que UserController::store maneje POST /users.
+
+7) Media: Desajuste de variable de entorno de BD
+   - Archivos: docker-compose.yml, config/database.php
+   - Problema: docker-compose define `MARIADB_DATABASE` pero la app lee `MARIADB_DB` en `config/database.php`. Esto puede provocar que la app use un nombre de base incorrecto.
+   - Acción: alinear los nombres de las variables (preferir `MARIADB_DATABASE`) o hacer que database.php lea ambas.
+
+8) Media: Seguridad en findWithJoin y colisiones de columnas
+   - Archivos: app/core/Model.php
+   - Problema: findWithJoin hace JOIN con la tabla b pero no filtra `b.tenant_id` (todas las tablas del esquema son multi-tenant). Además `SELECT a.*, b.*` puede causar colisiones de nombres de columna.
+   - Acción: añadir opción para filtrar `b.tenant_id` o incluir siempre `AND b.tenant_id = :tenant_id`. Considerar aliasar columnas de b (o permitir que el consumidor elija campos).
+
+9) Bajo: Estandarizar tipos de retorno y manejo de errores
+   - Archivos: app/core/Model.php, app/models/User.php, controladores
+   - Problema: muchos métodos devuelven array|false o int|false; los controladores esperan JSON o booleanos. Considerar lanzar excepciones en errores DB o devolver estructuras consistentes.
+   - Acción: elegir un estilo (excepciones vs false) y documentarlo. Por ahora, añadir comprobaciones consistentes donde se usan las llamadas.
+
+10) Bajo: Vistas faltantes o vacías
+    - Archivos: app/views/users/edit.php está vacío; create.php existe ahora pero revisar estilo/enlaces.
+    - Acción: implementar edit.php o eliminar referencias hasta que esté implementada.
+
+11) Bajo: Logging y uso de @ para silenciar errores
+    - Archivos: app/core/Model.php
+    - Problema: model usa @ para silenciar mkdir y file_put_contents. Esto oculta errores de IO.
+    - Acción: eliminar @, comprobar valores de retorno o usar error_log/PSR-3.
+
+12) Bajo: Tipado y strict types
+    - Archivos: varios
+    - Sugerencia: considerar añadir `declare(strict_types=1);` y propiedades tipadas cuando sea posible.
+
+Orden recomendado para trabajar:
+  1) Aplicar ítems 1 y 2 (seguridad/whitespace en Model) — crítico
+  2) Corregir el typo en User model (ítem 3)
+  3) Añadir front controller + .htaccess + rutas (ítems 5 y 6)
+  4) Estandarizar comportamiento del controlador (ítem 4)
+  5) Alinear variables de entorno de BD (ítem 7)
+  6) Mejorar findWithJoin y logging (ítems 8 y 11)
+  7) Ordenar los ítems restantes (9,10,12)
+
+Si quieres, puedo aplicar ahora las correcciones de mayor prioridad (1-3) y luego añadir los archivos de routing (5). Dime qué pasos quieres que ejecute en el repositorio.
+
+
+1) Critical: Prevent updating tenant_id / id in Model::update
+   - Files: app/core/Model.php
+   - Problem: update() currently allows 'id' and 'tenant_id' in $data. This can lead to cross-tenant changes or PK corruption.
+   - Action: ignore keys 'id' and 'tenant_id' when building SET. Return error if no valid fields.
+
+2) Critical: Remove closing PHP tag and trim leading whitespace
+   - Files: app/core/Model.php (and any PHP include files)
+   - Problem: file ends with ?> and has leading blank lines; risk of accidental output/breaking headers.
+   - Action: remove closing ?> and ensure no bytes/whitespace before <?php.
+
+3) High: Fix User model allowed fields bug
+   - Files: app/models/User.php
+   - Problem: updateDetails uses allowed array with key 'accessibility_flag' (typo). Also it unsets role/password but later array_intersect_key uses mismatched keys.
+   - Action: change allowed key to 'accessibility_flags' and ensure array_intersect_key uses the correct keys.
+
+4) High: Consistent controller behavior (API vs View)
+   - Files: app/controllers/UserController.php, app/views/users/*.php
+   - Problem: most controller methods return JSON (API), but store() now renders a view for HTML forms. There is no central routing/front-controller; views expect to be called directly.
+   - Action: decide one of two flows and standardize:
+     A) MVC: add front controller (`index.php`), `.htaccess`, and `routes/web.php`; controllers should render views (use render helper) for HTML and JSON for API clients.
+     B) API + SPA: keep controllers as JSON API and make views use fetch/AJAX to consume API.
+   - Suggested: implement MVC front controller (see next items) to keep things organized.
+
+5) High: Add front controller + routing + rewrite
+   - Files to add: .htaccess (root), routes/web.php, index.php (front controller) or convert current landing to PageController::home
+   - Problem: index.php is currently the landing page; no routing exists. Forms post to /users.php which is not wired.
+   - Action: create minimal router (routes/web.php) and a front controller `index.php` that dispatches to controllers. Move landing to a PageController or add route '/'.
+
+6) Medium: Fix form action in view and route mappings
+   - Files: app/views/users/create.php, other view files
+   - Problem: the form action points to `/users.php` or direct files; after adding a front controller you should change actions to POST to `/users` and links to clean routes.
+   - Action: update action attributes, and ensure UserController::store handles POST /users (it does currently but dispatching must work).
+
+7) Medium: Database env var mismatch
+   - Files: docker-compose.yml, config/database.php
+   - Problem: docker-compose sets `MARIADB_DATABASE` but the app reads `MARIADB_DB` (config/database.php). This may cause wrong DB names in the app.
+   - Action: align env var names (prefer MARIADB_DATABASE) or read both in database.php.
+
+8) Medium: findWithJoin tenant safety & column collisions
+   - Files: app/core/Model.php
+   - Problem: findWithJoin joins table b but doesn't filter b.tenant_id (all tables in schema are multi-tenant). Also SELECT a.*, b.* can cause column name collisions.
+   - Action: add optional parameter to include b.tenant_id filter, or always include `AND b.tenant_id = :tenant_id`. Consider aliasing b columns (or let consumer pick fields).
+
+9) Low: Standardize return types and error handling
+   - Files: app/core/Model.php, app/models/User.php, controllers
+   - Problem: many methods return array|false or int|false; controllers expect JSON or booleans. Consider throwing exceptions on DB errors or returning consistent shapes.
+   - Action: pick a style (exceptions vs false) and document. For now, add consistent checks where used.
+
+10) Low: Create/edit views missing or empty
+    - Files: app/views/users/edit.php is empty; create.php exists now but review styling/links.
+    - Action: implement edit.php or remove references until implemented.
+
+11) Low: Logging & silenced errors
+    - Files: app/core/Model.php
+    - Problem: model uses @ to silence mkdir and file_put_contents. This hides IO errors.
+    - Action: remove @, check return values, or use error_log/PSR-3.
+
+12) Low: Type-safety and strict types
+    - Files: various
+    - Suggestion: consider adding `declare(strict_types=1);` and typed properties where feasible.
+
+How to proceed (recommended order):
+  1) Apply items 1 and 2 (Model security/whitespace) — critical
+  2) Fix User model typo (item 3)
+  3) Add front controller + .htaccess + routes (items 5 and 6)
+  4) Standardize controller behavior (item 4)
+  5) Align DB env vars (item 7)
+  6) Improve findWithJoin and logging (items 8 and 11)
+  7) Tidy remaining low items (9,10,12)
+
+ANOTACIONS ------------------------------------------------------------
+
+CRUD Users -> estructurar userController en 2 controladors?
+
+	- publicUserController
+	- AdminUserController

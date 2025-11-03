@@ -94,6 +94,8 @@ class Model
         $params = [];
         $i = 0;
         foreach ($data as $col => $val) {
+            // never allow changing primary key or tenant via generic update
+            if ($col === 'id' || $col === 'tenant_id') continue;
             if (!preg_match('/^[a-zA-Z0-9_]+$/', $col)) continue;
             $ph = "p{$i}";
             $set[] = "`{$col}` = :{$ph}";

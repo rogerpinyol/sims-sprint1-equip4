@@ -6,9 +6,7 @@ require_once __DIR__ . '/../models/User.php';
 // Basic user controller (no framework)
 class UserController {
     
-    // Model instance (scoped to tenant)
     private User $users;
-    // Current tenant id
     private int $tenantId;
 
     public function __construct() {
@@ -67,14 +65,46 @@ class UserController {
             }
 
             if ($id === false) {
+                // If HTML form submit, render view with errors
+                if (!empty($_POST)) {
+                    $this->render(__DIR__ . '/../views/users/create.php', ['errors' => ['User not created']]);
+                    return;
+                }
                 $this->json(['error' => 'user not created'], 500);
                 return;
             }
 
+            // If this request came from a normal HTML form (POST), render the create view with the created user
+            if (!empty($_POST)) {
+                // Fetch created record and pass to view
+                $rows = $this->users->find(['id' => $id]);
+                $created = !empty($rows) ? $rows[0] : null;
+                $this->render(__DIR__ . '/../views/users/create.php', ['created' => $created]);
+                return;
+            }
+
+            // Otherwise keep JSON API behavior
             $this->json(['id' => $id], 201);
         } catch (\Throwable $e) {
+            // If HTML form submit, render error
+            if (!empty($_POST)) {
+                $this->render(__DIR__ . '/../views/users/create.php', ['errors' => [$e->getMessage()]]);
+                return;
+            }
             $this->json(['error' => $e->getMessage()], 400);
         }
+    }
+
+    // Simple renderer for PHP views: extract variables and include file
+    private function render(string $viewPath, array $vars = []): void {
+        extract($vars, EXTR_SKIP);
+        // Ensure view exists
+        if (!is_file($viewPath)) {
+            http_response_code(500);
+            echo "View not found: " . htmlspecialchars($viewPath, ENT_QUOTES, 'UTF-8');
+            return;
+        }
+        include $viewPath;
     }
 
     // PUT/PATCH /users/{id} -> update fields
