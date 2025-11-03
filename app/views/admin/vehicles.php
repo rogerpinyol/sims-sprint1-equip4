@@ -45,7 +45,7 @@ require_once __DIR__ . '/../partials/navbar.php';
                         </td>
                         <td class="py-4 px-6 text-center space-x-2">
                             <a href="/vehicle/edit?id=<?= htmlspecialchars($v['id']) ?>" class="btn btn-blue text-xs">Editar</a>
-                            <a href="/vehicle/delete?id=<?= htmlspecialchars($v['id']) ?>" class="btn btn-red text-xs" onclick="return confirm('Segur?')">Eliminar</a>
+                            <button type="button" data-href="/vehicle/delete?id=<?= htmlspecialchars($v['id']) ?>" data-name="<?= htmlspecialchars($v['model'] ?? $v['vin'] ?? 'vehicle') ?>" class="btn btn-red text-xs js-delete">Eliminar</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>

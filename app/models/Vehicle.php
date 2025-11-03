@@ -10,13 +10,44 @@ class Vehicle extends Model
 
     public function getAll(): array|false
     {
-        return $this->find(); // already filtered by tenant_id
+        // Return rows with location converted to WKT for display
+        try {
+            $sql = "SELECT *, ST_AsText(location) as location FROM `{$this->table}` WHERE tenant_id = :tenant_id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['tenant_id' => $this->tenantId]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Convert POINT(lon lat) -> POINT(lat lon) for display consistency with forms
+            foreach ($rows as &$r) {
+                if (!empty($r['location']) && preg_match('/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/', $r['location'], $m)) {
+                    $lon = (float)$m[1];
+                    $lat = (float)$m[2];
+                    $r['location'] = sprintf('POINT(%F %F)', $lat, $lon);
+                }
+            }
+            return $rows;
+        } catch (PDOException $e) {
+            $this->logError($e);
+            return false;
+        }
     }
 
     public function findById(int $id): array|false
     {
-        $rows = $this->find(['id' => $id]);
-        return $rows[0] ?? false;
+        try {
+            $sql = "SELECT *, ST_AsText(location) as location FROM `{$this->table}` WHERE id = :id AND tenant_id = :tenant_id LIMIT 1";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['id' => $id, 'tenant_id' => $this->tenantId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row && !empty($row['location']) && preg_match('/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/', $row['location'], $m)) {
+                $lon = (float)$m[1];
+                $lat = (float)$m[2];
+                $row['location'] = sprintf('POINT(%F %F)', $lat, $lon);
+            }
+            return $row ?: false;
+        } catch (PDOException $e) {
+            $this->logError($e);
+            return false;
+        }
     }
 
     public function create(array $data): int|false

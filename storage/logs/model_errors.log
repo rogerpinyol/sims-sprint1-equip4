@@ -3,3 +3,4 @@
 [2025-11-03 16:34:05] SQLSTATE[23000]: Integrity constraint violation: 4025 CONSTRAINT `vehicles.sensor_data` failed for `ecomotiondb`.`vehicles` in /var/www/html/app/core/Model.php:86
 [2025-11-03 16:35:18] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'WF0TEST0000000000' for key 'vin' in /var/www/html/app/core/Model.php:86
 [2025-11-03 16:36:11] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'WF0TEST0000000000' for key 'vin' in /var/www/html/app/core/Model.php:86
+[2025-11-03 16:52:07] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'location' cannot be null in /var/www/html/app/core/Model.php:123
