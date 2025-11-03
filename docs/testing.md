@@ -11,12 +11,13 @@ This document explains how to run and extend unit/integration tests for the PHP 
 
 ### Example `.env.test`
 ```
-MARIADB_USER=admin
-MARIADB_PASSWORD=complex_pass
+MARIADB_USER=root
+MARIADB_PASSWORD=password
 MARIADB_DATABASE=ecomotiondb_test
 MARIADB_HOST=127.0.0.1
 MARIADB_PORT=3306
 ```
+> Use a dedicated MariaDB account for automated tests. Root is acceptable in local/dev environments if the host is trusted.
 
 ## How Unit/Integration Tests Work
 
@@ -53,12 +54,35 @@ php tests/TenantModelMySqlTest.php
 TenantModelMySqlTest: OK
 ```
 
+## Example: Tenant Controller Integration Test
+
+File: `tests/TenantControllerTest.php`
+
+**What it validates:**
+- Super-admin RBAC is required for create/update/deactivate/rotate operations.
+- Tenant creation returns a one-time plaintext API key.
+- Listing, showing, and updating tenants returns sanitized data.
+- API key rotation invalidates the previous key.
+- Deactivation prevents further API access.
+- Unauthorized roles (e.g., `manager`) receive a 403 `HttpException`.
+- Missing tenants return 404 errors.
+
+**How to run:**
+```bash
+php tests/TenantControllerTest.php
+```
+
+**Sample output:**
+```
+TenantControllerTest: OK
+```
+
 ## Best Practices
 - **Never use your development or production database for tests.** Always use a dedicated test DB.
 - **Keep `.env.test` out of version control** if it contains sensitive credentials.
 - **Reset the test DB before each run** to ensure tests are repeatable and isolated.
 - **Inject PDO connections** for testability and to avoid global state.
-- **Add new tests** in the `tests/` directory, following the pattern in `TenantModelMySqlTest.php`.
+- **Add new tests** in the `tests/` directory, following the pattern in `TenantModelMySqlTest.php` and `TenantControllerTest.php`.
 
 ## Extending
 - To add tests for other models, create a new test script in `tests/`, inject a test PDO, and follow the same setup/teardown pattern.

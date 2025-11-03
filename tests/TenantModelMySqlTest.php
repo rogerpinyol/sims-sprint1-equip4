@@ -48,8 +48,17 @@ $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4", $user, 
 // Load schema (idempotent) from config/init.sql into test DB
 $schema = file_get_contents(__DIR__ . '/../config/init.sql');
 foreach (array_filter(explode(';', $schema)) as $stmt) {
-    $stmt = trim($stmt);
-    if ($stmt) $pdo->exec($stmt);
+  $stmt = trim($stmt);
+  if ($stmt === '') {
+    continue;
+  }
+  try {
+    $pdo->exec($stmt);
+  } catch (PDOException $e) {
+    if (!str_contains($e->getMessage(), 'already exists')) {
+      throw $e;
+    }
+  }
 }
 
 // Basic assert helpers
