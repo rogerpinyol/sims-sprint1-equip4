@@ -1,7 +1,2 @@
-
-PROBLEMAS Y CORRECCIONES (RESUMEN)
-=========================================================
-
-
-ANOTACIONES
-------------------------------------------------------------
+Tu init.sql tiene email VARCHAR(255) UNIQUE (global). Si ya creaste la DB con eso, cambia a composite unique:
+Quita el índice unique global de users.email y crea UNIQUE (tenant_id, email).

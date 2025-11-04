@@ -2,47 +2,81 @@
 
 require_once __DIR__ . '/../models/User.php';
 
-class PublicUserController {
+
+class PublicUserController
+{
     private ?User $users = null;
     private int $tenantId = 0;
 
-    public function __construct() {
+
+    public function __construct()
+    {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->tenantId = (int)($_SESSION['tenant_id'] ?? ($_GET['tenant_id'] ?? 0));
+        $this->tenantId = (int)($_SESSION['tenant_id'] ?? 0);
         if ($this->tenantId > 0) {
             $this->users = new User($this->tenantId);
         }
     }
 
-    // GET /register
-    public function registerForm(): void {
-        $this->render(__DIR__ . '/../views/auth/register.php', ['show_role' => false]);
+    // Render Register form (reads flash messages)
+    public function registerForm(): void
+    {
+        $errors = $_SESSION['flash_errors'] ?? [];
+        unset($_SESSION['flash_errors']);
+        $success = false;
+        if (!empty($_GET['success'])) {
+            $success = true;
+        } elseif (!empty($_SESSION['flash_success'])) {
+            $success = true;
+            unset($_SESSION['flash_success']);
+        }
+        $old = $_SESSION['flash_old'] ?? [];
+        unset($_SESSION['flash_old']);
+
+        $this->render(__DIR__ . '/../views/auth/register.php', [
+            'show_role' => false,
+            'errors' => $errors,
+            'success' => $success,
+            'old' => $old,
+        ]);
     }
 
-    // POST /register
+    // Register Function
     public function register(): void {
         $input = $this->readJsonBody() ?? $_POST;
         $name = trim((string)($input['name'] ?? ''));
         $email = trim((string)($input['email'] ?? ''));
         $password = (string)($input['password'] ?? '');
 
+        // CSRF basic check for form POSTs
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+            $token = $_POST['csrf_token'] ?? '';
+            if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
+                // PRG: flash error then redirect
+                $_SESSION['flash_errors'] = ['Token CSRF inválido'];
+                header('Location: /register');
+                exit;
+            }
+        }
+
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
             if (!empty($_POST)) {
-                $this->render(__DIR__ . '/../views/auth/register.php', ['errors' => ['Invalid input'], 'show_role' => false]);
-                return;
+                $_SESSION['flash_errors'] = ['Invalid input'];
+                $_SESSION['flash_old'] = ['name' => $name, 'email' => $email];
+                header('Location: /register');
+                exit;
             }
             $this->json(['error' => 'Invalid input'], 422);
             return;
         }
 
+        $pdo = $this->getPdo();
         try {
-            $pdo = $this->getPdo();
-
-            // Begin transaction: create tenant (if needed) and create user atomically
             $pdo->beginTransaction();
 
             if ($this->tenantId <= 0) {
-                // Create a lightweight tenant using email domain or default name
+                // create a lightweight tenant using email domain
                 $domain = substr(strrchr($email, '@'), 1) ?: null;
                 $tenantName = $domain ? explode('.', $domain)[0] : 'public';
                 $sub = $tenantName . '-' . time();
@@ -50,94 +84,135 @@ class PublicUserController {
                 // ensure subdomain unique (simple attempt)
                 $chk = $pdo->prepare('SELECT id FROM tenants WHERE subdomain = :sub');
                 $chk->execute(['sub' => $sub]);
-                if ($chk->fetchColumn() !== false) {
-                    // fallback make more unique
-                    $sub .= '-' . bin2hex(random_bytes(4));
+                if ($chk->fetchColumn()) {
+                    // fallback to timestamped
+                    $sub = $sub . '-' . rand(1000, 9999);
                 }
 
-                $stmt = $pdo->prepare('INSERT INTO tenants (name, subdomain, created_at) VALUES (:name, :subdomain, NOW())');
-                $stmt->execute(['name' => $tenantName, 'subdomain' => $sub]);
-                $this->tenantId = (int)$pdo->lastInsertId();
-                // instantiate User model now that tenant exists
-                $this->users = new User($this->tenantId);
-                // store in session for subsequent requests
-                $_SESSION['tenant_id'] = $this->tenantId;
+                // attempt insert with retry on duplicate-subdomain race
+                $attempts = 0;
+                do {
+                    try {
+                        // match DB schema: column is plan_type and allowed values are 'standard','premium','enterprise'
+                        $stmt = $pdo->prepare('INSERT INTO tenants (name, subdomain, plan_type, created_at) VALUES (?, ?, ?, NOW())');
+                        $stmt->execute([$name, $sub, 'standard']);
+                        $this->tenantId = (int)$pdo->lastInsertId();
+                        break;
+                    } catch (\PDOException $ex) {
+                        // SQLSTATE 23000 usually signals unique constraint violation
+                        if ($ex->getCode() === '23000' && $attempts < 3) {
+                            $sub = $sub . '-' . rand(1000, 9999);
+                            $attempts++;
+                            continue;
+                        }
+                        throw $ex;
+                    }
+                } while ($attempts < 4);
             }
+            $users = new User($this->tenantId);
 
-            // Check duplicate email for this tenant
-            $dup = $pdo->prepare('SELECT id FROM users WHERE email = :email AND tenant_id = :t');
-            $dup->execute(['email' => $email, 't' => $this->tenantId]);
-            if ($dup->fetchColumn() !== false) {
+            // check duplicate email within tenant
+            $chkUser = $pdo->prepare('SELECT id FROM users WHERE email = :email AND tenant_id = :tid LIMIT 1');
+            $chkUser->execute(['email' => $email, 'tid' => $this->tenantId]);
+            if ($chkUser->fetchColumn()) {
                 $pdo->rollBack();
                 if (!empty($_POST)) {
-                    $this->render(__DIR__ . '/../views/auth/register.php', ['errors' => ['Email already in use'], 'show_role' => false]);
-                    return;
+                    $_SESSION['flash_errors'] = ['Email ya en uso'];
+                    $_SESSION['flash_old'] = ['name' => $name];
+                    header('Location: /register');
+                    exit;
                 }
-                $this->json(['error' => 'Email already in use'], 409);
+                $this->json(['error' => 'Email already used'], 409);
                 return;
             }
 
-            $id = $this->users->register($name, $email, $password);
-            if ($id === false) {
+            $userId = $users->register($name, $email, $password);
+            if ($userId === false) {
                 $pdo->rollBack();
-                if (!empty($_POST)) {
-                    $this->render(__DIR__ . '/../views/auth/register.php', ['errors' => ['User not created'], 'show_role' => false]);
-                    return;
-                }
-                $this->json(['error' => 'user not created'], 500);
-                return;
+                throw new \RuntimeException('User creation failed');
             }
 
             $pdo->commit();
-            if ($id === false) {
-                if (!empty($_POST)) {
-                    $this->render(__DIR__ . '/../views/auth/register.php', ['errors' => ['User not created'], 'show_role' => false]);
-                    return;
-                }
-                $this->json(['error' => 'user not created'], 500);
-                return;
+            // Persist tenant and user context in session for subsequent requests
+            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+            $_SESSION['tenant_id'] = $this->tenantId;
+            if (!isset($_SESSION['user_id'])) $_SESSION['user_id'] = $userId;
+            if (!isset($_SESSION['role'])) $_SESSION['role'] = 'client';
+    } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            // log full error for debugging (do not expose to users)
+            error_log('PublicUserController::register error: ' . $e->__toString());
+            // also write to storage log to make it easy to read during local debugging
+            try {
+                $logDir = __DIR__ . '/../../storage/logs';
+                if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+                $msg = sprintf("[%s] %s in %s:%s\n", date('Y-m-d H:i:s'), $e->getMessage(), $e->getFile(), $e->getLine());
+                $msg .= $e->getTraceAsString() . "\n----\n";
+                @file_put_contents($logDir . '/public_register.log', $msg, FILE_APPEND);
+            } catch (\Throwable $__) {
+                // ignore logging failures
             }
-
             if (!empty($_POST)) {
-                $rows = $this->users->find(['id' => $id]);
-                $created = !empty($rows) ? $rows[0] : null;
-                $this->render(__DIR__ . '/../views/auth/register.php', ['created' => $created, 'show_role' => false]);
-                return;
+                $_SESSION['flash_errors'] = ['Error interno, inténtalo más tarde.'];
+                header('Location: /register');
+                exit;
             }
-
-            $this->json(['id' => $id], 201);
-        } catch (\Throwable $e) {
-            if (!empty($_POST)) {
-                $this->render(__DIR__ . '/../views/auth/register.php', ['errors' => [$e->getMessage()], 'show_role' => false]);
-                return;
-            }
-            $this->json(['error' => $e->getMessage()], 400);
+            $this->json(['error' => 'Internal server error'], 500);
+            return;
         }
+
+        if (!empty($_POST)) {
+            // PRG success redirect
+            $_SESSION['flash_success'] = true;
+            header('Location: /register?success=1');
+            exit;
+        }
+
+        $this->json(['tenant_id' => $this->tenantId, 'user_id' => $userId], 201);
     }
 
-    // Helper to expose PDO for controller-level queries (kept minimal)
-    private function getPdo(): PDO {
-        // load DB config which exposes $pdo
-        require_once __DIR__ . '/../../config/database.php';
-        if (!isset($pdo) || !($pdo instanceof PDO)) throw new RuntimeException('PDO not available');
-        return $pdo;
+    // ???
+    public function getPdo(): \PDO
+    {
+        if (class_exists('Database')) {
+            try {
+                return Database::getInstance()->getConnection();
+            } catch (\Throwable $e) {
+                // fall through
+            }
+        }
+
+        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) return $GLOBALS['pdo'];
+
+        $dbFile = __DIR__ . '/../../config/database.php';
+        if (is_file($dbFile)) {
+            require_once $dbFile;
+            if (isset($pdo) && $pdo instanceof \PDO) return $pdo;
+            if (class_exists('Database')) return Database::getInstance()->getConnection();
+        }
+
+        throw new \RuntimeException('PDO not available');
     }
 
-    // ---- helpers ----
-    private function readJsonBody(): ?array {
+
+    // ----- Helpers -----
+    private function readJsonBody(): ?array
+    {
         $raw = file_get_contents('php://input');
         if ($raw === false || $raw === '') return null;
         $data = json_decode($raw, true);
         return is_array($data) ? $data : null;
     }
 
-    private function json($data, int $status = 200): void {
+    private function json($data, int $status = 200): void
+    {
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
-    private function render(string $viewPath, array $vars = []): void {
+    private function render(string $viewPath, array $vars = []): void
+    {
         extract($vars, EXTR_SKIP);
         if (!is_file($viewPath)) {
             http_response_code(500);

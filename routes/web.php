@@ -6,6 +6,9 @@ return [
     ['GET',  '/privacy',          'PageController', 'privacy'],
 
     // Public flows
+    ['GET',  '/login',            'AuthController', 'loginForm'],
+    ['POST', '/login',            'AuthController', 'login'],
+    ['POST', '/logout',           'AuthController', 'logout'],
     ['GET',  '/register',         'PublicUserController', 'registerForm'],
     ['POST', '/register',         'PublicUserController', 'register'],
 

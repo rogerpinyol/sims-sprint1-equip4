@@ -1,0 +1,12 @@
+[2025-11-04 16:45:21] PDO instance not available from config/database.php in /var/www/html/app/core/Model.php:14
+#0 /var/www/html/app/models/User.php(12): Model->__construct('users', 6)
+#1 /var/www/html/app/controllers/PublicUserController.php(112): User->__construct(6)
+#2 /var/www/html/index.php(88): PublicUserController->register()
+#3 {main}
+----
+[2025-11-04 16:56:37] PDO instance not available from config/database.php in /var/www/html/app/core/Model.php:14
+#0 /var/www/html/app/models/User.php(12): Model->__construct('users', 7)
+#1 /var/www/html/app/controllers/PublicUserController.php(112): User->__construct(7)
+#2 /var/www/html/index.php(88): PublicUserController->register()
+#3 {main}
+----

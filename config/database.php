@@ -7,22 +7,22 @@ class Database {
   private function __construct()
   {
     $host = getenv('MARIADB_HOST') ?: 'localhost';
-    $db   = getenv('MARIADB_DB') ?: 'ecomotiondb';
+    $db   = getenv('MARIADB_DB') ?: (getenv('MARIADB_DATABASE') ?: 'ecomotiondb');
     $user = getenv('MARIADB_USER') ?: 'admin';
     $pass = getenv('MARIADB_PASSWORD') ?: '';
-    $charset = 'utf8';
+    $charset = 'utf8mb4';
 
     $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
     $options = [
       PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+      PDO::ATTR_EMULATE_PREPARES  => false,
     ];
 
     try {
       $this->conn = new PDO($dsn, $user, $pass, $options);
     } catch (PDOException $e) {
-      // Fail fast for missing DB connection during app bootstrap
-      die('Database connection failed: ' . $e->getMessage());
+      throw new RuntimeException('Database connection failed: ' . $e->getMessage());
     }
   }
 
@@ -40,8 +40,6 @@ class Database {
   }
 }
 
-// Backwards compatibility: expose $pdo variable if other code expects it.
-// Use Database::getInstance()->getConnection() preferred.
 if (!isset($pdo)) {
   $pdo = Database::getInstance()->getConnection();
 }

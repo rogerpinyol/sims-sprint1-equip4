@@ -7,24 +7,34 @@ class Model
 
     public function __construct(string $table, int $tenantId)
     {
-        // load DB config which exposes $pdo
+        // Ensure database bootstrap is loaded
         require_once __DIR__ . '/../../config/database.php';
 
-        if (!isset($pdo) || !($pdo instanceof PDO)) {
+        // Obtain a PDO instance robustly regardless of include scope/order
+        if (class_exists('Database')) {
+            try {
+                $this->pdo = Database::getInstance()->getConnection();
+            } catch (Throwable $e) {
+                // fall through to other options
+            }
+        }
+        if (!$this->pdo && isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+            $this->pdo = $GLOBALS['pdo'];
+        }
+        if (!$this->pdo) {
             throw new RuntimeException('PDO instance not available from config/database.php');
         }
 
-        // basic whitelist for table names (prevents SQL injection via table names)
+        // basic whitelist 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
             throw new InvalidArgumentException('Invalid table name');
         }
 
-        $this->pdo = $pdo;
         $this->table = $table;
         $this->tenantId = $tenantId;
     }
 
-    // Generic SELECT with tenant filter. $conditions is associative: ['col' => value, ...]
+    // SELECT with tenant filter
     public function find(array $conditions = []): array|false
     {
         $sql = "SELECT * FROM `{$this->table}` WHERE tenant_id = :tenant_id";

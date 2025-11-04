@@ -2,7 +2,9 @@
 
 require_once __DIR__ . '/../models/User.php';
 
+
 class AdminUserController {
+
     private User $users;
     private int $tenantId;
 
@@ -13,7 +15,7 @@ class AdminUserController {
             $this->json(['error' => 'Missing tenant_id'], 400);
             exit;
         }
-        // simple admin guard: require role tenant_admin
+
         if (($_SESSION['role'] ?? '') !== 'tenant_admin') {
             $this->json(['error' => 'Forbidden'], 403);
             exit;
@@ -21,8 +23,10 @@ class AdminUserController {
         $this->users = new User($this->tenantId);
     }
 
-    // GET /users
-    public function index(): void {
+    
+    // LIST USERS
+    public function index(): void
+    {
         try {
             $list = $this->users->getAll();
             $this->json($list ?: []);
@@ -31,18 +35,23 @@ class AdminUserController {
         }
     }
 
-    // GET /users/create
-    public function createForm(): void {
-    $this->render(__DIR__ . '/../views/user/create.php', ['show_role' => true]);
+
+    // SHOW "SUPERUSER" USER CREATE FORM
+    public function createForm(): void
+    {
+        $this->render(__DIR__ . '/../views/user/create.php', ['show_role' => true]);
     }
 
-    // POST /users
-    public function store(): void {
+
+    //SAVE NEW USERS
+    public function store(): void
+    {
         $input = $this->readJsonBody() ?? $_POST;
         $name = trim((string)($input['name'] ?? ''));
         $email = trim((string)($input['email'] ?? ''));
         $password = (string)($input['password'] ?? '');
         $role = $input['role'] ?? null;
+
 
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
             if (!empty($_POST)) {
@@ -86,8 +95,10 @@ class AdminUserController {
         }
     }
 
-    // PUT/PATCH /users/{id}
-    public function update(int $id): void {
+
+    // UPDATE USERS PROFILE
+    public function update(int $id): void
+    {
         $id = (int)$id;
         if ($id <= 0) {
             $this->json(['error' => 'Invalid user id'], 400);
@@ -110,8 +121,9 @@ class AdminUserController {
         }
     }
 
-    // PATCH /users/{id}/password
-    public function changePassword(int $id): void {
+    //CHANGE USER PASSWORD
+    public function changePassword(int $id): void
+    {
         $id = (int)$id;
         if ($id <= 0) {
             $this->json(['error' => 'Invalid user id'], 400);
@@ -131,21 +143,25 @@ class AdminUserController {
         }
     }
 
-    // helpers
-    private function readJsonBody(): ?array {
+    // ----- Helpers -----
+    
+    private function readJsonBody(): ?array
+    {
         $raw = file_get_contents('php://input');
         if ($raw === false || $raw === '') return null;
         $data = json_decode($raw, true);
         return is_array($data) ? $data : null;
     }
 
-    private function json($data, int $status = 200): void {
+    private function json($data, int $status = 200): void
+    {
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
-    private function render(string $viewPath, array $vars = []): void {
+    private function render(string $viewPath, array $vars = []): void
+    {
         extract($vars, EXTR_SKIP);
         if (!is_file($viewPath)) {
             http_response_code(500);

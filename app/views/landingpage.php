@@ -51,20 +51,20 @@
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 items-center justify-between">
 				<a href="#" class="flex items-center gap-2">
-					<svg class="w-7 h-7 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+					<svg class="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 						<path d="M12 2l3 6 6 .9-4.5 4.4L17 20l-5-2.7L7 20l1.5-6.7L4 8.9 10 8l2-6z"></path>
 					</svg>
 					<span class="text-lg font-bold">EcoMotion</span>
 				</a>
 				<nav class="hidden md:flex items-center gap-8 text-sm">
-					<a href="#features" class="hover:text-brand-600">Features</a>
-					<a href="#integrations" class="hover:text-brand-600">Integrations</a>
-					<a href="#pricing" class="hover:text-brand-600">Pricing</a>
-					<a href="#testimonials" class="hover:text-brand-600">Customers</a>
+					<a href="#features" class="hover:text-blue-600">Features</a>
+					<a href="#integrations" class="hover:text-blue-600">Integrations</a>
+					<a href="#pricing" class="hover:text-blue-600">Pricing</a>
+					<a href="#testimonials" class="hover:text-blue-600">Customers</a>
 				</nav>
 				<div class="hidden md:flex items-center gap-3">
 					<a href="/signIn" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="/register" class="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
+					<a href="/register" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Get started</a>
 				</div>
 				<!-- Mobile menu button -->
 				<button id="menuBtn" class="md:hidden p-2 rounded-lg border border-slate-300" aria-label="Open menu">
@@ -79,7 +79,7 @@
 				<a href="#testimonials" class="block px-2 py-2 rounded hover:bg-slate-50">Customers</a>
 				<div class="pt-2 flex gap-2">
 					<a href="#pricing" class="flex-1 px-4 py-2 text-center rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="/register" class="flex-1 px-4 py-2 text-center rounded-lg bg-brand-600 text-white text-sm hover:bg-brand-700">Get started</a>
+					<a href="/register" class="flex-1 px-4 py-2 text-center rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Get started</a>
 				</div>
 			</div>
 		</div>
@@ -98,7 +98,7 @@
 						EcoMotion gives operations and finance teams real-time insights into vehicle status, costs, and utilization—so you can scale sustainably.
 					</p>
 					<div class="mt-8 flex flex-col sm:flex-row gap-3">
-						<a href="/register" class="px-6 py-3 rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700 text-center">Start free trial</a>
+						<a href="/register" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-center">Start free trial</a>
 						<a href="#features" class="px-6 py-3 rounded-xl border border-slate-300 font-medium hover:bg-slate-50 text-center">See features</a>
 					</div>
 					<div class="mt-6 flex items-center gap-6 text-sm text-slate-500">
@@ -218,7 +218,7 @@
 				</div>
 				<!-- Growth -->
 				<div class="rounded-2xl border-2 border-brand-500 p-6 bg-brand-50">
-					<h3 class="text-lg font-semibold flex items-center gap-2">Growth <span class="text-xs px-2 py-1 rounded-full bg-brand-600 text-white">Popular</span></h3>
+					<h3 class="text-lg font-semibold flex items-center gap-2">Growth <span class="text-xs px-2 py-1 rounded-full bg-blue-600 text-white">Popular</span></h3>
 					<p class="mt-2 text-slate-700">For growing fleets that need automation.</p>
 					<div class="mt-6 text-4xl font-extrabold">$299<span class="text-base font-medium text-slate-500">/mo</span></div>
 					<ul class="mt-6 space-y-2 text-sm text-slate-800">
@@ -227,7 +227,7 @@
 						<li>API access</li>
 						<li>Priority support</li>
 					</ul>
-					<a href="/register" class="mt-6 block px-5 py-3 text-center rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700">Try Growth</a>
+					<a href="/register" class="mt-6 block px-5 py-3 text-center rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700">Try Growth</a>
 				</div>
 				<!-- Enterprise -->
 				<div class="rounded-2xl border border-slate-200 p-6">
@@ -275,7 +275,7 @@
 			<p class="mt-4 text-slate-600">Start your 14‑day free trial. No credit card required.</p>
 			<form class="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3">
 				<input type="email" required placeholder="Enter your work email" class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-				<button type="submit" class="px-6 py-3 rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700">Get started</button>
+				<button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700">Get started</button>
 			</form>
 			<p class="mt-3 text-xs text-slate-500">By signing up, you agree to our Terms and Privacy Policy.</p>
 		</div>
@@ -286,16 +286,16 @@
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex flex-col md:flex-row items-center justify-between gap-4">
 				<div class="flex items-center gap-2">
-					<svg class="w-6 h-6 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<svg class="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 						<path d="M12 2l3 6 6 .9-4.5 4.4L17 20l-5-2.7L7 20l1.5-6.7L4 8.9 10 8l2-6z"></path>
 					</svg>
 					<span class="font-semibold">EcoMotion</span>
 				</div>
 				<div class="text-sm text-slate-500">© <span id="year"></span> EcoMotion. All rights reserved.</div>
 				<div class="flex gap-4 text-sm">
-								<a href="/privacy" class="hover:text-brand-600">Privacy</a>
-								<a href="/terms" class="hover:text-brand-600">Terms</a>
-					<a href="#" class="hover:text-brand-600">Security</a>
+								<a href="/privacy" class="hover:text-blue-600">Privacy</a>
+								<a href="/terms" class="hover:text-blue-600">Terms</a>
+					<a href="#" class="hover:text-blue-600">Security</a>
 				</div>
 			</div>
 		</div>
