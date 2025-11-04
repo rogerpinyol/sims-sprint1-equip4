@@ -69,6 +69,12 @@ class Tenant extends Model
             $where[] = 'plan_type = :plan_type';
             $params['plan_type'] = $filters['plan_type'];
         }
+        // Search by name or subdomain (case-insensitive depending on DB collation)
+        if (isset($filters['search']) && trim((string)$filters['search']) !== '') {
+            // Use wildcards and a single bound parameter
+            $where[] = '(name LIKE :search OR subdomain LIKE :search)';
+            $params['search'] = '%' . trim((string)$filters['search']) . '%';
+        }
 
         $sql = 'SELECT id, name, subdomain, plan_type, created_at, is_active FROM tenants';
         if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);

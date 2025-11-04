@@ -18,11 +18,17 @@ class TenantController extends Controller
         $this->requireSuperAdmin();
 
         $filters = [];
-        if (isset($queryParams['is_active'])) {
+        // Only apply is_active filter when provided and not empty string
+        if (array_key_exists('is_active', $queryParams) && $queryParams['is_active'] !== '') {
             $filters['is_active'] = $this->toBoolean($queryParams['is_active']);
         }
-        if (isset($queryParams['plan_type'])) {
+        // Only apply plan_type when provided and not empty
+        if (array_key_exists('plan_type', $queryParams) && trim((string)$queryParams['plan_type']) !== '') {
             $filters['plan_type'] = strtolower(trim((string)$queryParams['plan_type']));
+        }
+        // Apply search filter (name or subdomain) when provided and not empty
+        if (array_key_exists('search', $queryParams) && trim((string)$queryParams['search']) !== '') {
+            $filters['search'] = trim((string)$queryParams['search']);
         }
 
         $limit = $this->clamp((int)($queryParams['limit'] ?? 50), 1, 200);
@@ -130,6 +136,22 @@ class TenantController extends Controller
         return $this->jsonResponse([
             'message' => 'API key rotated',
             'api_key' => $result['api_key'],
+        ], 200, $this->jsonHeaders());
+    }
+
+    public function activate(int $id): array
+    {
+        $this->requireSuperAdmin();
+        if ($id <= 0) {
+            throw new HttpException(400, 'Invalid tenant id');
+        }
+
+        if (!$this->tenants->updateTenant($id, ['is_active' => 1])) {
+            throw new HttpException(400, 'Unable to activate tenant');
+        }
+
+        return $this->jsonResponse([
+            'message' => 'Tenant activated',
         ], 200, $this->jsonHeaders());
     }
 

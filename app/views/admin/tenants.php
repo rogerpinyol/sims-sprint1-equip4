@@ -32,19 +32,27 @@
 </head>
 <body class="bg-page-bg min-h-screen">
     <div class="container mx-auto py-8">
+    <?php if (isset($feedback) && $feedback): ?>
+        <div class="mb-6 p-4 rounded shadow <?php echo $feedback['success'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+            <strong><?= htmlspecialchars($feedback['message']) ?></strong>
+            <?php if (!empty($feedback['api_key'])): ?>
+                <div class="mt-2 text-xs text-gray-700">API Key: <span class="font-mono bg-gray-200 px-2 py-1 rounded"><?= htmlspecialchars($feedback['api_key']) ?></span></div>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
     <h1 class="text-3xl font-bold mb-6 text-heading hover:text-heading-hover">Tenants Management</h1>
         <div class="mb-8 flex justify-between items-center">
             <form method="GET" class="flex gap-2">
-                <input type="text" name="search" placeholder="Search by name or subdomain" class="border border-input-border bg-input-bg text-input-text rounded px-3 py-2 focus:bg-input-focus" />
+                <input type="text" name="search" placeholder="Search by name or subdomain" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" class="border border-input-border bg-input-bg text-input-text rounded px-3 py-2 focus:bg-input-focus" />
                 <select name="plan_type" class="border border-input-border bg-input-bg text-input-text rounded px-3 py-2 focus:bg-input-focus">
-                    <option value="">All Plans</option>
-                    <option value="standard">Standard</option>
-                    <option value="premium">Premium</option>
+                    <option value="" <?= (!isset($_GET['plan_type']) || $_GET['plan_type'] === '') ? 'selected' : '' ?>>All Plans</option>
+                    <option value="standard" <?= (isset($_GET['plan_type']) && $_GET['plan_type'] === 'standard') ? 'selected' : '' ?>>Standard</option>
+                    <option value="premium" <?= (isset($_GET['plan_type']) && $_GET['plan_type'] === 'premium') ? 'selected' : '' ?>>Premium</option>
                 </select>
                 <select name="is_active" class="border border-input-border bg-input-bg text-input-text rounded px-3 py-2 focus:bg-input-focus">
-                    <option value="">All Status</option>
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
+                    <option value="" <?= (!isset($_GET['is_active']) || $_GET['is_active'] === '') ? 'selected' : '' ?>>All Status</option>
+                    <option value="1" <?= (isset($_GET['is_active']) && $_GET['is_active'] === '1') ? 'selected' : '' ?>>Active</option>
+                    <option value="0" <?= (isset($_GET['is_active']) && $_GET['is_active'] === '0') ? 'selected' : '' ?>>Inactive</option>
                 </select>
                 <button type="submit" class="bg-button-text-orange text-white px-4 py-2 rounded">Filter</button>
             </form>
@@ -81,12 +89,22 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
                                     <a href="/admin/tenants/show.php?id=<?= urlencode($tenant['id']) ?>" class="text-blue-600 hover:underline">View</a>
                                     <a href="/admin/tenants/edit.php?id=<?= urlencode($tenant['id']) ?>" class="text-yellow-600 hover:underline">Edit</a>
-                                    <form method="POST" action="/admin/tenants/deactivate.php" style="display:inline;">
-                                        <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
-                                        <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Deactivate this tenant?')">Deactivate</button>
-                                    </form>
+                                    <?php if ($tenant['is_active']): ?>
+                                        <form method="POST" action="/admin/tenants/deactivate.php" style="display:inline;">
+                                            <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                            <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Deactivate this tenant?')">Deactivate</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form method="POST" action="/admin/tenants/activate.php" style="display:inline;">
+                                            <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                            <button type="submit" class="text-green-600 hover:underline" onclick="return confirm('Activate this tenant?')">Activate</button>
+                                        </form>
+                                    <?php endif; ?>
                                     <form method="POST" action="/admin/tenants/rotate_api_key.php" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                         <button type="submit" class="text-indigo-600 hover:underline" onclick="return confirm('Rotate API key for this tenant?')">Rotate API Key</button>
                                     </form>
                                 </td>
@@ -110,6 +128,7 @@
     <div id="create" class="mt-10 bg-login-bg p-6 rounded shadow">
             <h2 class="text-xl font-bold mb-4 text-heading">Create New Tenant</h2>
             <form method="POST" action="/admin/tenants/create.php" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                 <div>
                     <label class="block text-sm font-medium text-input-text">Name</label>
                     <input type="text" name="name" required class="mt-1 block w-full border border-input-border bg-input-bg text-input-text rounded px-3 py-2 focus:bg-input-focus" />
