@@ -12,6 +12,30 @@ class User extends Model {
         parent::__construct('users', $tenantId);
     }
 
+    public function getById(int $id): ?array {
+        $rows = $this->find(['id' => $id]);
+        return $rows ? $rows[0] : null;
+    }
+
+    public function emailExists(string $email): bool {
+        $rows = $this->find(['email' => $email]);
+        return !empty($rows);
+    }
+
+    public function getByEmail(string $email): ?array {
+        $rows = $this->find(['email' => $email]);
+        return $rows ? $rows[0] : null;
+    }
+
+    public function authenticate(string $email, string $password): ?array {
+        $user = $this->getByEmail($email);
+        if (!$user) return null;
+        if (!isset($user['password_hash']) || !password_verify($password, (string)$user['password_hash'])) {
+            return null;
+        }
+        return $user;
+    }
+
     // Superuser users creation with roles
     public function createUserWithRole(string $name, string $email, string $plain_password, string $role): int|false {
         $allowedRoles = ['client', 'manager', 'tenant_admin'];
@@ -38,6 +62,60 @@ class User extends Model {
             'password_hash'=>$hash,
             'role'=>'client'
         ]);
+    }
+
+    public function registerWithTenant(string $name, string $email, string $plain_password): array {
+        $this->pdo->beginTransaction();
+        try {
+            if ($this->tenantId <= 0) {
+                $this->tenantId = $this->createTenantFromEmail($name, $email);
+            }
+
+            if ($this->emailExists($email)) {
+                throw new RuntimeException('Email already used');
+            }
+
+            $userId = $this->register($name, $email, $plain_password);
+            if ($userId === false) {
+                throw new RuntimeException('User creation failed');
+            }
+
+            $this->pdo->commit();
+            return ['tenant_id' => $this->tenantId, 'user_id' => (int)$userId];
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    private function createTenantFromEmail(string $name, string $email): int {
+        $domain = substr(strrchr($email, '@'), 1) ?: null;
+        $tenantName = $domain ? explode('.', $domain)[0] : 'public';
+        $sub = $tenantName . '-' . time();
+        $attempts = 0;
+        do {
+
+            $chk = $this->pdo->prepare('SELECT id FROM tenants WHERE subdomain = :sub');
+            $chk->execute(['sub' => $sub]);
+            if ($chk->fetchColumn()) {
+                $sub = $tenantName . '-' . time() . '-' . rand(1000, 9999);
+            }
+
+            try {
+                $stmt = $this->pdo->prepare('INSERT INTO tenants (name, subdomain, plan_type, created_at) VALUES (?, ?, ?, NOW())');
+                $stmt->execute([$name, $sub, 'standard']);
+                return (int)$this->pdo->lastInsertId();
+            } catch (PDOException $ex) {
+                if ($ex->getCode() === '23000' && $attempts < 3) {
+                    $sub = $tenantName . '-' . time() . '-' . rand(1000, 9999);
+                    $attempts++;
+                    continue;
+                }
+                throw $ex;
+            }
+        } while ($attempts < 4);
+
+        throw new RuntimeException('Failed to create tenant');
     }
 
 
@@ -84,19 +162,16 @@ class User extends Model {
             throw new InvalidArgumentException('Invalid ids');
         }
 
-        // Ensure target tenant exists
         $stmt = $this->pdo->prepare('SELECT id FROM tenants WHERE id = :id');
         $stmt->execute(['id' => $newTenantId]);
         if ($stmt->fetchColumn() === false) {
             throw new RuntimeException('Target tenant not found');
         }
 
-        // Load current user and ensure exists and belongs to current tenant
         $rows = $this->find(['id' => $user_id]);
         if (empty($rows)) throw new RuntimeException('User not found');
         $user = $rows[0];
 
-        // Check email uniqueness in target tenant
         if (!empty($user['email'])) {
             $chk = $this->pdo->prepare('SELECT id FROM users WHERE email = :email AND tenant_id = :tenant_id');
             $chk->execute(['email' => $user['email'], 'tenant_id' => $newTenantId]);
@@ -105,7 +180,6 @@ class User extends Model {
             }
         }
 
-        // Begin transaction
         $this->pdo->beginTransaction();
         try {
             $upd = $this->pdo->prepare('UPDATE `users` SET tenant_id = :new_t WHERE id = :id AND tenant_id = :old_t');
@@ -114,7 +188,6 @@ class User extends Model {
                 throw new RuntimeException('Failed to move user (concurrent modification?)');
             }
 
-            // Insert audit log (create table audit_logs if necessary is left to DB migration)
             $log = $this->pdo->prepare('INSERT INTO audit_logs (actor_user_id, entity, entity_id, action, meta, created_at) VALUES (:actor, :entity, :eid, :act, :meta, NOW())');
             $meta = json_encode(['from' => $this->tenantId, 'to' => $newTenantId, 'before' => $user]);
             $log->execute(['actor' => $actorUserId, 'entity' => 'users', 'eid' => $user_id, 'act' => 'transfer_tenant', 'meta' => $meta]);

@@ -2,9 +2,10 @@
 // Expect $users array injected by controller
 $users = $users ?? [];
 
-// Simple escape helper
+// Escape helper
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 ?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -62,7 +63,7 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
   </main>
 
   <script>
-    // Basic client-side filter
+    // Client-side filter
     const q = document.getElementById('q');
     const tbody = document.querySelector('#usersTable tbody');
     if (q && tbody) {

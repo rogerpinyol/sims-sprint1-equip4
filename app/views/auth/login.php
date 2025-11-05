@@ -1,10 +1,12 @@
 <?php
+
 function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(16)); }
 $errors = $errors ?? [];
 $old = $old ?? [];
 ?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -21,11 +23,18 @@ $old = $old ?? [];
 				<h1 class="text-2xl font-extrabold mt-3">Sign in</h1>
 			</div>
 
+
 			<?php if (!empty($errors)): ?>
 				<div class="mb-4 rounded-md bg-red-50 border border-red-100 p-3 text-red-700 text-sm">
 					<ul class="list-disc list-inside">
 						<?php foreach($errors as $err) echo '<li>' . e($err) . '</li>'; ?>
 					</ul>
+				</div>
+			<?php endif; ?>
+
+			<?php if (!empty($success)): ?>
+				<div class="mb-4 rounded-md bg-green-50 border border-green-100 p-3 text-green-700 text-sm">
+					Account created successfully! You can now sign in.
 				</div>
 			<?php endif; ?>
 
@@ -56,7 +65,8 @@ $old = $old ?? [];
 	</div>
 </body>
 <script>
-// Simple client-side validation for login
+
+// Client-side validation
 document.addEventListener('DOMContentLoaded', function() {
 	var form = document.getElementById('login-form');
 	if (!form) return;

@@ -15,10 +15,15 @@ class AuthController
         unset($_SESSION['flash_errors']);
         $old = $_SESSION['flash_old'] ?? [];
         unset($_SESSION['flash_old']);
-
+        $success = false;
+        if (!empty($_SESSION['flash_success'])) {
+            $success = true;
+            unset($_SESSION['flash_success']);
+        }
         $this->render(__DIR__ . '/../views/auth/login.php', [
             'errors' => $errors,
             'old' => $old,
+            'success' => $success,
         ]);
     }
 
@@ -52,31 +57,21 @@ class AuthController
             exit;
         }
 
-        // Query user by (tenant_id, email)
-        require_once __DIR__ . '/../../config/database.php';
-        /** @var PDO $pdo */
-        $pdo = $pdo ?? (class_exists('Database') ? Database::getInstance()->getConnection() : null);
-        if (!$pdo) {
-            $_SESSION['flash_errors'] = ['No hay conexión a base de datos'];
-            header('Location: /login');
-            exit;
-        }
 
-        $stmt = $pdo->prepare('SELECT id, password_hash, role FROM users WHERE email = :email AND tenant_id = :tid LIMIT 1');
-        $stmt->execute(['email' => $email, 'tid' => $tenantId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || !password_verify($password, (string)$row['password_hash'])) {
+        $userModel = new User($tenantId);
+        $row = $userModel->authenticate($email, $password);
+        if (!$row) {
             $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
             $_SESSION['flash_old'] = ['email' => $email];
             header('Location: /login');
             exit;
         }
 
-        // Auth ok
-        $_SESSION['user_id'] = (int)$row['id'];
-        $_SESSION['role'] = (string)($row['role'] ?? 'client');
-        header('Location: /users');
-        exit;
+    // Auth ok
+    $_SESSION['user_id'] = (int)$row['id'];
+    $_SESSION['role'] = (string)($row['role'] ?? 'client');
+    header('Location: /profile');
+    exit;
     }
 
     public function logout(): void

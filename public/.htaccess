@@ -1,10 +1,11 @@
+
 Options -MultiViews
 RewriteEngine On
 
-# Serve existing files directly
+# Sirve archivos y directorios existentes directamente
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Otherwise, route everything to index.php
+# Redirige todo lo demás a index.php
 RewriteRule ^ index.php [QSA,L]

@@ -5,6 +5,58 @@ require_once __DIR__ . '/../models/User.php';
 
 class PublicUserController
 {
+    // Show profile edit form for logged-in users
+    public function profile(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+        $userId = (int)$_SESSION['user_id'];
+        $userModel = $this->users;
+        $user = $userModel ? $userModel->getById($userId) : null;
+        $errors = $_SESSION['flash_errors'] ?? [];
+        unset($_SESSION['flash_errors']);
+        $success = false;
+        if (!empty($_SESSION['flash_success'])) {
+            $success = true;
+            unset($_SESSION['flash_success']);
+        }
+        $this->render(__DIR__ . '/../views/user/profile.php', [
+            'user' => $user,
+            'errors' => $errors,
+            'success' => $success
+        ]);
+    }
+
+    public function updateProfile(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+        $userId = (int)$_SESSION['user_id'];
+        $userModel = $this->users;
+        if (!$userModel) {
+            $_SESSION['flash_errors'] = ['User model not available.'];
+            header('Location: /profile');
+            exit;
+        }
+        $data = [
+            'name' => trim((string)($_POST['name'] ?? '')),
+            'email' => trim((string)($_POST['email'] ?? '')),
+            'phone' => trim((string)($_POST['phone'] ?? '')),
+            'accessibility_flags' => $_POST['accessibility_flags'] ?? null,
+        ];
+        try {
+            $userModel->updateDetails($userId, $data);
+            $_SESSION['flash_success'] = true;
+        } catch (\Throwable $e) {
+            $_SESSION['flash_errors'] = [$e->getMessage()];
+        }
+        header('Location: /profile');
+        exit;
+    }
     private ?User $users = null;
     private int $tenantId = 0;
 
@@ -18,7 +70,7 @@ class PublicUserController
         }
     }
 
-    // Render Register form (reads flash messages)
+    // Register Form
     public function registerForm(): void
     {
         $errors = $_SESSION['flash_errors'] ?? [];
@@ -88,130 +140,45 @@ class PublicUserController
             $this->json(['error' => $errors], 422);
             return;
         }
-
-        $pdo = $this->getPdo();
         try {
-            $pdo->beginTransaction();
-
-            if ($this->tenantId <= 0) {
-                // create a lightweight tenant using email domain
-                $domain = substr(strrchr($email, '@'), 1) ?: null;
-                $tenantName = $domain ? explode('.', $domain)[0] : 'public';
-                $sub = $tenantName . '-' . time();
-
-                // ensure subdomain unique (simple attempt)
-                $chk = $pdo->prepare('SELECT id FROM tenants WHERE subdomain = :sub');
-                $chk->execute(['sub' => $sub]);
-                if ($chk->fetchColumn()) {
-                    // fallback to timestamped
-                    $sub = $sub . '-' . rand(1000, 9999);
-                }
-
-                // attempt insert with retry on duplicate-subdomain race
-                $attempts = 0;
-                do {
-                    try {
-                        // match DB schema: column is plan_type and allowed values are 'standard','premium','enterprise'
-                        $stmt = $pdo->prepare('INSERT INTO tenants (name, subdomain, plan_type, created_at) VALUES (?, ?, ?, NOW())');
-                        $stmt->execute([$name, $sub, 'standard']);
-                        $this->tenantId = (int)$pdo->lastInsertId();
-                        break;
-                    } catch (\PDOException $ex) {
-                        // SQLSTATE 23000 usually signals unique constraint violation
-                        if ($ex->getCode() === '23000' && $attempts < 3) {
-                            $sub = $sub . '-' . rand(1000, 9999);
-                            $attempts++;
-                            continue;
-                        }
-                        throw $ex;
-                    }
-                } while ($attempts < 4);
-            }
             $users = new User($this->tenantId);
+            $result = $users->registerWithTenant($name, $email, $password);
 
-            // check duplicate email within tenant
-            $chkUser = $pdo->prepare('SELECT id FROM users WHERE email = :email AND tenant_id = :tid LIMIT 1');
-            $chkUser->execute(['email' => $email, 'tid' => $this->tenantId]);
-            if ($chkUser->fetchColumn()) {
-                $pdo->rollBack();
-                if (!empty($_POST)) {
-                    $_SESSION['flash_errors'] = ['Email ya en uso'];
-                    $_SESSION['flash_old'] = ['name' => $name];
-                    header('Location: /register');
-                    exit;
-                }
-                $this->json(['error' => 'Email already used'], 409);
-                return;
-            }
-
-            $userId = $users->register($name, $email, $password);
-            if ($userId === false) {
-                $pdo->rollBack();
-                throw new \RuntimeException('User creation failed');
-            }
-
-            $pdo->commit();
-            // Persist tenant and user context in session for subsequent requests
+            // Actualizar tenantId por si se creó
+            $this->tenantId = (int)$result['tenant_id'];
             if (session_status() !== PHP_SESSION_ACTIVE) session_start();
             $_SESSION['tenant_id'] = $this->tenantId;
-            if (!isset($_SESSION['user_id'])) $_SESSION['user_id'] = $userId;
+            if (!isset($_SESSION['user_id'])) $_SESSION['user_id'] = (int)$result['user_id'];
             if (!isset($_SESSION['role'])) $_SESSION['role'] = 'client';
-    } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            // log full error for debugging (do not expose to users)
+
+            if (!empty($_POST)) {
+                $_SESSION['flash_success'] = true;
+                header('Location: /login');
+                exit;
+            }
+
+            $this->json($result, 201);
+        } catch (\Throwable $e) {
+            // log y respuesta adecuada
             error_log('PublicUserController::register error: ' . $e->__toString());
-            // also write to storage log to make it easy to read during local debugging
             try {
                 $logDir = __DIR__ . '/../../storage/logs';
                 if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
                 $msg = sprintf("[%s] %s in %s:%s\n", date('Y-m-d H:i:s'), $e->getMessage(), $e->getFile(), $e->getLine());
                 $msg .= $e->getTraceAsString() . "\n----\n";
                 @file_put_contents($logDir . '/public_register.log', $msg, FILE_APPEND);
-            } catch (\Throwable $__) {
-                // ignore logging failures
-            }
+            } catch (\Throwable $__) {}
+
             if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = ['Error interno, inténtalo más tarde.'];
+                $_SESSION['flash_errors'] = [$e->getMessage()];
                 header('Location: /register');
                 exit;
             }
-            $this->json(['error' => 'Internal server error'], 500);
+            $status = ($e->getMessage() === 'Email already used') ? 409 : 500;
+            $this->json(['error' => $e->getMessage()], $status);
             return;
         }
-
-        if (!empty($_POST)) {
-            // PRG success redirect
-            $_SESSION['flash_success'] = true;
-            header('Location: /register?success=1');
-            exit;
-        }
-
-        $this->json(['tenant_id' => $this->tenantId, 'user_id' => $userId], 201);
     }
-
-    // ???
-    public function getPdo(): \PDO
-    {
-        if (class_exists('Database')) {
-            try {
-                return Database::getInstance()->getConnection();
-            } catch (\Throwable $e) {
-                // fall through
-            }
-        }
-
-        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) return $GLOBALS['pdo'];
-
-        $dbFile = __DIR__ . '/../../config/database.php';
-        if (is_file($dbFile)) {
-            require_once $dbFile;
-            if (isset($pdo) && $pdo instanceof \PDO) return $pdo;
-            if (class_exists('Database')) return Database::getInstance()->getConnection();
-        }
-
-        throw new \RuntimeException('PDO not available');
-    }
-
 
     // ----- Helpers -----
     private function readJsonBody(): ?array

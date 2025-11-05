@@ -17,4 +17,9 @@ return [
     ['GET',  '/users/create',     'AdminUserController', 'createForm'],
     ['POST', '/users',            'AdminUserController', 'store'],
     ['GET',  '/users/(\d+)',     'AdminUserController', 'show'],
-];
+
+    // User flows
+    ['GET', '/profile',             'PublicUserController', 'profile'],
+    ['POST', '/profile',            'PublicUserController', 'updateProfile'],
+
+    ];

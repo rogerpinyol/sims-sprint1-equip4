@@ -8,6 +8,7 @@ $tenantId = (int)($_SESSION['tenant_id'] ?? ($_GET['tenant_id'] ?? 0));
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
 }
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,9 +36,6 @@ if (empty($_SESSION['csrf_token'])) {
           </ul>
         </div>
       <?php endif; ?>
-
-
-
 
   <form id="register-form" method="post" action="/register" class="space-y-4">
         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
@@ -104,8 +102,9 @@ if (empty($_SESSION['csrf_token'])) {
   </div>
   
 </body>
+
   <script>
-// Enhanced client-side validation for user feedback
+// Client-side validation
 document.addEventListener('DOMContentLoaded', function() {
   var form = document.getElementById('register-form');
   if (!form) return;
@@ -169,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
   pwd.addEventListener('input', validatePassword);
   pwd.addEventListener('blur', validatePassword);
 
+  
   form.addEventListener('submit', function(e) {
     var valid = validateName() & validateEmail() & validatePassword();
     if (!valid) e.preventDefault();

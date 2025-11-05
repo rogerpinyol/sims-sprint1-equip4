@@ -96,8 +96,7 @@ class AdminUserController {
             }
 
             if (!empty($_POST)) {
-                $rows = $this->users->find(['id' => $id]);
-                $created = !empty($rows) ? $rows[0] : null;
+                $created = $this->users->getById($id);
                 $this->render(__DIR__ . '/../views/user/create.php', ['created' => $created, 'show_role' => true]);
                 return;
             }
