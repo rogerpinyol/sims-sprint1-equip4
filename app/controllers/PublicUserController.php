@@ -43,6 +43,7 @@ class PublicUserController
 
     // Register Function
     public function register(): void {
+
         $input = $this->readJsonBody() ?? $_POST;
         $name = trim((string)($input['name'] ?? ''));
         $email = trim((string)($input['email'] ?? ''));
@@ -53,21 +54,38 @@ class PublicUserController
             if (session_status() !== PHP_SESSION_ACTIVE) session_start();
             $token = $_POST['csrf_token'] ?? '';
             if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
-                // PRG: flash error then redirect
                 $_SESSION['flash_errors'] = ['Token CSRF inválido'];
                 header('Location: /register');
                 exit;
             }
         }
 
-        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
+        $errors = [];
+        if ($name === '' || strlen($name) < 2) {
+            $errors[] = 'Name must be at least 2 characters.';
+        } else if (!preg_match("/^[A-Za-zÀ-ÿ ]+$/u", $name)) {
+            $errors[] = 'Name must contain only letters and spaces.';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Email is not valid.';
+        }
+        // Password: min 8, upper, lower, digit, symbol
+        if (strlen($password) < 8
+            || !preg_match('/[A-Z]/', $password)
+            || !preg_match('/[a-z]/', $password)
+            || !preg_match('/\d/', $password)
+            || !preg_match('/[^A-Za-z\d]/', $password)) {
+            $errors[] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.';
+        }
+
+        if ($errors) {
             if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = ['Invalid input'];
+                $_SESSION['flash_errors'] = $errors;
                 $_SESSION['flash_old'] = ['name' => $name, 'email' => $email];
                 header('Location: /register');
                 exit;
             }
-            $this->json(['error' => 'Invalid input'], 422);
+            $this->json(['error' => $errors], 422);
             return;
         }
 

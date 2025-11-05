@@ -50,12 +50,10 @@
 	<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 items-center justify-between">
-				<a href="#" class="flex items-center gap-2">
-					<svg class="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-						<path d="M12 2l3 6 6 .9-4.5 4.4L17 20l-5-2.7L7 20l1.5-6.7L4 8.9 10 8l2-6z"></path>
-					</svg>
-					<span class="text-lg font-bold">EcoMotion</span>
-				</a>
+				   <a href="#" class="flex items-center gap-2">
+					   <img src="/images/logo.jpg" alt="EcoMotion logo" class="w-8 h-8 rounded-full shadow" />
+					   <span class="text-lg font-bold">EcoMotion</span>
+				   </a>
 				<nav class="hidden md:flex items-center gap-8 text-sm">
 					<a href="#features" class="hover:text-blue-600">Features</a>
 					<a href="#integrations" class="hover:text-blue-600">Integrations</a>
@@ -63,7 +61,7 @@
 					<a href="#testimonials" class="hover:text-blue-600">Customers</a>
 				</nav>
 				<div class="hidden md:flex items-center gap-3">
-					<a href="/signIn" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
+					<a href="/login" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
 					<a href="/register" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Get started</a>
 				</div>
 				<!-- Mobile menu button -->

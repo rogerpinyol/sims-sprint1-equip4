@@ -17,7 +17,7 @@ $old = $old ?? [];
 	<div class="min-h-screen flex items-center justify-center px-4 py-12">
 		<div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 			<div class="text-center mb-6">
-				<svg class="mx-auto w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.4L17 20l-5-2.7L7 20l1.5-6.7L4 8.9 10 8l2-6z"></path></svg>
+				   <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
 				<h1 class="text-2xl font-extrabold mt-3">Sign in</h1>
 			</div>
 
@@ -29,17 +29,19 @@ $old = $old ?? [];
 				</div>
 			<?php endif; ?>
 
-			<form method="post" action="/login" class="space-y-4">
+			<form id="login-form" method="post" action="/login" class="space-y-4">
 				<input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
 				<div>
 					<label class="block text-sm font-medium text-slate-700" for="email">Email</label>
 					<input id="email" name="email" type="email" value="<?= e($old['email'] ?? '') ?>" required class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+					<p id="email-error" class="mt-1 text-sm text-red-600 hidden"></p>
 				</div>
 
 				<div>
 					<label class="block text-sm font-medium text-slate-700" for="password">Password</label>
 					<input id="password" name="password" type="password" required class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+					<p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
 				</div>
 
 				<div>
@@ -53,4 +55,49 @@ $old = $old ?? [];
 		</div>
 	</div>
 </body>
+<script>
+// Simple client-side validation for login
+document.addEventListener('DOMContentLoaded', function() {
+	var form = document.getElementById('login-form');
+	if (!form) return;
+	var email = form.querySelector('input[name="email"]');
+	var pwd = form.querySelector('input[name="password"]');
+	var emailErr = document.getElementById('email-error');
+	var pwdErr = document.getElementById('password-error');
+
+	function validateEmail() {
+		if (!email.value || !email.checkValidity()) {
+			emailErr.textContent = 'Enter a valid email address.';
+			emailErr.classList.remove('hidden');
+			return false;
+		} else {
+			emailErr.textContent = '';
+			emailErr.classList.add('hidden');
+			return true;
+		}
+	}
+
+	function validatePassword() {
+		if (!pwd.value) {
+			pwdErr.textContent = 'Password is required.';
+			pwdErr.classList.remove('hidden');
+			return false;
+		} else {
+			pwdErr.textContent = '';
+			pwdErr.classList.add('hidden');
+			return true;
+		}
+	}
+
+	email.addEventListener('input', validateEmail);
+	email.addEventListener('blur', validateEmail);
+	pwd.addEventListener('input', validatePassword);
+	pwd.addEventListener('blur', validatePassword);
+
+	form.addEventListener('submit', function(e) {
+		var valid = validateEmail() & validatePassword();
+		if (!valid) e.preventDefault();
+	});
+});
+</script>
 </html>

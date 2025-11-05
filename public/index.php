@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-require_once __DIR__ . '/config/database.php';
-$routes = require __DIR__ . '/routes/web.php';
+require_once __DIR__ . '/../config/database.php';
+$routes = require __DIR__ . '/../routes/web.php';
 
 $pdo = $pdo ?? (class_exists('Database') ? Database::getInstance()->getConnection() : null);
 
@@ -64,8 +64,8 @@ foreach ($routes as [$routeMethod, $pattern, $controllerName, $action]) {
     if (preg_match($regex, $uri, $matches)) {
         // remove full match
         array_shift($matches);
-        // instantiate controller
-        $controllerFile = __DIR__ . '/app/controllers/' . $controllerName . '.php';
+    // instantiate controller (controllers live one level up from public/)
+    $controllerFile = __DIR__ . '/../app/controllers/' . $controllerName . '.php';
         if (!is_file($controllerFile)) {
             header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
             echo "Controller file not found: $controllerFile";

@@ -22,7 +22,7 @@ if (empty($_SESSION['csrf_token'])) {
   <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
       <div class="text-center mb-6">
-  <svg class="mx-auto w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.4L17 20l-5-2.7L7 20l1.5-6.7L4 8.9 10 8l2-6z"></path></svg>
+  <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
         <h1 class="text-2xl font-extrabold mt-3">Create your account</h1>
         <p class="text-sm text-slate-500">Start your free trial — no credit card required</p>
       </div>
@@ -36,11 +36,8 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
       <?php endif; ?>
 
-      <?php if (!empty($success)): ?>
-        <div class="mb-4 rounded-md bg-emerald-50 border border-emerald-100 p-3 text-emerald-700 text-sm">
-          Account created successfully.
-        </div>
-      <?php endif; ?>
+
+
 
   <form id="register-form" method="post" action="/register" class="space-y-4">
         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
@@ -55,8 +52,8 @@ if (empty($_SESSION['csrf_token'])) {
             required
             minlength="2"
             maxlength="80"
-            pattern="^[A-Za-zÀ-ÿ' -]+$"
-            title="Only letters, spaces, hyphens and apostrophes"
+            pattern="^[A-Za-zÀ-ÿ ]+$"
+            title="Only letters and spaces"
             autocomplete="name"
             class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <p id="name-error" class="mt-1 text-sm text-red-600 hidden"></p>
@@ -106,6 +103,77 @@ if (empty($_SESSION['csrf_token'])) {
     </div>
   </div>
   
-  <!-- Basic HTML5 validation is enough for learning; JS removed for simplicity -->
+</body>
+  <script>
+// Enhanced client-side validation for user feedback
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('register-form');
+  if (!form) return;
+  var name = form.querySelector('input[name="name"]');
+  var email = form.querySelector('input[name="email"]');
+  var pwd = form.querySelector('input[name="password"]');
+  var nameErr = document.getElementById('name-error');
+  var emailErr = document.getElementById('email-error');
+  var pwdErr = document.getElementById('password-error');
+
+  function validateName() {
+    var nameVal = name.value.trim();
+    if (!nameVal || nameVal.length < 2) {
+      nameErr.textContent = 'Name must be at least 2 characters.';
+      nameErr.classList.remove('hidden');
+      return false;
+    } else if (!/^[A-Za-zÀ-ÿ ]+$/.test(nameVal)) {
+      nameErr.textContent = 'Name must contain only letters and spaces.';
+      nameErr.classList.remove('hidden');
+      return false;
+    } else {
+      nameErr.textContent = '';
+      nameErr.classList.add('hidden');
+      return true;
+    }
+  }
+
+  function validateEmail() {
+    if (!email.value || !email.checkValidity()) {
+      emailErr.textContent = 'Enter a valid email address.';
+      emailErr.classList.remove('hidden');
+      return false;
+    } else {
+      emailErr.textContent = '';
+      emailErr.classList.add('hidden');
+      return true;
+    }
+  }
+
+  function validatePassword() {
+    var pwdVal = pwd.value;
+    if (!pwdVal || pwdVal.length < 8
+      || !/[A-Z]/.test(pwdVal)
+      || !/[a-z]/.test(pwdVal)
+      || !/\d/.test(pwdVal)
+      || !/[^A-Za-z\d]/.test(pwdVal)) {
+      pwdErr.textContent = 'Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.';
+      pwdErr.classList.remove('hidden');
+      return false;
+    } else {
+      pwdErr.textContent = '';
+      pwdErr.classList.add('hidden');
+      return true;
+    }
+  }
+
+  name.addEventListener('input', validateName);
+  name.addEventListener('blur', validateName);
+  email.addEventListener('input', validateEmail);
+  email.addEventListener('blur', validateEmail);
+  pwd.addEventListener('input', validatePassword);
+  pwd.addEventListener('blur', validatePassword);
+
+  form.addEventListener('submit', function(e) {
+    var valid = validateName() & validateEmail() & validatePassword();
+    if (!valid) e.preventDefault();
+  });
+});
+  </script>
 </body>
 </html>
