@@ -1,7 +1,7 @@
 <?php
 
 return [
-    ['GET',  '/',                 'PageController', 'home'],
+    ['GET',  '/',                 'UserController', 'home'],
     ['GET',  '/terms',            'PageController', 'terms'],
     ['GET',  '/privacy',          'PageController', 'privacy'],
 

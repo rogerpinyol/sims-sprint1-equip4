@@ -7,7 +7,7 @@ class User extends Model {
     protected $fillable = ['name', 'email', 'phone', 'accessibility_flags', 'password_hash', 'role'];
 
 
-// Functions
+    // Functions
     public function __construct(int $tenantId) {
         parent::__construct('users', $tenantId);
     }
@@ -29,6 +29,7 @@ class User extends Model {
         ]);
     }
     
+
     public function register(string $name, string $email, string $plain_password): int|false {
         $hash = password_hash($plain_password, PASSWORD_BCRYPT);
         return $this->insert([
@@ -70,15 +71,14 @@ class User extends Model {
         return $this->update($user_id, $data);
     }
 
+
     public function changePassword(int $user_id, string $plain_password) {
         $hash = password_hash($plain_password, PASSWORD_BCRYPT);
         return $this->update($user_id, ['password_hash' => $hash]);
     }
 
-    /**
-     * Transfer a user to another tenant in a controlled way.
-     * Performs checks (target tenant exists, email uniqueness) and writes an audit log.
-     */
+    
+    // Transfer user to another tenant
     public function transferToTenant(int $user_id, int $newTenantId, int $actorUserId = 0): bool {
         if ($user_id <= 0 || $newTenantId <= 0) {
             throw new InvalidArgumentException('Invalid ids');
