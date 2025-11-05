@@ -28,10 +28,27 @@ class AdminUserController {
     public function index(): void
     {
         try {
-            $list = $this->users->getAll();
-            $this->json($list ?: []);
+            $list = $this->users->getAll() ?: [];
+
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            $format = $_GET['format'] ?? '';
+            $wantsJson = ($format === 'json') || (stripos($accept, 'application/json') !== false);
+
+            if ($wantsJson) {
+                $this->json($list);
+                return;
+            }
+
+            // Render HTML panel
+            $this->render(__DIR__ . '/../views/user/index.php', ['users' => $list]);
         } catch (\Throwable $e) {
-            $this->json(['error' => 'Failed to list users'], 500);
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            $wantsJson = (stripos($accept, 'application/json') !== false);
+            if ($wantsJson) {
+                $this->json(['error' => 'Failed to list users'], 500);
+            } else {
+                $this->render(__DIR__ . '/../views/user/index.php', ['users' => [], 'errors' => ['Failed to list users']]);
+            }
         }
     }
 

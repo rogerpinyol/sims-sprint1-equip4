@@ -42,7 +42,7 @@
 	<meta property="og:type" content="website">
 	<meta property="og:image" content="/og-image.png">
 		<!-- Favicon -->
-		<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2322C55E'/%3E%3Cpath d='M18 34l8 8 20-20' stroke='%23fff' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+		<link rel="icon" type="image/svg+xml" href="/images/logo.jpg">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body class="bg-white text-slate-800 font-sans">
@@ -106,8 +106,8 @@
 					</div>
 				</div>
 				<div>
-					<div class="relative bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
-						<img src="https://images.unsplash.com/photo-1541443131876-bde9cf5b8b93?q=80&w=1200&auto=format&fit=crop" alt="Dashboard preview" class="rounded-lg">
+					<div class="relative bg-white rounded-2xl shadow-md">
+						<img src="/images/adminDashboard.png" alt="Dashboard preview" class="rounded-lg">
 						<div class="absolute -bottom-6 -right-6 w-40 h-40 bg-brand-100 rounded-full blur-2xl opacity-70" aria-hidden="true"></div>
 					</div>
 				</div>
