@@ -1,4 +1,3 @@
-
 CREATE TABLE tenants (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
@@ -16,7 +15,7 @@ CREATE TABLE users (
 	password_hash VARCHAR(255) NOT NULL,
 	role ENUM('client', 'manager', 'tenant_admin') DEFAULT 'client',
 	name VARCHAR(100),
-	phone VARCHAR(20),
+	phone VARCHAR(30),
 	accessibility_flags JSON,
 	is_active BOOLEAN DEFAULT 1,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

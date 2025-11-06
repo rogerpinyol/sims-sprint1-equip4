@@ -15,8 +15,8 @@ $old = $old ?? [];
 	<title>Login — EcoMotion</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-slate-800 font-sans">
-	<div class="min-h-screen flex items-center justify-center px-4 py-12">
+<body class="bg-white text-slate-800 font-sans flex flex-col min-h-screen">
+	<div class="flex-grow flex items-center justify-center px-4 py-12">
 		<div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 			<div class="text-center mb-6">
 				   <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
@@ -61,6 +61,7 @@ $old = $old ?? [];
 			<p class="mt-4 text-center text-sm text-slate-500">
 				No account? <a href="/register" class="text-blue-600 hover:underline">Create one</a>
 			</p>
+
 		</div>
 	</div>
 </body>
@@ -110,4 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 });
 </script>
+<?php include __DIR__ . '/../footer.php'; ?>
+</body>
 </html>

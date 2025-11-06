@@ -131,8 +131,29 @@ class User extends Model {
         $allowed = ['name' => true, 'email' => true, 'phone' => true, 'accessibility_flags' => true];
         $data = array_intersect_key($data, $allowed);
         
-        if (isset($data['accessibility_flags']) && is_array($data['accessibility_flags'])) {
-            $data['accessibility_flags'] = json_encode($data['accessibility_flags']);
+        if (isset($data['phone']) && strlen($data['phone']) > 30) {
+            throw new InvalidArgumentException('Phone number too long (max 30 characters)');
+        }
+        
+        // Validate phone format
+        if (isset($data['phone'])) {
+            $phone = trim($data['phone']);
+            $phone = preg_replace('/\D/', '', $phone); // Remove non-digits
+            if (strlen($phone) !== 9) {
+                throw new InvalidArgumentException('Phone number must be exactly 9 digits.');
+            }
+            $data['phone'] = $phone; // Store as plain digits
+        }
+
+        if (isset($data['accessibility_flags'])) {
+            $val = trim($data['accessibility_flags']);
+            if ($val === '') {
+                $data['accessibility_flags'] = null;
+            } elseif (is_array($val)) {
+                $data['accessibility_flags'] = json_encode($val);
+            } elseif (is_string($val)) {
+                $data['accessibility_flags'] = json_encode($val);
+            }
         }
 
         if (isset($data['email'])) {
@@ -146,7 +167,11 @@ class User extends Model {
             }
         }
 
-        return $this->update($user_id, $data);
+        $result = $this->update($user_id, $data);
+        if ($result === false) {
+            throw new RuntimeException('Failed to update user details');
+        }
+        return $result;
     }
 
 
