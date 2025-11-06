@@ -1,11 +1,33 @@
-
+Options -Indexes
 Options -MultiViews
-RewriteEngine On
+DirectoryIndex index.php
 
-# Sirve archivos y directorios existentes directamente
+RewriteEngine On
+RewriteBase /
+
+# Bloquear acceso a archivos ocultos (.git, .env, etc.)
+RewriteRule "(^|/)\.[^/]+" - [F]
+
+<FilesMatch "^(composer\.json|composer\.lock|package\.json|yarn\.lock|phpunit\.xml|\.env(\..*)?)$">
+	Require all denied
+</FilesMatch>
+
+# Serve existing files and directories directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Redirige todo lo demás a index.php
+# Send other requests to the front controller
 RewriteRule ^ index.php [QSA,L]
+
+# Basic cache for static assets
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresByType image/jpeg "access plus 30 days"
+	ExpiresByType image/png  "access plus 30 days"
+	ExpiresByType image/gif  "access plus 30 days"
+	ExpiresByType image/webp "access plus 30 days"
+	ExpiresByType text/css   "access plus 7 days"
+	ExpiresByType application/javascript "access plus 7 days"
+	ExpiresByType application/font-woff2  "access plus 30 days"
+</IfModule>
