@@ -1,4 +1,4 @@
-    <footer class="mt-auto bg-gray-800 text-white p-4 text-center">
+    <footer class="mt-auto bg-neutral-900 text-white p-4 text-center">
         <p>&copy; <?= date('Y') ?> EcoMotion. Tots els drets reservats.</p>
     </footer>
 
@@ -8,9 +8,9 @@
         <div class="relative bg-white rounded-lg shadow-lg z-50 max-w-lg w-full mx-4">
             <div class="p-6">
                 <h2 class="text-xl font-semibold mb-2">Esteu segurs?</h2>
-                <p id="delete-modal-msg" class="text-sm text-gray-700 mb-4">Aquest vehicle s'eliminarà permanentment.</p>
+                <p id="delete-modal-msg" class="text-sm text-neutral-900 mb-4">Aquest vehicle s'eliminarà permanentment.</p>
                 <div class="flex justify-end gap-3">
-                    <button id="delete-cancel" class="px-4 py-2 rounded border">Cancel·la</button>
+                    <button id="delete-cancel" class="px-4 py-2 rounded border border-neutral-900 text-neutral-900">Cancel·la</button>
                     <button id="delete-confirm" class="px-4 py-2 rounded bg-red-600 text-white">Eliminar</button>
                 </div>
             </div>

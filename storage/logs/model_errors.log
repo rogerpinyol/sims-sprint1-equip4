@@ -4,3 +4,8 @@
 [2025-11-03 16:35:18] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'WF0TEST0000000000' for key 'vin' in /var/www/html/app/core/Model.php:86
 [2025-11-03 16:36:11] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'WF0TEST0000000000' for key 'vin' in /var/www/html/app/core/Model.php:86
 [2025-11-03 16:52:07] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'location' cannot be null in /var/www/html/app/core/Model.php:123
+[2025-11-04 16:28:59] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:86
+[2025-11-04 16:31:02] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:86
+[2025-11-04 16:35:01] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:86
+[2025-11-04 16:41:44] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:86
+[2025-11-04 16:42:53] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:86

@@ -7,7 +7,7 @@ require_once __DIR__ . '/../partials/navbar.php';
     <h1 class="text-3xl font-bold mb-6 text-orange-600 text-center">Afegir Nou Vehicle</h1>
 
     <?php if (isset($_SESSION['error'])): ?>
-        <div class="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded mb-6">
+    <div class="bg-surface-subtle border border-surface text-neutral-900 px-4 py-3 rounded mb-6">
             <?= htmlspecialchars($_SESSION['error']) ?>
         </div>
         <?php unset($_SESSION['error']); ?>
@@ -65,10 +65,10 @@ require_once __DIR__ . '/../partials/navbar.php';
         </div>
 
         <div class="flex gap-4 pt-4 justify-center">
-            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+            <button type="submit" class="bg-brand hover:bg-brand-variant text-white font-semibold py-2 px-6 rounded-lg transition">
                 Guardar Vehicle
             </button>
-            <a href="/vehicles" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
+            <a href="/vehicles" class="bg-neutral-900 hover:bg-neutral-700 text-white font-semibold py-2 px-6 rounded-lg transition">
                 Cancel·lar
             </a>
         </div>

@@ -1,62 +1,73 @@
-/* Tailwind source (recreated) *//* public/css/app.css */
 
-@tailwind base;@tailwind base;
+/* Final simplified app.css: stable fallback (no Tailwind/@apply)
+   Reworked to use the project palette via CSS variables so CDN Tailwind colors
+   are consistent with fallback styles. Old hard-coded color classes removed. */
 
-@tailwind components;@tailwind components;
-
-@tailwind utilities;@tailwind utilities;
-
-
-
-body { @apply bg-gray-100 font-sans; }body {
-
-    @apply bg-gray-100 font-sans;
-
-.container { @apply max-w-7xl mx-auto p-4; }}
-
-
-
-.btn { @apply font-bold py-2 px-4 rounded transition; }.container {
-
-    @apply max-w-7xl mx-auto p-4;
-
-.btn-green { @apply bg-orange-600 hover:bg-orange-700 text-white; }}
-
-
-
-.badge { @apply px-3 py-1 rounded-full text-xs font-bold text-white; }.btn {
-
-    @apply font-bold py-2 px-4 rounded transition;
-
-.table th { @apply bg-gray-50 text-left font-semibold text-gray-700; }}
-
-
-.btn-green {
-    @apply bg-orange-600 hover:bg-orange-700 text-white;
+:root {
+  --brand: #DE541E;
+  --brand-variant: #F37A3D;
+  --accent-success: #78866B;
+  --surface: #C2B098;
+  --surface-subtle: #A6B093;
+  --neutral-900: #333333;
+  --page-bg: #f3f4f6;
+  --text-default: #111827;
 }
 
-.btn-blue {
-    @apply bg-blue-600 hover:bg-blue-700 text-white;
+body {
+  background-color: var(--page-bg);
+  color: var(--text-default);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
 }
 
-.btn-red {
-    @apply bg-red-600 hover:bg-red-700 text-white;
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem;
 }
+
+.btn {
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: background-color .15s ease;
+  cursor: pointer;
+  display: inline-block;
+}
+
+/* New palette-aware helpers (use these if your markup references old btn-* classes)
+   Prefer using Tailwind utility classes (bg-brand, text-white, etc.) when using CDN. */
+.btn-primary { background-color: var(--brand); color: #ffffff; border: none; }
+.btn-primary:hover { background-color: var(--brand-variant); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,0,0,0.08); color: var(--neutral-900); }
 
 .badge {
-    @apply px-3 py-1 rounded-full text-xs font-bold text-white;
+  display: inline-block;
+  padding: .25rem .75rem;
+  border-radius: 9999px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-.badge-available { @apply bg-orange-500; }
-.badge-charging   { @apply bg-yellow-500; }
-.badge-booked     { @apply bg-blue-500; }
-.badge-maintenance{ @apply bg-orange-500; }
-.badge-offline    { @apply bg-red-500; }
+/* Map semantic badge names to palette colors */
+.badge-available  { background-color: var(--accent-success); }
+.badge-charging   { background-color: var(--brand-variant); color: #111827; }
+.badge-booked     { background-color: var(--neutral-900); }
+.badge-maintenance{ background-color: var(--brand); }
+.badge-offline    { background-color: #8b5d5d; }
 
+.text-center { text-align: center; }
+/* Force header titles to center — higher specificity in case other rules override */
+.table thead th { text-align: center !important; }
 .table th {
-    @apply bg-gray-50 text-left font-semibold text-gray-700;
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  padding: .5rem;
 }
 
-.table tr:hover {
-    @apply bg-gray-50;
-}
+.table tr:hover { background-color: var(--page-bg); }
+
+.btn-xs { padding: .25rem .5rem; font-size: .75rem; }

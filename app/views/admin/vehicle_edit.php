@@ -8,7 +8,6 @@ require_once __DIR__ . '/../partials/navbar.php';
 <div class="container mx-auto p-4 max-w-2xl">
     <h1 class="text-3xl font-bold mb-6 text-orange-600 text-center">Editar Vehicle</h1>
 
-    <form action="/vehicle/update" method="POST" class="bg-white shadow-lg rounded-lg p-4 space-y-4">
         <input type="hidden" name="id" value="<?= htmlspecialchars($vehicle['id'] ?? '') ?>">
 
         <div class="grid grid-cols-2 gap-4">
@@ -55,8 +54,8 @@ require_once __DIR__ . '/../partials/navbar.php';
         </div>
 
         <div class="flex gap-4 pt-4 justify-center">
-            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-6 rounded-lg">Actualizar</button>
-            <a href="/vehicles" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg">Cancel·lar</a>
+            <button type="submit" class="bg-brand hover:bg-brand-variant text-white font-semibold py-2 px-6 rounded-lg">Actualizar</button>
+            <a href="/vehicles" class="bg-neutral-900 hover:bg-neutral-700 text-white font-semibold py-2 px-6 rounded-lg">Cancel·lar</a>
         </div>
     </form>
 </div>
