@@ -9,16 +9,19 @@ return [
     ['GET',  '/login',            'AuthController', 'loginForm'],
     ['POST', '/login',            'AuthController', 'login'],
     ['POST', '/logout',           'AuthController', 'logout'],
-    ['GET',  '/register',         'PublicUserController', 'registerForm'],
-    ['POST', '/register',         'PublicUserController', 'register'],
+    ['GET',  '/register',         'RegistrationController', 'form'],
+    ['POST', '/register',         'RegistrationController', 'register'],
 
     // User flows
     ['GET', '/profile',             'PublicUserController', 'profile'],
     ['POST', '/profile',            'PublicUserController', 'updateProfile'],
 
+    // Client app dashboard
+    ['GET', '/client',            'ClientAppController', 'index'],
+
     // Admin flows
-    ['GET',  '/users',            'AdminUserController', 'index'],
-    ['GET',  '/users/create',     'AdminUserController', 'createForm'],
-    ['POST', '/users',            'AdminUserController', 'store'],
-    ['GET',  '/users/(\d+)',     'AdminUserController', 'show'],
+    ['GET',  '/admin',            'AdminUserController', 'index'],
+    ['GET',  '/admin/users/create',     'AdminUserController', 'createForm'],
+    ['POST', '/admin/users',            'AdminUserController', 'store'],
+    ['GET',  '/admin/users/(\d+)',     'AdminUserController', 'show'],
     ];

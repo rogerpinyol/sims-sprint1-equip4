@@ -70,7 +70,13 @@ class AuthController
     // Auth ok
     $_SESSION['user_id'] = (int)$row['id'];
     $_SESSION['role'] = (string)($row['role'] ?? 'client');
-    header('Location: /profile');
+    $role = $_SESSION['role'];
+    // redirect based on role
+    if (in_array($role, ['tenant_admin', 'manager', 'super_admin'], true)) {
+        header('Location: /admin');
+    } else {
+        header('Location: /client');
+    }
     exit;
     }
 

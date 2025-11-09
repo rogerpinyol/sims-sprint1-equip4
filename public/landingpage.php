@@ -50,10 +50,10 @@
 	<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 items-center justify-between">
-				   <a href="#" class="flex items-center gap-2">
-					   <img src="/images/logo.jpg" alt="EcoMotion logo" class="w-8 h-8 rounded-full shadow" />
-					   <span class="text-lg font-bold">EcoMotion</span>
-				   </a>
+				<a href="#" class="flex items-center gap-2">
+					<img src="/images/logo.jpg" alt="EcoMotion logo" class="w-8 h-8 rounded-full shadow" />
+					<span class="text-lg font-bold">EcoMotion</span>
+				</a>
 				<nav class="hidden md:flex items-center gap-8 text-sm">
 					<a href="#features" class="hover:text-blue-600">Features</a>
 					<a href="#integrations" class="hover:text-blue-600">Integrations</a>
@@ -61,8 +61,7 @@
 					<a href="#testimonials" class="hover:text-blue-600">Customers</a>
 				</nav>
 				<div class="hidden md:flex items-center gap-3">
-					<a href="/login" class="px-4 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="/register" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Get started</a>
+					<a href="/login" class="px-4 py-2 rounded-lg border border-blue-600 text-blue-700 font-semibold text-sm hover:bg-blue-50 transition">Admin Dashboard</a>
 				</div>
 				<!-- Mobile menu button -->
 				<button id="menuBtn" class="md:hidden p-2 rounded-lg border border-slate-300" aria-label="Open menu">
@@ -76,36 +75,38 @@
 				<a href="#pricing" class="block px-2 py-2 rounded hover:bg-slate-50">Pricing</a>
 				<a href="#testimonials" class="block px-2 py-2 rounded hover:bg-slate-50">Customers</a>
 				<div class="pt-2 flex gap-2">
-					<a href="#pricing" class="flex-1 px-4 py-2 text-center rounded-lg border border-slate-300 text-sm hover:bg-slate-50">Sign in</a>
-					<a href="/register" class="flex-1 px-4 py-2 text-center rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Get started</a>
+					<a href="/login" class="flex-1 px-4 py-2 text-center rounded-lg border border-blue-600 text-blue-700 font-semibold text-sm hover:bg-blue-50 transition">Admin login</a>
 				</div>
 			</div>
 		</div>
 	</header>
 
 	<!-- Hero -->
+
+
+
 	<section class="relative overflow-hidden">
 		<div class="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-white" aria-hidden="true"></div>
 		<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
 			<div class="grid lg:grid-cols-2 gap-12 items-center">
 				<div>
-					<h1 class="text-4xl sm:text-5xl font-extrabold leading-tight text-dark">
-						Manage your fleet with clarity, speed, and confidence
+					<h1 class="text-4xl sm:text-5xl font-extrabold leading-tight text-dark mb-6">
+						Welcome to EcoMotion
 					</h1>
-					<p class="mt-6 text-lg text-slate-600 max-w-xl">
-						EcoMotion gives operations and finance teams real-time insights into vehicle status, costs, and utilization—so you can scale sustainably.
+					<p class="text-lg text-slate-600 max-w-xl mb-8">
+						The platform for companies to manage, optimize, and scale their vehicle fleets, and for customers to easily rent and enjoy electric mobility.
 					</p>
-					<div class="mt-8 flex flex-col sm:flex-row gap-3">
-						<a href="/register" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-center">Start free trial</a>
-						<a href="#features" class="px-6 py-3 rounded-xl border border-slate-300 font-medium hover:bg-slate-50 text-center">See features</a>
+					<div class="flex flex-col sm:flex-row gap-5 mb-8">
+						<a href="/login" class="flex-1 px-6 py-4 rounded-xl bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 text-center shadow transition">Admin Dashboard</a>
+						<a href="/client" class="flex-1 px-6 py-4 rounded-xl bg-emerald-600 text-white font-semibold text-lg hover:bg-emerald-700 text-center shadow transition">Client Dashboard</a>
 					</div>
-					<div class="mt-6 flex items-center gap-6 text-sm text-slate-500">
+					<div class="mt-8 flex items-center gap-6 text-sm text-slate-500">
 						<div class="flex items-center gap-2"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>99.95% uptime</div>
 						<div>ISO27001-ready</div>
 						<div>GDPR compliant</div>
 					</div>
 				</div>
-				<div>
+				<div class="hidden lg:block">
 					<div class="relative bg-white rounded-2xl shadow-md">
 						<img src="/images/adminDashboard.png" alt="Dashboard preview" class="rounded-lg">
 						<div class="absolute -bottom-6 -right-6 w-40 h-40 bg-brand-100 rounded-full blur-2xl opacity-70" aria-hidden="true"></div>

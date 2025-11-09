@@ -7,25 +7,11 @@ class Model
 
     public function __construct(string $table, int $tenantId)
     {
-        // Ensure database bootstrap is loaded
-        require_once __DIR__ . '/../../config/database.php';
+        // Usa tu clase Database singleton
+        require_once __DIR__ . '/../../config/Database.php';
+        $this->pdo = Database::getInstance()->getConnection();
 
-        // Obtain a PDO instance robustly regardless of include scope/order
-        if (class_exists('Database')) {
-            try {
-                $this->pdo = Database::getInstance()->getConnection();
-            } catch (Throwable $e) {
-                // fall through to other options
-            }
-        }
-        if (!$this->pdo && isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
-            $this->pdo = $GLOBALS['pdo'];
-        }
-        if (!$this->pdo) {
-            throw new RuntimeException('PDO instance not available from config/database.php');
-        }
-
-        // basic whitelist 
+        // Validación de nombre de tabla
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
             throw new InvalidArgumentException('Invalid table name');
         }
@@ -34,7 +20,7 @@ class Model
         $this->tenantId = $tenantId;
     }
 
-    // SELECT with tenant filter
+    // Generic SELECT with tenant filter. $conditions is associative: ['col' => value, ...]
     public function find(array $conditions = []): array|false
     {
         $sql = "SELECT * FROM `{$this->table}` WHERE tenant_id = :tenant_id";
@@ -102,8 +88,6 @@ class Model
         $params = [];
         $i = 0;
         foreach ($data as $col => $val) {
-            // never allow changing primary key or tenant via generic update
-            if ($col === 'id' || $col === 'tenant_id') continue;
             if (!preg_match('/^[a-zA-Z0-9_]+$/', $col)) continue;
             $ph = "p{$i}";
             $set[] = "`{$col}` = :{$ph}";
@@ -139,8 +123,6 @@ class Model
         }
     }
 
-    // Simple join helper: returns rows from this table (a) joined with $joinTable (b).
-    // $foreignKey = column in this table that references joinTable.id
     public function findWithJoin(string $joinTable, string $foreignKey, array $conditions = []): array|false
     {
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $joinTable) || !preg_match('/^[a-zA-Z0-9_]+$/', $foreignKey)) {
@@ -179,3 +161,4 @@ class Model
         @file_put_contents($logDir . '/model_errors.log', $msg, FILE_APPEND);
     }
 }
+?>
