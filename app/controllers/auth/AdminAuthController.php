@@ -1,8 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../models/User.php';
+// Admins login, logout
 
-class AuthController
+require_once __DIR__ . '/../../core/Controller.php';
+require_once __DIR__ . '/../../models/User.php';
+
+class AdminAuthController extends Controller
 {
     public function __construct()
     {
@@ -91,16 +94,5 @@ class AuthController
         if ($tenantId > 0) $_SESSION['tenant_id'] = $tenantId;
         header('Location: /');
         exit;
-    }
-
-    private function render(string $viewPath, array $vars = []): void
-    {
-        extract($vars, EXTR_SKIP);
-        if (!is_file($viewPath)) {
-            http_response_code(500);
-            echo "View not found: " . htmlspecialchars($viewPath, ENT_QUOTES, 'UTF-8');
-            return;
-        }
-        include $viewPath;
     }
 }

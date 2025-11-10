@@ -55,6 +55,19 @@ if ($uri !== '/' && str_ends_with($uri, '/')) {
     $uri = rtrim($uri, '/');
 }
 
+if ($uri === '/' || $uri === '/landingpage') {
+    include __DIR__ . '/landingpage.php';
+    exit;
+}
+if ($uri === '/terms') {
+    include __DIR__ . '/terms.php';
+    exit;
+}
+if ($uri === '/privacy') {
+    include __DIR__ . '/privacy.php';
+    exit;
+}
+
 $dispatched = false;
 foreach ($routes as [$routeMethod, $pattern, $controllerName, $action]) {
     if ($routeMethod !== $method) continue;

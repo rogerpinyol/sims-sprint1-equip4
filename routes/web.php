@@ -1,27 +1,26 @@
 <?php
 
 return [
+    // Login Admin
+    ['GET',  '/admin/login',      'auth/AdminAuthController', 'loginForm'],
+    ['POST', '/admin/login',      'auth/AdminAuthController', 'login'],
+    ['POST', '/admin/logout',     'auth/AdminAuthController', 'logout'],
 
-    // Public flows
-    ['GET',  '/',                 'PageController', 'home'],
-    ['GET',  '/terms',            'PageController', 'terms'],
-    ['GET',  '/privacy',          'PageController', 'privacy'],
-    ['GET',  '/login',            'AuthController', 'loginForm'],
-    ['POST', '/login',            'AuthController', 'login'],
-    ['POST', '/logout',           'AuthController', 'logout'],
-    ['GET',  '/register',         'RegistrationController', 'form'],
-    ['POST', '/register',         'RegistrationController', 'register'],
+    // Login y registro Cliente (unificado)
+    ['GET',  '/client/login',     'auth/ClientAuthController', 'loginForm'],
+    ['POST', '/client/login',     'auth/ClientAuthController', 'login'],
+    ['POST', '/client/logout',    'auth/ClientAuthController', 'logout'],
+    ['GET',  '/register',         'auth/ClientAuthController', 'form'],
+    ['POST', '/register',         'auth/ClientAuthController', 'register'],
 
-    // User flows
-    ['GET', '/profile',             'PublicUserController', 'profile'],
-    ['POST', '/profile',            'PublicUserController', 'updateProfile'],
+    // CRUD Cliente
+    ['GET', '/profile',           'client/ClientController', 'profile'],
+    ['POST', '/profile',          'client/ClientController', 'updateProfile'],
+    ['GET', '/client',            'client/ClientDashboardController', 'index'],
 
-    // Client app dashboard
-    ['GET', '/client',            'ClientAppController', 'index'],
-
-    // Admin flows
-    ['GET',  '/admin',            'AdminUserController', 'index'],
-    ['GET',  '/admin/users/create',     'AdminUserController', 'createForm'],
-    ['POST', '/admin/users',            'AdminUserController', 'store'],
-    ['GET',  '/admin/users/(\d+)',     'AdminUserController', 'show'],
-    ];
+    // CRUD Admin
+    ['GET',  '/admin',            'admin/AdminUserController', 'index'],
+    ['GET',  '/admin/users/create', 'admin/AdminUserController', 'createForm'],
+    ['POST', '/admin/users',        'admin/AdminUserController', 'store'],
+    ['GET',  '/admin/users/(\\d+)', 'admin/AdminUserController', 'show'],
+];

@@ -1,5 +1,7 @@
-
 <?php
+
+// CRUD users by admin
+
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/User.php';
 
@@ -27,13 +29,13 @@ class AdminUserController extends Controller
         ]);
     }
 
-    // GET /admin/users/create -> muestra formulario (reusa misma vista con lista)
+    // Show form
     public function createForm(): void
     {
-        $this->index(); // en esta versión reutilizamos la vista de listado con el form arriba
+        $this->index(); 
     }
 
-    // POST /admin/users -> crea usuario
+    // Create user
     public function store(): void
     {
         $tenant = $this->requireTenant();
@@ -62,7 +64,6 @@ class AdminUserController extends Controller
         }
 
         try {
-            // Normalizamos role interno (si llega "admin" lo tratamos como tenant_admin para tu enum)
             if ($role === 'admin') $role = 'tenant_admin';
             $id = $this->users->createUserWithRole($name, $email, $password, $role);
             if ($id === false) throw new RuntimeException('Insert failed');
