@@ -62,15 +62,9 @@ class Model
         $params = [];
         foreach ($cols as $idx => $col) {
             $ph = "p{$idx}";
-            // Special-case geometry column 'location' -> use ST_GeomFromText()
-            if ($col === 'location') {
-                $placeholders[] = "ST_GeomFromText(:{$ph})";
-                // Expect WKT like 'POINT(lon lat)'
-                $params[$ph] = $data[$col];
-            } else {
-                $placeholders[] = ":{$ph}";
-                $params[$ph] = $data[$col];
-            }
+            // Treat location as a normal text column (plain "lat lon")
+            $placeholders[] = ":{$ph}";
+            $params[$ph] = $data[$col];
             $cols[$idx] = "`{$col}`";
         }
 
@@ -102,13 +96,9 @@ class Model
         foreach ($data as $col => $val) {
             if (!preg_match('/^[a-zA-Z0-9_]+$/', $col)) continue;
             $ph = "p{$i}";
-            if ($col === 'location') {
-                $set[] = "`{$col}` = ST_GeomFromText(:{$ph})";
-                $params[$ph] = $val;
-            } else {
-                $set[] = "`{$col}` = :{$ph}";
-                $params[$ph] = $val;
-            }
+            // No special-case: location is stored as plain text
+            $set[] = "`{$col}` = :{$ph}";
+            $params[$ph] = $val;
             $i++;
         }
 

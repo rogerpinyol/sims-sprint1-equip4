@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#ff7a3d"/>
+      <stop offset="1" stop-color="#ff6a2b"/>
+    </linearGradient>
+  </defs>
+  <rect rx="10" ry="10" width="120" height="60" fill="none"/>
+  <!-- simple car shape -->
+  <path d="M12 36 L18 22 L40 18 L80 18 L102 22 L108 36 Z" fill="url(#g)" stroke="#e65a1a" stroke-width="1" />
+  <!-- wheels -->
+  <circle cx="30" cy="44" r="6" fill="#222" />
+  <circle cx="90" cy="44" r="6" fill="#222" />
+  <!-- letters EM -->
+  <text x="60" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">EM</text>
+</svg>

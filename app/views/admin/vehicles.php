@@ -17,7 +17,6 @@ require_once __DIR__ . '/../partials/navbar.php';
             <table class="min-w-full table">
                 <thead>
                     <tr>
-                        <th class="py-4 px-6 text-center" style="text-align:center">ID</th>
                         <th class="py-4 px-6 text-center" style="text-align:center">VIN</th>
                         <th class="py-4 px-6 text-center" style="text-align:center">Model</th>
                         <th class="py-4 px-6 text-center" style="text-align:center">Bateria</th>
@@ -28,7 +27,6 @@ require_once __DIR__ . '/../partials/navbar.php';
                 <tbody>
                     <?php foreach ($vehicles as $v): ?>
                     <tr class="border-t">
-                        <td class="py-4 px-6 font-mono text-center">#<?= htmlspecialchars($v['id']) ?></td>
                         <td class="py-4 px-6 font-mono text-sm text-center"><?= htmlspecialchars($v['vin'] ?? '') ?></td>
                         <td class="py-4 px-6 font-semibold text-center"><?= htmlspecialchars($v['model'] ?? '') ?></td>
                         <td class="py-4 px-6 text-center">

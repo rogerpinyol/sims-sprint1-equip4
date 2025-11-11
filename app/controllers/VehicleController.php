@@ -41,7 +41,7 @@ class VehicleController
         foreach ($data as $k => $v) {
             if ($v === '') $data[$k] = null;
         }
-
+        
         $result = $this->vehicle->create($data);
         if ($result === false) {
             $_SESSION['error'] = 'Error en crear el vehicle. Revisa dades i format.';
@@ -81,14 +81,19 @@ class VehicleController
         foreach ($data as $k => $v) if ($v === '') $data[$k] = null;
 
         $this->vehicle->update($id, $data);
-        $_SESSION['success'] = 'Vehicle actualitzat.';
+        // Use a warning-style flash for edits (yellow)
+        $_SESSION['warning'] = 'Vehicle actualitzat.';
         header('Location: /vehicles'); exit;
     }
 
     public function delete()
     {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        if ($id > 0) $this->vehicle->delete($id);
+        if ($id > 0) {
+            $this->vehicle->delete($id);
+            // Use danger flash for deletions (red)
+            $_SESSION['danger'] = 'Vehicle eliminat!';
+        }
         header('Location: /vehicles'); exit;
     }
 
