@@ -45,24 +45,9 @@ $csrfCheck = function () use ($renderError) {
 $router = new Router();
 
 // Welcome route
-$router->add('GET', '/', function () {
-    echo "<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Welcome - EcoMotion Platform</title>
-    <script src='https://cdn.tailwindcss.com'></script>
-    <style>body{font-family:Arial,sans-serif}</style>
-    </head>
-<body style='max-width: 800px; margin: 50px auto; padding: 20px;'>
-    <h1>Welcome to EcoMotion Platform</h1>
-    <p>This is a multi-tenant SaaS platform for vehicle fleet management.</p>
-    <ul>
-        <li><a href='/index.php/admin/tenants'>Super Admin Dashboard (Tenants Management)</a></li>
-    </ul>
-</body>
-</html>";
+$router->add('GET', '/', function () use ($ensureCsrfToken) {
+    if (is_callable($ensureCsrfToken)) $ensureCsrfToken();
+    include __DIR__ . '/../app/views/home.php';
 });
 
 // Load modular routes (e.g., admin.routes.php)
@@ -77,6 +62,9 @@ $__routeContext = [
 
 // Include admin routes module
 require_once __DIR__ . '/admin.routes.php';
+
+// Include tenant routes module (Disabled for now)
+// require_once __DIR__ . '/tenant.routes.php';
 
 // Normalize URI (strip /index.php prefix for routing)
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
