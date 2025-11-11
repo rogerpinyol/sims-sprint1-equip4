@@ -1,1 +1,43 @@
+# Environment files
 .env
+.env.test
+
+# Node dependencies and build output
+node_modules/
+dist/
+public/assets/css/tailwind.css
+public/assets/css/*.css
+
+# Composer dependencies (if using composer)
+vendor/
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs, cache, and sessions
+storage/logs/
+storage/cache/
+storage/sessions/
+
+# Database dumps/backups
+*.sql
+*.sqlite
+
+# Docker artifacts
+mariadb_data/
+
+# Misc
+*.bak
+*.tmp
+*.log
+
+# Test output
+tests/*.out
+tests/*.log

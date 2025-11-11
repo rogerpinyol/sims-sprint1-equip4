@@ -6,13 +6,18 @@ class Model
     protected $table;
     protected $tenantId;
 
-    public function __construct(string $table, int $tenantId)
+    public function __construct(string $table, int $tenantId, ?PDO $injectedPdo = null)
     {
-        // load DB config which exposes $pdo
-        require_once __DIR__ . '/../../config/database.php';
+        // Prefer an injected PDO for testing or advanced setups; else load from config
+        if ($injectedPdo instanceof PDO) {
+            $pdo = $injectedPdo;
+        } else {
+            // load DB config which exposes $pdo
+            require_once __DIR__ . '/../../config/database.php';
 
-        if (!isset($pdo) || !($pdo instanceof PDO)) {
-            throw new RuntimeException('PDO instance not available from config/database.php');
+            if (!isset($pdo) || !($pdo instanceof PDO)) {
+                throw new RuntimeException('PDO instance not available from config/database.php');
+            }
         }
 
         // basic whitelist for table names (prevents SQL injection via table names)
