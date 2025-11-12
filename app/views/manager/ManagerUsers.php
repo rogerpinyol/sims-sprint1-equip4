@@ -1,6 +1,5 @@
 <?php
 $users = $users ?? [];
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 ?>
 <!doctype html>
 <html lang="en">

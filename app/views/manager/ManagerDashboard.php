@@ -1,5 +1,4 @@
 <?php
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 $totalVehicles = $totalVehicles ?? 45;
 $activeReservations = $activeReservations ?? 12;
 $dailyRevenue = $dailyRevenue ?? 1230;

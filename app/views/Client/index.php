@@ -1,9 +1,6 @@
 <?php
 // Expect $users array injected by controller
 $users = $users ?? [];
-
-// Escape helper
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 ?>
 
 <!doctype html>

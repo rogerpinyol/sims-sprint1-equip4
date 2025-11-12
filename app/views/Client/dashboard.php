@@ -1,33 +1,38 @@
 <?php
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 $user = $user ?? ['name' => 'Cliente', 'email' => ''];
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
   <title>EcoMotion - Mapa de Vehículos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
-  
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <style>
-      html, body { height: 100%; }
-      #map { width: 100%; height: 100%; z-index: 0; }
-      header { position: relative; z-index: 50; }
-      .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
-    </style>
+  <style>
+    html, body { height: 100%; }
+    #map { width: 100%; height: 100%; z-index: 0; background: #e5e7eb; transition: background 0.3s; }
+    .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
+    /* Brand palette */
+    :root {
+      --brand-orange: #F37A3D; /* subtle orange */
+      --brand-orange-dark: #DE541E; /* hover */
+      --brand-green: #78866B; /* muted green */
+      --brand-green-light: #A6B093; /* soft border/bg */
+      --brand-beige: #C2B098; /* accent border */
+      --brand-text: #333333; /* primary text */
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans h-full transition-colors" id="appBody">
+<body class="bg-slate-100 text-[color:var(--brand-text)] font-sans h-full" id="appBody">
   <div class="h-full min-h-screen flex flex-col">
-  <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm relative z-50">
+  <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-[color:var(--brand-beige)] shadow-sm relative z-50">
       <div class="flex items-center gap-3">
-  <button id="btnOpenSidebar" class="p-2 rounded-md bg-slate-200 hover:bg-slate-300" aria-label="Menú">
+  <button id="btnOpenSidebar" class="p-2 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600" aria-label="Menú">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
           </svg>
@@ -36,43 +41,41 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
       </div>
       <div class="flex items-center gap-2 text-sm">
         <span class="hidden sm:inline">Hola, <?= e($user['name']) ?></span>
-        <button id="themeToggle" type="button" class="px-3 py-1 rounded-md bg-slate-200 hover:bg-slate-300" aria-label="Cambiar tema">🌗</button>
-        <a href="/profile" class="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white">Perfil</a>
+        <a href="/profile" class="px-3 py-1 rounded-md bg-[color:var(--brand-orange)] hover:bg-[color:var(--brand-orange-dark)] text-white">Perfil</a>
         <form method="post" action="/auth/logout" class="inline">
-          <button type="submit" class="px-3 py-1 rounded-md bg-slate-800 text-white hover:bg-slate-700">Salir</button>
+          <button type="submit" class="px-3 py-1 rounded-md bg-[color:var(--brand-orange)] hover:bg-[color:var(--brand-orange-dark)] text-white">Salir</button>
         </form>
       </div>
     </header>
   <div class="flex-1 relative flex min-h-0">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-200 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none flex-shrink-0">
+    <aside id="sidebar" class="w-72 bg-white border-r border-[color:var(--brand-green-light)] z-40 transform -translate-x-full transition-transform duration-200 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none flex-shrink-0">
       <div class="flex flex-col h-full">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50 shrink-0">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[color:var(--brand-green-light)] bg-slate-50 shrink-0">
           <div class="font-medium text-slate-700">Vehículos cercanos</div>
           <button id="btnCloseSidebar" class="p-1 rounded-md hover:bg-slate-200 md:hidden" aria-label="Cerrar">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 11-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/></svg>
           </button>
         </div>
         <div class="flex-1 min-h-0 p-3 space-y-3 overflow-y-auto text-sm" id="vehiclesList">
-          <div class="text-slate-500">Cargando vehículos...</div>
+        <div class="text-slate-500">Cargando vehículos...</div>
         </div>
-        <div class="p-3 border-t border-slate-200 bg-slate-50 shrink-0">
+        <div class="p-3 border-t border-[color:var(--brand-green-light)] bg-slate-50 shrink-0">
           <div class="text-xs mb-2 text-slate-500">Filtrar por estado</div>
           <form id="statusFilterForm" class="grid grid-cols-2 gap-2 text-xs">
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="available" class="accent-blue-600" checked> <span>Disponible</span></label>
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="booked" class="accent-yellow-500" checked> <span>Reservado</span></label>
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="maintenance" class="accent-orange-500" checked> <span>Mantenimiento</span></label>
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="charging" class="accent-blue-500" checked> <span>Cargando</span></label>
-            <button type="submit" class="col-span-2 mt-1 w-full bg-slate-800 text-white hover:bg-slate-700 rounded-md py-1">Aplicar</button>
+            <button type="submit" class="col-span-2 mt-1 w-full bg-[color:var(--brand-orange)] hover:bg-[color:var(--brand-orange-dark)] text-white rounded-md py-1">Aplicar</button>
           </form>
         </div>
-        
       </div>
     </aside>
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200 z-30 md:hidden"></div>
     <!-- Map container -->
   <div id="map" class="flex-1 min-h-0 h-full"></div>
-    <button id="btnRecenter" class="absolute z-40 bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded shadow">Ubicarme</button>
+    <button id="btnRecenter" class="absolute z-40 bottom-4 right-4 bg-[color:var(--brand-orange)] hover:bg-[color:var(--brand-orange-dark)] text-white text-sm px-3 py-2 rounded shadow">Ubicarme</button>
   </div>
   </div>
 
@@ -80,12 +83,13 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
   // Temporarily use mock data until backend DB feed is ready
   const API_URL = '/mock-vehicles.json';
   let map, clusterLayer;
-  let darkMode = false;
     const vehiclesById = new Map();
   let userInteracting = false;
   let userInteractTimer = null;
   let userMarker = null;
   let firstFix = false;
+  // State
+  let initialVehiclesLoaded = false;
 
     function initMap() {
         if (typeof L === 'undefined' || !document.getElementById('map')) {
@@ -120,22 +124,14 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
 
     function statusBadge(status) {
       const base = 'px-2 py-0.5 rounded text-[11px] font-medium border';
-      const light = {
+      const classes = {
         available: 'bg-green-100 text-green-700 border-green-200',
         booked: 'bg-yellow-100 text-yellow-700 border-yellow-200',
         maintenance: 'bg-orange-100 text-orange-700 border-orange-200',
         charging: 'bg-blue-100 text-blue-700 border-blue-200',
         default: 'bg-slate-100 text-slate-600 border-slate-200'
       };
-      const dark = {
-        available: 'bg-green-500/15 text-green-300 border-green-500/30',
-        booked: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30',
-        maintenance: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-        charging: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-        default: 'bg-slate-500/15 text-slate-300 border-slate-500/30'
-      };
-      const palette = darkMode ? dark : light;
-      return base + ' ' + (palette[status] || palette.default);
+      return base + ' ' + (classes[status] || classes.default);
     }
 
     function renderVehiclesList(vehicles) {
@@ -144,16 +140,16 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
       if (!vehicles.length) { listEl.innerHTML = '<div class="text-slate-500">No hay vehículos.</div>'; return; }
       listEl.innerHTML = vehicles.map(v => {
         const battery = (v.battery_level != null) ? Math.round(v.battery_level)+'%' : '—';
-        return `<div class="group ${darkMode?'bg-slate-800/60 border-slate-700 hover:border-slate-600':'bg-white border-slate-200 hover:border-slate-300'} border rounded-lg p-3 transition">
+        return `<div class="group bg-white border border-[color:var(--brand-green-light)] hover:border-[color:var(--brand-green)] rounded-lg p-3 transition">
           <div class="flex items-start justify-between">
-            <div class="font-medium ${darkMode?'text-slate-100':'text-slate-700'} text-sm">${escapeHtml(v.model || 'Vehículo')}</div>
+            <div class="font-medium text-slate-700 text-sm">${escapeHtml(v.model || 'Vehículo')}</div>
             <span class="${statusBadge(v.status)}">${escapeHtml(v.status)}</span>
           </div>
-          <div class="mt-1 text-xs ${darkMode?'text-slate-300':'text-slate-500'} space-y-1">
-            <div><span class="${darkMode?'text-slate-400':'text-slate-400'}">ID:</span> ${v.id}</div>
-            <div><span class="${darkMode?'text-slate-400':'text-slate-400'}">Batería:</span> ${battery}</div>
-            <div><span class="${darkMode?'text-slate-400':'text-slate-400'}">VIN:</span> ${escapeHtml(v.vin || '')}</div>
-            <button data-pan="${v.id}" class="mt-2 w-full text-xs ${darkMode?'bg-slate-700 hover:bg-slate-600 text-slate-200':'bg-slate-800 hover:bg-slate-700 text-white'} rounded-md py-1">Ver en mapa</button>
+          <div class="mt-1 text-xs text-slate-500 space-y-1">
+            <div><span class="text-slate-400">ID:</span> ${v.id}</div>
+            <div><span class="text-slate-400">Batería:</span> ${battery}</div>
+            <div><span class="text-slate-400">VIN:</span> ${escapeHtml(v.vin || '')}</div>
+            <button data-pan="${v.id}" class="mt-2 w-full text-xs bg-[color:var(--brand-orange)] hover:bg-[color:var(--brand-orange-dark)] text-white rounded-md py-1">Ver en mapa</button>
           </div>
         </div>`;
       }).join('');
@@ -183,25 +179,28 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
     }
 
     function fetchAndRender() {
-      const b = map.getBounds();
-      const params = {
-        south: b.getSouth().toFixed(6),
-        west: b.getWest().toFixed(6),
-        north: b.getNorth().toFixed(6),
-        east: b.getEast().toFixed(6)
-      };
-      const statuses = getSelectedStatuses();
-      if (statuses.length) params.status = statuses.join(',');
-      const q = new URLSearchParams(params).toString();
-      // For mock JSON, ignore bounds and status for now; keep structure for later DB integration
+      // Fetch mock file (fallback) and filter client-side
       fetch(API_URL)
-        .then(r => r.json())
+        .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
-          const vehicles = Array.isArray(data) ? data : ((data && data.vehicles) ? data.vehicles : []);
-          updateMarkers(vehicles);
-          renderVehiclesList(vehicles);
+          const all = Array.isArray(data?.vehicles) ? data.vehicles : Array.isArray(data) ? data : [];
+          const statuses = getSelectedStatuses();
+          const filtered = statuses.length ? all.filter(v => statuses.includes(String(v.status))) : all;
+          updateMarkers(filtered);
+          renderVehiclesList(filtered);
+          if (!initialVehiclesLoaded) { initialVehiclesLoaded = true; }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Fallback static sample only if nothing loaded yet
+          if (initialVehiclesLoaded) return;
+          const sample = [
+            { id: 101, vin: "TESTVIN001", model: "Tesla Model 3", status: "available", battery_level: 87, lat: 40.71280, lng: 0.58100 },
+            { id: 102, vin: "TESTVIN002", model: "Renault Zoe", status: "charging", battery_level: 45, lat: 40.71015, lng: 0.57982 },
+            { id: 103, vin: "TESTVIN003", model: "Nissan Leaf", status: "booked", battery_level: 62, lat: 40.71350, lng: 0.58020 }
+          ];
+          updateMarkers(sample);
+          renderVehiclesList(sample);
+        });
     }
 
     function updateMarkers(vehicles) {
@@ -303,24 +302,7 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
         form.addEventListener('submit', function(e){ e.preventDefault(); fetchAndRender(); });
         form.querySelectorAll('input[name="status"]').forEach(cb => cb.addEventListener('change', fetchAndRender));
       }
-      const themeBtn = document.getElementById('themeToggle');
-      themeBtn && themeBtn.addEventListener('click', () => {
-        darkMode = !darkMode;
-        const body = document.getElementById('appBody');
-        if (darkMode) {
-          body.classList.remove('bg-slate-100','text-slate-800');
-          body.classList.add('bg-slate-950','text-slate-100');
-          document.getElementById('sidebar').classList.remove('bg-white','border-slate-200');
-          document.getElementById('sidebar').classList.add('bg-slate-900','border-slate-800');
-        } else {
-          body.classList.add('bg-slate-100','text-slate-800');
-          body.classList.remove('bg-slate-950','text-slate-100');
-          document.getElementById('sidebar').classList.add('bg-white','border-slate-200');
-          document.getElementById('sidebar').classList.remove('bg-slate-900','border-slate-800');
-        }
-        // Rerender list for palette change
-        fetchAndRender();
-      });
+      // theme toggle removed per new brand guidelines
     });
   </script>
 </body>

@@ -1,6 +1,5 @@
 <?php
 // Expect $user array injected by controller
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 $user = $user ?? [];
 $success = $success ?? false;
 $errors = $errors ?? [];

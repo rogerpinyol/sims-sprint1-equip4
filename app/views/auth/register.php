@@ -1,8 +1,6 @@
 <?php
 
-function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-
 $tenantId = (int)($_SESSION['tenant_id'] ?? ($_GET['tenant_id'] ?? 0));
 // CSRF token
 if (empty($_SESSION['csrf_token'])) {
