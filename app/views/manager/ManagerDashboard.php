@@ -1,9 +1,8 @@
 <?php
-$users = $users ?? [];
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
-$totalVehicles = 45;
-$activeReservations = 12;
-$dailyRevenue = 1230;
+$totalVehicles = $totalVehicles ?? 45;
+$activeReservations = $activeReservations ?? 12;
+$dailyRevenue = $dailyRevenue ?? 1230;
 ?>
 <!doctype html>
 <html lang="en">
@@ -30,7 +29,7 @@ $dailyRevenue = 1230;
     <nav class="flex flex-col p-3">
       <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Overview</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
-      <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Users</a>
+      <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager/users">Users</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Payments</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reports</a>
@@ -51,7 +50,7 @@ $dailyRevenue = 1230;
       <nav class="flex flex-col">
         <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Overview</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
-        <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Users</a>
+        <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager/users">Users</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Payments</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reports</a>
@@ -109,110 +108,8 @@ $dailyRevenue = 1230;
           </div>
         </section>
 
-        <!-- Users management -->
-        <section class="bg-white border border-slate-200 rounded-xl p-4">
-          <h3 class="text-sm font-semibold mb-3">Gestión de Usuarios</h3>
-          <?php if (!empty($_SESSION['flash_errors'])): $errs = $_SESSION['flash_errors']; unset($_SESSION['flash_errors']); ?>
-            <div class="mb-3 rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
-              <?php foreach ($errs as $e) echo '<div>'.e($e).'</div>'; ?>
-            </div>
-          <?php endif; ?>
-          <?php if (!empty($_SESSION['flash_success'])): unset($_SESSION['flash_success']); ?>
-            <div class="mb-3 rounded-md border border-green-200 bg-green-50 text-green-700 px-3 py-2 text-sm">
-              Operación realizada correctamente.
-            </div>
-          <?php endif; ?>
-
-          <form method="post" action="/manager/users" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3 items-start">
-            <input required name="name" placeholder="Name" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-            <input required type="email" name="email" placeholder="Email" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-            <input required minlength="6" type="password" name="password" placeholder="Password" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-            <input name="phone" placeholder="Phone" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-            <input name="accessibility_flags" placeholder="Accessibility" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-            <select name="role" class="w-full border border-slate-200 rounded-md px-3 py-2 text-sm">
-              <option value="client">Cliente</option>
-              <option value="manager">Manager</option>
-            </select>
-            <div class="sm:col-span-2 lg:col-span-1">
-              <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-2 text-sm">Crear Usuario</button>
-            </div>
-          </form>
-
-          <?php if (empty($users)): ?>
-            <div class="text-slate-500 text-sm">No users found.</div>
-          <?php else: ?>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead>
-                  <tr class="text-left border-b border-slate-200 text-slate-600">
-                    <th class="py-2 pr-2 hidden md:table-cell">ID</th>
-                    <th class="py-2 pr-2">Name</th>
-                    <th class="py-2 pr-2 hidden md:table-cell">Email</th>
-                    <th class="py-2 pr-2">Role</th>
-                    <th class="py-2 pr-2 hidden md:table-cell">Phone</th>
-                    <th class="py-2 pr-2 hidden md:table-cell">Acces.</th>
-                    <th class="py-2 pr-2">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($users as $u): ?>
-                    <?php $uid = e($u['id'] ?? ''); ?>
-                    <tr class="border-b border-slate-100" data-row-id="<?= $uid ?>">
-                      <td class="py-2 pr-2 align-top hidden md:table-cell"><?= $uid ?></td>
-                      <td class="py-2 pr-2 align-top">
-                        <input form="upd-<?= $uid ?>" name="name" value="<?= e($u['name'] ?? '') ?>" class="border border-slate-200 rounded-md px-2 py-1 min-w-[140px]">
-                      </td>
-                      <td class="py-2 pr-2 align-top hidden md:table-cell">
-                        <input form="upd-<?= $uid ?>" type="email" name="email" value="<?= e($u['email'] ?? '') ?>" class="border border-slate-200 rounded-md px-2 py-1 min-w-[200px]">
-                      </td>
-                      <td class="py-2 pr-2 align-top">
-                        <?php if (($u['role'] ?? '') !== 'tenant_admin'): ?>
-                          <select form="upd-<?= $uid ?>" name="role" class="border border-slate-200 rounded-md px-2 py-1 min-w-[130px]">
-                            <option value="client" <?= (($u['role'] ?? '')==='client')?'selected':'' ?>>client</option>
-                            <option value="manager" <?= (($u['role'] ?? '')==='manager')?'selected':'' ?>>manager</option>
-                          </select>
-                        <?php else: ?>
-                          <span class="text-slate-400">tenant_admin</span>
-                        <?php endif; ?>
-                      </td>
-                      <td class="py-2 pr-2 align-top hidden md:table-cell">
-                        <input form="upd-<?= $uid ?>" name="phone" value="<?= e($u['phone'] ?? '') ?>" class="border border-slate-200 rounded-md px-2 py-1 min-w-[120px]">
-                      </td>
-                      <td class="py-2 pr-2 align-top hidden md:table-cell">
-                        <input form="upd-<?= $uid ?>" name="accessibility_flags" value="<?= e(is_string($u['accessibility_flags'] ?? '') ? ($u['accessibility_flags'] ?? '') : json_encode($u['accessibility_flags'] ?? '')) ?>" class="border border-slate-200 rounded-md px-2 py-1 min-w-[140px]">
-                      </td>
-                      <td class="py-2 pr-2 align-top whitespace-nowrap">
-                        <?php if (($u['role'] ?? '') !== 'tenant_admin'): ?>
-                          <form id="upd-<?= $uid ?>" method="post" action="/manager/users/<?= $uid ?>/update" class="inline"></form>
-                          <button form="upd-<?= $uid ?>" type="submit" class="bg-amber-500 hover:bg-amber-600 text-white rounded-md px-3 py-1">Guardar</button>
-                          <?php if (($u['role'] ?? '') === 'client'): ?>
-                            <form class="js-delete-user inline" method="post" action="/manager/users/<?= $uid ?>/delete" data-id="<?= $uid ?>">
-                              <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1">Eliminar</button>
-                            </form>
-                          <?php endif; ?>
-                        <?php else: ?>
-                          <span class="text-slate-400">—</span>
-                        <?php endif; ?>
-                      </td>
-                    </tr>
-                    <!-- Compact details for mobile -->
-                    <tr class="md:hidden border-b border-slate-100">
-                      <td class="py-2 pr-2 align-top" colspan="7">
-                        <div class="text-xs text-slate-600 space-y-1">
-                          <div><span class="font-medium text-slate-700">Email:</span> <?= e($u['email'] ?? '') ?></div>
-                          <div><span class="font-medium text-slate-700">Phone:</span> <?= e($u['phone'] ?? '') ?></div>
-                          <div><span class="font-medium text-slate-700">Acces.:</span> <?= e(is_string($u['accessibility_flags'] ?? '') ? ($u['accessibility_flags'] ?? '') : json_encode($u['accessibility_flags'] ?? '')) ?></div>
-                        </div>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          <?php endif; ?>
-        </section>
-
-        <div class="text-center text-slate-500 text-xs py-4">EcoMotion © <?= date('Y') ?> | Version 1.0</div>
+      </div>
+      <footer class="mt-auto w-full text-center text-slate-500 text-xs py-4 border-t border-slate-100 bg-white">EcoMotion © <?= date('Y') ?> | Version 1.0</footer>
       </div>
     </main>
   </div>
@@ -235,35 +132,6 @@ $dailyRevenue = 1230;
       if (openBtn) openBtn.addEventListener('click', openDrawer);
       if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
       if (overlay) overlay.addEventListener('click', closeDrawer);
-
-      function closestRow(el){ while (el && el.tagName !== 'TR') el = el.parentElement; return el; }
-      function bindDelete(){
-        var forms = document.querySelectorAll('.js-delete-user');
-        forms.forEach(function(f){
-          if (f.__bound) return; f.__bound = true;
-          f.addEventListener('submit', function(ev){
-            ev.preventDefault();
-            if (!confirm('¿Eliminar este usuario?')) return;
-            var action = f.getAttribute('action');
-            fetch(action, { method: 'POST', headers: { 'Accept': 'application/json' } })
-              .then(function(res){
-                var ct = res.headers.get('content-type') || '';
-                if (ct.includes('application/json')) return res.json();
-                return { deleted: res.ok && !res.redirected };
-              })
-              .then(function(data){
-                if (data && data.deleted) {
-                  var row = closestRow(f);
-                  if (row && row.parentElement) row.parentElement.removeChild(row);
-                } else {
-                  alert('No se pudo eliminar el usuario.');
-                }
-              })
-              .catch(function(){ alert('Error de red al eliminar.'); });
-          });
-        });
-      }
-      bindDelete();
     })();
   </script>
 </body>

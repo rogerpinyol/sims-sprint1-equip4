@@ -9,29 +9,23 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
   <title>EcoMotion - Mapa de Vehículos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Leaflet CSS & JS -->
-    <!-- Leaflet (SRI removed to avoid blocking if hashes mismatch) -->
+  
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- MarkerCluster plugin -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <style>
       html, body { height: 100%; }
-      #map { width: 100%; height: 100%; min-height: 60vh; }
+      #map { width: 100%; height: 100%; min-height: 60vh; z-index: 0; }
+      header { position: relative; z-index: 50; }
       .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
     </style>
-  <style>
-    html, body { height:100%; }
-    #map { width:100%; height:100%; }
-    .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans h-full transition-colors" id="appBody">
-  <!-- Layout: sidebar (drawer) + map -->
   <div class="h-full flex flex-col">
-  <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm">
+  <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm relative z-50">
       <div class="flex items-center gap-3">
   <button id="btnOpenSidebar" class="p-2 rounded-md bg-slate-200 hover:bg-slate-300" aria-label="Menú">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -74,8 +68,9 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
         <div class="mt-auto p-3 text-xs text-slate-500 border-t border-slate-200">EcoMotion © <?= date('Y') ?></div>
       </aside>
       <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200 z-30 md:hidden"></div>
-      <!-- Map container -->
-      <div id="map" class="absolute inset-0"></div>
+  <!-- Map container -->
+  <div id="map" class="absolute inset-0"></div>
+  <button id="btnRecenter" class="absolute z-40 bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded shadow">Ubicarme</button>
     </div>
   </div>
 
@@ -85,6 +80,10 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
   let map, clusterLayer;
   let darkMode = false;
     const vehiclesById = new Map();
+  let userInteracting = false;
+  let userInteractTimer = null;
+  let userMarker = null;
+  let firstFix = false;
 
     function initMap() {
         if (typeof L === 'undefined' || !document.getElementById('map')) {
@@ -105,6 +104,14 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
         disableClusteringAtZoom: 18
       });
       map.addLayer(clusterLayer);
+      // Respect user interactions (zoom/pan) and avoid auto-fit right after
+      function markUserInteracting(){
+        userInteracting = true;
+        if (userInteractTimer) clearTimeout(userInteractTimer);
+        userInteractTimer = setTimeout(()=>{ userInteracting = false; }, 3500);
+      }
+      map.on('zoomstart', markUserInteracting);
+      map.on('movestart', markUserInteracting);
       fetchAndRender();
       setInterval(fetchAndRender, 15000); // refresh every 15s
     }
@@ -216,8 +223,8 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
         const pts = vehicles.filter(v => typeof v.lat === 'number' && typeof v.lng === 'number').map(v => [v.lat, v.lng]);
         if (pts.length) {
           const bounds = L.latLngBounds(pts);
-          // Fit only if user hasn't opted-in geolocation centering recently
-          if (!window.__userCenteredRecently) {
+          // Fit only if user hasn't opted-in geolocation centering recently and not interacting
+          if (!window.__userCenteredRecently && !userInteracting) {
             map.fitBounds(bounds.pad(0.2));
           }
         }
@@ -237,20 +244,57 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
 
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
+      const btnRecenter = document.getElementById('btnRecenter');
+      if (btnRecenter) {
+        btnRecenter.addEventListener('click', () => {
+          if (userMarker && map) {
+            window.__userCenteredRecently = true;
+            map.setView(userMarker.getLatLng(), 15);
+            setTimeout(()=>{ window.__userCenteredRecently = false; }, 2500);
+          } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+              const latlng = [pos.coords.latitude, pos.coords.longitude];
+              window.__userCenteredRecently = true;
+              if (map) map.setView(latlng, 15);
+              setTimeout(()=>{ window.__userCenteredRecently = false; }, 2500);
+            });
+          }
+        });
+      }
       if (navigator.geolocation) {
+        // Continuous updates of user location
+        navigator.geolocation.watchPosition(pos => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          if (!firstFix) {
+            window.__userCenteredRecently = true;
+            if (map) map.setView([lat, lng], 15);
+            setTimeout(()=>{ window.__userCenteredRecently = false; }, 4000);
+            firstFix = true;
+          }
+          if (map) {
+            if (!userMarker) {
+              userMarker = L.marker([lat, lng], {icon: L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41]
+              })}).addTo(map).bindPopup('Tu ubicación');
+            } else {
+              userMarker.setLatLng([lat, lng]);
+            }
+          }
+        }, () => {
+          // ignore errors; we'll still fetch vehicles and keep default center
+        }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
+        // Initial single read as fallback
         navigator.geolocation.getCurrentPosition(pos => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          window.__userCenteredRecently = true;
-          if (map) map.setView([lat, lng], 15);
-          fetchAndRender();
-          setTimeout(()=>{ window.__userCenteredRecently = false; }, 4000);
-        }, () => {
-          // Geolocation denied or failed, still render mock vehicles and fit to them
-          fetchAndRender();
-        }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
-      } else {
-        fetchAndRender();
+          if (!firstFix && map) {
+            map.setView([lat, lng], 15);
+            firstFix = true;
+          }
+        }, ()=>{}, { enableHighAccuracy: true, timeout: 5000 });
       }
+      fetchAndRender();
       if (map) map.on('moveend', fetchAndRender);
       const form = document.getElementById('statusFilterForm');
       if (form) {

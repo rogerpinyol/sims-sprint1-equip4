@@ -93,13 +93,4 @@ abstract class Controller
         return is_array($decoded) ? $decoded : [];
     }
 
-    protected function logError(Throwable $e, string $channel = 'app'): void
-    {
-        try {
-            $logDir = __DIR__ . '/../../storage/logs';
-            if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
-            $msg = sprintf("[%s] [%s] %s in %s:%s\n%s\n----\n", date('Y-m-d H:i:s'), $channel, $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
-            @file_put_contents($logDir . "/{$channel}.log", $msg, FILE_APPEND);
-        } catch (Throwable $__) {}
-    }
 }

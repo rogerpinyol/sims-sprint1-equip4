@@ -24,8 +24,10 @@ return [
     // Live vehicles API for client dashboard map (Leaflet)
     ['GET', '/client/api/vehicles', 'client/VehiclesApiController', 'list'],
 
-    // Manager area (CRUD users limited to client creation)
-    ['GET',  '/manager',          'manager/ManagerUserController', 'index'],
+    // Manager overview (no CRUD here)
+    ['GET',  '/manager',          'manager/ManagerDashboardController', 'index'],
+    // Manager users section (CRUD)
+    ['GET',  '/manager/users',    'manager/ManagerUserController', 'index'],
     ['GET',  '/manager/users/create', 'manager/ManagerUserController', 'createForm'],
     ['POST', '/manager/users',    'manager/ManagerUserController', 'store'],
     ['GET',  '/manager/users/(\d+)', 'manager/ManagerUserController', 'show'],

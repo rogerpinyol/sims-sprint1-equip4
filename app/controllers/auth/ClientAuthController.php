@@ -83,7 +83,6 @@ class ClientAuthController extends Controller
             }
             $this->json(['tenant_id' => $result['tenant_id'], 'registered' => true], 201);
         } catch (Throwable $e) {
-            $this->logError($e, 'public_register');
             if (!empty($_POST)) {
                 $_SESSION['flash_errors'] = [$e->getMessage()];
                 header('Location: /register');
@@ -148,7 +147,7 @@ class ClientAuthController extends Controller
                         exit;
                     }
             } catch (\Throwable $e) {
-                $this->logError($e, 'client_login');
+                // logging disabled
             }
             $_SESSION['flash_errors'] = ['No se pudo resolver tu empresa automáticamente. Añade ?tenant o inicia sesión tras registrarte.'];
             $_SESSION['flash_old'] = ['email' => $email];

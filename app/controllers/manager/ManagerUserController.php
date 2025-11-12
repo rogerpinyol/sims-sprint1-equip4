@@ -16,12 +16,12 @@ class ManagerUserController extends Controller
         $this->users = new User($this->tenantId ?: 0);
     }
 
-    // GET /manager -> list all users but show role; managers primarily manage clients
+    // GET /manager/users -> list all users but show role; managers primarily manage clients
     public function index(): void
     {
         $tenant = $this->requireTenant();
         $list = $this->users->getAll() ?: [];
-        $this->render(__DIR__ . '/../../views/manager/ManagerDashboard.php', [
+        $this->render(__DIR__ . '/../../views/manager/ManagerUsers.php', [
             'users' => $list,
             'tenant_id' => $tenant,
         ]);
@@ -54,7 +54,7 @@ class ManagerUserController extends Controller
         if ($errors) {
             if (!empty($_POST)) {
                 $_SESSION['flash_errors'] = $errors;
-                header('Location: /manager');
+                header('Location: /manager/users');
                 exit;
             }
             $this->json(['errors' => $errors], 422);
@@ -74,7 +74,7 @@ class ManagerUserController extends Controller
         } catch (Throwable $e) {
             if (!empty($_POST)) {
                 $_SESSION['flash_errors'] = [$e->getMessage()];
-                header('Location: /manager');
+                header('Location: /manager/users');
                 exit;
             }
             $this->json(['error' => $e->getMessage()], ($e instanceof InvalidArgumentException ? 400 : 500));
@@ -82,7 +82,7 @@ class ManagerUserController extends Controller
         }
 
         if (!empty($_POST)) {
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
         $this->json(['created_id' => $id, 'tenant_id' => $tenant]);
@@ -108,12 +108,12 @@ class ManagerUserController extends Controller
         $target = $this->users->getById($id);
         if (!$target) {
             $_SESSION['flash_errors'] = ['User not found'];
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
         if (($target['role'] ?? '') === 'tenant_admin') {
             $_SESSION['flash_errors'] = ['Managers cannot modify tenant_admin users'];
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
 
@@ -140,14 +140,14 @@ class ManagerUserController extends Controller
             }
             if (!empty($_POST)) {
                 $_SESSION['flash_success'] = true;
-                header('Location: /manager');
+                header('Location: /manager/users');
                 exit;
             }
             $this->json(['updated' => true]);
         } catch (Throwable $e) {
             if (!empty($_POST)) {
                 $_SESSION['flash_errors'] = [$e->getMessage()];
-                header('Location: /manager');
+                header('Location: /manager/users');
                 exit;
             }
             $this->json(['error' => $e->getMessage()], ($e instanceof InvalidArgumentException ? 422 : 500));
@@ -161,19 +161,19 @@ class ManagerUserController extends Controller
         $target = $this->users->getById($id);
         if (!$target) {
             $_SESSION['flash_errors'] = ['User not found'];
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
         if (($target['role'] ?? '') !== 'client') {
             $_SESSION['flash_errors'] = ['Managers can only delete client users'];
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
         $ok = $this->users->delete($id);
         if (!empty($_POST)) {
             $_SESSION['flash_success'] = $ok ? true : false;
             if (!$ok) $_SESSION['flash_errors'] = ['Delete failed'];
-            header('Location: /manager');
+            header('Location: /manager/users');
             exit;
         }
         $this->json(['deleted' => (bool)$ok]);

@@ -31,13 +31,23 @@ class Vehicle extends Model {
             foreach ($rows as &$r) { $this->normalizeRow($r); }
             return $rows;
         } catch (Throwable $e) {
+            // Already handled by Model::logError
             $this->logError($e);
             return [];
         }
     }
 
-    // List vehicles within a bounding box [south, west, north, east]
+    /**
+     * List vehicles within a bounding box [south, west, north, east]
+     * @param float
+     * @param float
+     * @param float
+     * @param float
+     * @param array
+     * @return array
+     */
     public function listWithinBounds(float $south, float $west, float $north, float $east, array $statuses = []): array {
+        /** @var float $south, $north, $west, $east */
         $params = [
             ':tenant_id' => $this->tenantId,
             ':south' => $south,
@@ -67,6 +77,7 @@ class Vehicle extends Model {
             foreach ($rows as &$r) { $this->normalizeRow($r); }
             return $rows;
         } catch (Throwable $e) {
+            // Already handled by Model::logError
             $this->logError($e);
             return [];
         }
