@@ -38,7 +38,7 @@ $old = $old ?? [];
 				</div>
 			<?php endif; ?>
 
-			   <form id="login-form" method="post" action="/client/login" class="space-y-4">
+			   <form id="login-form" method="post" action="/auth/login" class="space-y-4">
 				<input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
 				<div>

@@ -8,7 +8,7 @@ class Model
     public function __construct(string $table, int $tenantId)
     {
         // Usa tu clase Database singleton
-        require_once __DIR__ . '/../../config/Database.php';
+    require_once __DIR__ . '/../../config/database.php';
         $this->pdo = Database::getInstance()->getConnection();
 
         // Validación de nombre de tabla

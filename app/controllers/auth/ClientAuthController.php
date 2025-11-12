@@ -16,7 +16,7 @@ class ClientAuthController extends Controller
         unset($_SESSION['flash_old']);
 
         $this->render(__DIR__ . '/../../views/auth/register.php', [
-            'show_role' => false,
+              'show_role' => false, // mantiene mismo nombre de vista
             'errors' => $errors,
             'success' => $success,
             'old' => $old,
@@ -70,16 +70,18 @@ class ClientAuthController extends Controller
         try {
             $users = new User((int)($_SESSION['tenant_id'] ?? 0));
             $result = $users->registerWithTenant($name, $email, $password);
+            // Keep tenant resolved so login works, but DO NOT auto log user in.
             $_SESSION['tenant_id'] = (int)$result['tenant_id'];
-            $_SESSION['user_id'] = (int)($result['user_id'] ?? 0);
-            $_SESSION['role'] = $_SESSION['role'] ?? 'client';
-
+            // Ensure no auto-login remnants
+            unset($_SESSION['user_id']);
+            unset($_SESSION['role']);
             if (!empty($_POST)) {
-                $_SESSION['flash_success'] = true;
-                header('Location: /login');
+                $_SESSION['flash_success'] = true; // Show success message in login
+                $_SESSION['flash_old'] = ['email' => $email];
+                header('Location: /auth/login');
                 exit;
             }
-            $this->json($result, 201);
+            $this->json(['tenant_id' => $result['tenant_id'], 'registered' => true], 201);
         } catch (Throwable $e) {
             $this->logError($e, 'public_register');
             if (!empty($_POST)) {
@@ -103,7 +105,8 @@ class ClientAuthController extends Controller
             $success = true;
             unset($_SESSION['flash_success']);
         }
-        $this->render(__DIR__ . '/../../views/Client/login.php', [
+            // Render new client login view
+            $this->render(__DIR__ . '/../../views/auth/Login.php', [
             'errors' => $errors,
             'old' => $old,
             'success' => $success,
@@ -117,7 +120,7 @@ class ClientAuthController extends Controller
             $token = $_POST['csrf_token'] ?? '';
             if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
                 $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: /client/login');
+                header('Location: /auth/login');
                 exit;
             }
         }
@@ -129,14 +132,27 @@ class ClientAuthController extends Controller
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
             $_SESSION['flash_errors'] = ['Credenciales inválidas'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /client/login');
+            header('Location: /auth/login');
             exit;
         }
 
         if ($tenantId <= 0) {
-            $_SESSION['flash_errors'] = ['Selecciona un tenant primero (usa ?tenant=acme o ?tenant_id=1 en dev)'];
+            // Try to resolve tenant by authenticating across tenants via User model
+            try {
+                    $lookup = (new User(0))->authenticateAnyTenant($email, $password);
+                    if ($lookup) {
+                        $_SESSION['tenant_id'] = (int)$lookup['tenant_id'];
+                        $_SESSION['user_id'] = (int)$lookup['id'];
+                        $_SESSION['role'] = (string)($lookup['role'] ?? 'client');
+                        header('Location: /client');
+                        exit;
+                    }
+            } catch (\Throwable $e) {
+                $this->logError($e, 'client_login');
+            }
+            $_SESSION['flash_errors'] = ['No se pudo resolver tu empresa automáticamente. Añade ?tenant o inicia sesión tras registrarte.'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /client/login');
+            header('Location: /auth/login');
             exit;
         }
 
@@ -145,14 +161,14 @@ class ClientAuthController extends Controller
         if (!$row) {
             $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /client/login');
+            header('Location: /auth/login');
             exit;
         }
 
-        // Auth ok
-        $_SESSION['user_id'] = (int)$row['id'];
-        $_SESSION['role'] = (string)($row['role'] ?? 'client');
-        header('Location: /client');
+    // Auth ok
+    $_SESSION['user_id'] = (int)$row['id'];
+    $_SESSION['role'] = (string)($row['role'] ?? 'client');
+    header('Location: /client/dashboard');
         exit;
     }
 

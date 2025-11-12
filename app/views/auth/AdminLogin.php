@@ -20,7 +20,7 @@ $old = $old ?? [];
 		<div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 			<div class="text-center mb-6">
 				   <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
-				<h1 class="text-2xl font-extrabold mt-3">Sign in</h1>
+				<h1 class="text-2xl font-extrabold mt-3"> Administrator Sign in</h1>
 			</div>
 
 
@@ -57,10 +57,6 @@ $old = $old ?? [];
 					<button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700">Sign in</button>
 				</div>
 			</form>
-
-			<p class="mt-4 text-center text-sm text-slate-500">
-				No account? <a href="/register" class="text-blue-600 hover:underline">Create one</a>
-			</p>
 
 		</div>
 	</div>

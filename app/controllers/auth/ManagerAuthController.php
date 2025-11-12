@@ -1,11 +1,11 @@
 <?php
 
-// Admins login, logout
+// Managers login, logout
 
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/User.php';
 
-class AdminAuthController extends Controller
+class ManagerAuthController extends Controller
 {
     public function __construct()
     {
@@ -23,7 +23,7 @@ class AdminAuthController extends Controller
             $success = true;
             unset($_SESSION['flash_success']);
         }
-        $this->render(__DIR__ . '/../views/auth/login.php', [
+        $this->render(__DIR__ . '/../../views/auth/ManagerLogin.php', [
             'errors' => $errors,
             'old' => $old,
             'success' => $success,
@@ -37,7 +37,7 @@ class AdminAuthController extends Controller
             $token = $_POST['csrf_token'] ?? '';
             if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
                 $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: /login');
+                header('Location: /manager/login');
                 exit;
             }
         }
@@ -49,44 +49,66 @@ class AdminAuthController extends Controller
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
             $_SESSION['flash_errors'] = ['Credenciales inválidas'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /login');
+            header('Location: /manager/login');
             exit;
         }
 
         if ($tenantId <= 0) {
             $_SESSION['flash_errors'] = ['Selecciona un tenant primero (usa ?tenant=acme o ?tenant_id=1 en dev)'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /login');
+            header('Location: /manager/login');
             exit;
         }
-
 
         $userModel = new User($tenantId);
         $row = $userModel->authenticate($email, $password);
         if (!$row) {
-            $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
+            // Fallback: try authenticate across tenants (helps when tenant_id is wrong/stale)
+            try {
+                $any = (new User(0))->authenticateAnyTenant($email, $password);
+                if ($any) {
+                    // Only allow manager role here
+                    if (($any['role'] ?? '') !== 'manager') {
+                        $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
+                        $_SESSION['flash_old'] = ['email' => $email];
+                        header('Location: /manager/login');
+                        exit;
+                    }
+                    // Set resolved tenant and proceed
+                    $_SESSION['tenant_id'] = (int)$any['tenant_id'];
+                    $userModel = new User((int)$any['tenant_id']);
+                    $row = $userModel->getById((int)$any['id']);
+                }
+            } catch (\Throwable $e) {
+                // ignore lookup errors
+            }
+            if (!$row) {
+                $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
+                $_SESSION['flash_old'] = ['email' => $email];
+                header('Location: /manager/login');
+                exit;
+            }
+        }
+
+        // Only allow managers to login here
+        $role = (string)($row['role'] ?? '');
+        if ($role !== 'manager') {
+            $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /login');
+            header('Location: /manager/login');
             exit;
         }
 
-    // Auth ok
-    $_SESSION['user_id'] = (int)$row['id'];
-    $_SESSION['role'] = (string)($row['role'] ?? 'client');
-    $role = $_SESSION['role'];
-    // redirect based on role
-    if (in_array($role, ['tenant_admin', 'manager', 'super_admin'], true)) {
-        header('Location: /admin');
-    } else {
-        header('Location: /client');
-    }
-    exit;
+        // Auth ok for manager
+        $_SESSION['user_id'] = (int)$row['id'];
+        $_SESSION['role'] = 'manager';
+        header('Location: /manager');
+        exit;
     }
 
     public function logout(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        // keep tenant_id to avoid losing tenant context
         $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
         session_unset();
         session_destroy();

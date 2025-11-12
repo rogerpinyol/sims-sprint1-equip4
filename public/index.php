@@ -75,8 +75,13 @@ foreach ($routes as [$routeMethod, $pattern, $controllerName, $action]) {
     // Convert pattern like /users/(\d+) into ^/users/(\d+)$
     $regex = '#^' . $pattern . '$#';
     if (preg_match($regex, $uri, $matches)) {
-        // remove full match
+        // remove full match and cast numeric params to int (strict_types safe)
         array_shift($matches);
+        foreach ($matches as $i => $m) {
+            if (is_string($m) && ctype_digit($m)) {
+                $matches[$i] = (int)$m;
+            }
+        }
     // instantiate controller (controllers live one level up from public/)
     $controllerFile = __DIR__ . '/../app/controllers/' . $controllerName . '.php';
         if (!is_file($controllerFile)) {
@@ -85,12 +90,14 @@ foreach ($routes as [$routeMethod, $pattern, $controllerName, $action]) {
             exit;
         }
         require_once $controllerFile;
-        if (!class_exists($controllerName)) {
+        // When using subfolders like auth/ClientAuthController, the class name is the basename
+        $classBase = basename(str_replace('\\', '/', $controllerName));
+        if (!class_exists($classBase)) {
             header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
             echo "Controller class not found: $controllerName";
             exit;
         }
-        $ctrl = new $controllerName();
+        $ctrl = new $classBase();
         if (!method_exists($ctrl, $action)) {
             header($_SERVER["SERVER_PROTOCOL"] . " 500 Internal Server Error");
             echo "Action not found: $controllerName::$action";

@@ -36,6 +36,27 @@ class User extends Model {
         return $user;
     }
 
+    public function findAnyTenantByEmail(string $email): ?array {
+        try {
+            $stmt = $this->pdo->prepare('SELECT id, email, password_hash, role, tenant_id FROM users WHERE email = :email LIMIT 1');
+            $stmt->execute(['email' => $email]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (Throwable $e) {
+            $this->logError($e);
+            return null;
+        }
+    }
+
+    public function authenticateAnyTenant(string $email, string $password): ?array {
+        $row = $this->findAnyTenantByEmail($email);
+        if (!$row) return null;
+        if (!isset($row['password_hash']) || !password_verify($password, (string)$row['password_hash'])) {
+            return null;
+        }
+        return $row;
+    }
+
     // Superuser users creation with roles
     public function createUserWithRole(string $name, string $email, string $plain_password, string $role): int|false {
         $allowedRoles = ['client', 'manager', 'tenant_admin'];
@@ -178,6 +199,15 @@ class User extends Model {
     public function changePassword(int $user_id, string $plain_password) {
         $hash = password_hash($plain_password, PASSWORD_BCRYPT);
         return $this->update($user_id, ['password_hash' => $hash]);
+    }
+
+    // Update role to 'client' or 'manager' only (tenant-scoped)
+    public function updateRole(int $user_id, string $role): bool {
+        $role = strtolower(trim($role));
+        if (!in_array($role, ['client', 'manager'], true)) {
+            throw new InvalidArgumentException('Invalid role');
+        }
+        return $this->update($user_id, ['role' => $role]);
     }
 
     

@@ -31,7 +31,7 @@ $errors = $errors ?? [];
           Profile updated successfully!
         </div>
       <?php endif; ?>
-      <form method="post" action="/profile" class="space-y-4">
+  <form method="post" action="/profile" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-700" for="name">Full name</label>
           <input id="name" name="name" type="text" required minlength="2" maxlength="80" value="<?= e($user['name'] ?? '') ?>" class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -64,9 +64,12 @@ $errors = $errors ?? [];
           ?>
           <textarea id="accessibility_flags" name="accessibility_flags" maxlength="255" class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"><?php echo e($acc_value); ?></textarea>
         </div>
-        <div>
-          <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75" disabled>Save changes</button>
+        <div class="flex items-center justify-between gap-3">
+          <button type="submit" class="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">Guardar cambios</button>
         </div>
+      </form>
+      <form id="delete-account" method="post" action="/profile/delete" onsubmit="return confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');" class="mt-4">
+        <button type="submit" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-500">Eliminar cuenta</button>
       </form>
     </div>
   </div>

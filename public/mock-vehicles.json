@@ -1,0 +1,39 @@
+{
+  "vehicles": [
+    { "id": 101, "vin": "TESTVIN001", "model": "Tesla Model 3", "status": "available",   "battery_level": 87, "lat": 40.4169, "lng": -3.7035 },
+    { "id": 102, "vin": "TESTVIN002", "model": "Renault Zoe",   "status": "charging",    "battery_level": 45, "lat": 40.4178, "lng": -3.7052 },
+    { "id": 103, "vin": "TESTVIN003", "model": "Nissan Leaf",   "status": "booked",      "battery_level": 62, "lat": 40.4155, "lng": -3.7041 },
+    { "id": 104, "vin": "TESTVIN004", "model": "Kia Niro EV",   "status": "maintenance", "battery_level": 30, "lat": 40.4182, "lng": -3.7022 },
+    { "id": 105, "vin": "TESTVIN005", "model": "BMW i3",        "status": "available",   "battery_level": 73, "lat": 40.4148, "lng": -3.7060 },
+
+    { "id": 106, "vin": "TESTVIN006", "model": "Peugeot e-208",         "status": "available",   "battery_level": 64, "lat": 40.4174, "lng": -3.7009 },
+    { "id": 107, "vin": "TESTVIN007", "model": "Hyundai Kona Electric", "status": "booked",      "battery_level": 58, "lat": 40.4159, "lng": -3.7016 },
+    { "id": 108, "vin": "TESTVIN008", "model": "VW ID.3",               "status": "charging",    "battery_level": 22, "lat": 40.4188, "lng": -3.7073 },
+    { "id": 109, "vin": "TESTVIN009", "model": "Citroën ë-C4",          "status": "available",   "battery_level": 81, "lat": 40.4192, "lng": -3.7055 },
+    { "id": 110, "vin": "TESTVIN010", "model": "Fiat 500e",              "status": "maintenance", "battery_level": 19, "lat": 40.4129, "lng": -3.7030 },
+
+    { "id": 111, "vin": "TESTVIN011", "model": "Tesla Model Y",          "status": "available",   "battery_level": 92, "lat": 40.4201, "lng": -3.7001 },
+    { "id": 112, "vin": "TESTVIN012", "model": "Opel Corsa-e",           "status": "booked",      "battery_level": 55, "lat": 40.4138, "lng": -3.7094 },
+    { "id": 113, "vin": "TESTVIN013", "model": "Mini Cooper SE",         "status": "charging",    "battery_level": 35, "lat": 40.4161, "lng": -3.7080 },
+    { "id": 114, "vin": "TESTVIN014", "model": "Skoda Enyaq",            "status": "available",   "battery_level": 76, "lat": 40.4210, "lng": -3.7032 },
+    { "id": 115, "vin": "TESTVIN015", "model": "Honda e",                "status": "maintenance", "battery_level": 28, "lat": 40.4141, "lng": -3.6997 },
+
+    { "id": 116, "vin": "TESTVIN016", "model": "Mazda MX-30",            "status": "available",   "battery_level": 67, "lat": 40.4172, "lng": -3.7098 },
+    { "id": 117, "vin": "TESTVIN017", "model": "Toyota bZ4X",            "status": "booked",      "battery_level": 61, "lat": 40.4195, "lng": -3.6994 },
+    { "id": 118, "vin": "TESTVIN018", "model": "Volvo XC40 Recharge",    "status": "charging",    "battery_level": 48, "lat": 40.4122, "lng": -3.7067 },
+    { "id": 119, "vin": "TESTVIN019", "model": "Audi Q4 e-tron",         "status": "available",   "battery_level": 83, "lat": 40.4207, "lng": -3.7079 },
+    { "id": 120, "vin": "TESTVIN020", "model": "Mercedes EQA",           "status": "maintenance", "battery_level": 17, "lat": 40.4150, "lng": -3.7008 },
+
+    { "id": 121, "vin": "TESTVIN021", "model": "Renault Megane E-Tech",  "status": "available",   "battery_level": 79, "lat": 40.4180, "lng": -3.6989 },
+    { "id": 122, "vin": "TESTVIN022", "model": "Cupra Born",             "status": "booked",      "battery_level": 59, "lat": 40.4134, "lng": -3.7018 },
+    { "id": 123, "vin": "TESTVIN023", "model": "Peugeot e-2008",         "status": "charging",    "battery_level": 41, "lat": 40.4177, "lng": -3.7120 },
+    { "id": 124, "vin": "TESTVIN024", "model": "Dacia Spring",           "status": "available",   "battery_level": 72, "lat": 40.4115, "lng": -3.7058 },
+    { "id": 125, "vin": "TESTVIN025", "model": "Kia EV6",                "status": "available",   "battery_level": 88, "lat": 40.4220, "lng": -3.7044 },
+
+    { "id": 126, "vin": "TESTVIN026", "model": "Hyundai Ioniq 5",        "status": "booked",      "battery_level": 63, "lat": 40.4206, "lng": -3.7091 },
+    { "id": 127, "vin": "TESTVIN027", "model": "VW ID.4",                "status": "charging",    "battery_level": 33, "lat": 40.4160, "lng": -3.6978 },
+    { "id": 128, "vin": "TESTVIN028", "model": "Tesla Model S",          "status": "available",   "battery_level": 94, "lat": 40.4144, "lng": -3.6999 },
+    { "id": 129, "vin": "TESTVIN029", "model": "Tesla Model X",          "status": "maintenance", "battery_level": 14, "lat": 40.4219, "lng": -3.7006 },
+    { "id": 130, "vin": "TESTVIN030", "model": "Smart #1",               "status": "available",   "battery_level": 71, "lat": 40.4128, "lng": -3.7072 }
+  ]
+}

@@ -93,7 +93,7 @@ if (empty($_SESSION['csrf_token'])) {
       </form>
 
       <p class="mt-4 text-center text-sm text-slate-500">
-  Already have an account? <a href="/login" class="text-blue-600 hover:underline">Sign in</a>
+  Already have an account? <a href="/auth/login" class="text-blue-600 hover:underline">Sign in</a>
       </p>
       <p class="mt-3 text-center text-xs text-slate-400">
         <a href="/privacy" class="hover:underline">Privacy</a> · <a href="/terms" class="hover:underline">Terms</a>
