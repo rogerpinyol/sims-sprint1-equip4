@@ -18,13 +18,13 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <style>
       html, body { height: 100%; }
-      #map { width: 100%; height: 100%; min-height: 60vh; z-index: 0; }
+      #map { width: 100%; height: 100%; z-index: 0; }
       header { position: relative; z-index: 50; }
       .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans h-full transition-colors" id="appBody">
-  <div class="h-full flex flex-col">
+  <div class="h-full min-h-screen flex flex-col">
   <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shadow-sm relative z-50">
       <div class="flex items-center gap-3">
   <button id="btnOpenSidebar" class="p-2 rounded-md bg-slate-200 hover:bg-slate-300" aria-label="Menú">
@@ -43,19 +43,20 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
         </form>
       </div>
     </header>
-    <div class="flex-1 relative">
-      <!-- Sidebar -->
-  <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-200 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
+  <div class="flex-1 relative flex min-h-0">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-200 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none flex-shrink-0">
+      <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50 shrink-0">
           <div class="font-medium text-slate-700">Vehículos cercanos</div>
           <button id="btnCloseSidebar" class="p-1 rounded-md hover:bg-slate-200 md:hidden" aria-label="Cerrar">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 11-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/></svg>
           </button>
         </div>
-        <div class="p-3 space-y-3 overflow-y-auto text-sm" id="vehiclesList">
+        <div class="flex-1 min-h-0 p-3 space-y-3 overflow-y-auto text-sm" id="vehiclesList">
           <div class="text-slate-500">Cargando vehículos...</div>
         </div>
-        <div class="p-3 border-t border-slate-200 bg-slate-50">
+        <div class="p-3 border-t border-slate-200 bg-slate-50 shrink-0">
           <div class="text-xs mb-2 text-slate-500">Filtrar por estado</div>
           <form id="statusFilterForm" class="grid grid-cols-2 gap-2 text-xs">
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="available" class="accent-blue-600" checked> <span>Disponible</span></label>
@@ -65,13 +66,14 @@ $user = $user ?? ['name' => 'Cliente', 'email' => ''];
             <button type="submit" class="col-span-2 mt-1 w-full bg-slate-800 text-white hover:bg-slate-700 rounded-md py-1">Aplicar</button>
           </form>
         </div>
-        <div class="mt-auto p-3 text-xs text-slate-500 border-t border-slate-200">EcoMotion © <?= date('Y') ?></div>
-      </aside>
-      <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200 z-30 md:hidden"></div>
-  <!-- Map container -->
-  <div id="map" class="absolute inset-0"></div>
-  <button id="btnRecenter" class="absolute z-40 bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded shadow">Ubicarme</button>
-    </div>
+        
+      </div>
+    </aside>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200 z-30 md:hidden"></div>
+    <!-- Map container -->
+  <div id="map" class="flex-1 min-h-0 h-full"></div>
+    <button id="btnRecenter" class="absolute z-40 bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded shadow">Ubicarme</button>
+  </div>
   </div>
 
   <script>

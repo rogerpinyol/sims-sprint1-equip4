@@ -25,7 +25,7 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
       </button>
     </div>
     <nav class="flex flex-col p-3">
-      <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager">Overview</a>
+      <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager">Dashboard</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
       <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager/users">Users</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
@@ -46,7 +46,7 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
         EcoMotion Manager
       </div>
       <nav class="flex flex-col">
-        <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager">Overview</a>
+        <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager">Dashboard</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
         <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager/users">Users</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>

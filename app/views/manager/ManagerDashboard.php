@@ -27,7 +27,7 @@ $dailyRevenue = $dailyRevenue ?? 1230;
       </button>
     </div>
     <nav class="flex flex-col p-3">
-      <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Overview</a>
+      <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Dashboard</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager/users">Users</a>
       <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
@@ -48,7 +48,7 @@ $dailyRevenue = $dailyRevenue ?? 1230;
         EcoMotion Manager
       </div>
       <nav class="flex flex-col">
-        <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Overview</a>
+        <a class="px-3 py-2 rounded-md bg-slate-800 text-white" href="/manager">Dashboard</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="/manager/users">Users</a>
         <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
@@ -99,12 +99,64 @@ $dailyRevenue = $dailyRevenue ?? 1230;
         <!-- Charts placeholder -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-xl p-4 min-h-[260px]">
-            <h3 class="text-sm font-semibold mb-2">Uso de Vehículos</h3>
-            <div class="h-[220px] flex items-center justify-center text-slate-400">[Chart placeholder]</div>
+            <h3 class="text-sm font-semibold mb-2">Vehicles</h3>
+            <?php
+            // Load vehicles from mock-vehicles.json if not set
+            if (!isset($vehicles)) {
+              $json = @file_get_contents(__DIR__ . '/../../../public/mock-vehicles.json');
+              $vehicles = [];
+              if ($json) {
+                $data = json_decode($json, true);
+                if (isset($data['vehicles']) && is_array($data['vehicles'])) {
+                  $vehicles = $data['vehicles'];
+                }
+              }
+            }
+            ?>
+            <div class="h-96 overflow-y-auto">
+              <table class="min-w-full text-xs text-left">
+                <thead>
+                  <tr class="text-slate-500 border-b border-slate-100">
+                    <th class="py-1 pr-2 font-medium">ID</th>
+                    <th class="py-1 pr-2 font-medium">VIN</th>
+                    <th class="py-1 pr-2 font-medium">Modelo</th>
+                    <th class="py-1 pr-2 font-medium">Estado</th>
+                    <th class="py-1 pr-2 font-medium">Batería</th>
+                    <th class="py-1 pr-2 font-medium">Lat</th>
+                    <th class="py-1 pr-2 font-medium">Lng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($vehicles as $v): ?>
+                  <tr class="border-b last:border-0">
+                    <td class="py-1 pr-2"><?= e($v['id']) ?></td>
+                    <td class="py-1 pr-2"><?= e($v['vin']) ?></td>
+                    <td class="py-1 pr-2"><?= e($v['model']) ?></td>
+                    <td class="py-1 pr-2">
+                      <?php
+                        $status = strtolower($v['status']);
+                        $color = match($status) {
+                          'available' => 'text-green-600',
+                          'booked' => 'text-blue-600',
+                          'charging' => 'text-yellow-600',
+                          'maintenance' => 'text-red-600',
+                          default => 'text-slate-500',
+                        };
+                      ?>
+                      <span class="font-semibold <?= e($color) ?>"><?= e(ucfirst($v['status'])) ?></span>
+                    </td>
+                    <td class="py-1 pr-2"><?= e($v['battery_level']) ?>%</td>
+                    <td class="py-1 pr-2"><?= e($v['lat']) ?></td>
+                    <td class="py-1 pr-2"><?= e($v['lng']) ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div class="bg-white border border-slate-200 rounded-xl p-4 min-h-[260px]">
             <h3 class="text-sm font-semibold mb-2">Mapa de Vehículos</h3>
-            <div class="h-[220px] rounded-md bg-slate-200"></div>
+            <div id="vehiclesMap" class="h-96 rounded-md bg-slate-200"></div>
           </div>
         </section>
 
@@ -114,6 +166,8 @@ $dailyRevenue = $dailyRevenue ?? 1230;
     </main>
   </div>
 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     (function(){
       // Mobile sidebar toggle
@@ -132,6 +186,23 @@ $dailyRevenue = $dailyRevenue ?? 1230;
       if (openBtn) openBtn.addEventListener('click', openDrawer);
       if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
       if (overlay) overlay.addEventListener('click', closeDrawer);
+
+      // --- Leaflet Map for Vehicles ---
+      var vehicles = <?php echo json_encode($vehicles ?? []); ?>;
+      var mapDiv = document.getElementById('vehiclesMap');
+      if (mapDiv && vehicles.length > 0) {
+        var map = L.map('vehiclesMap').setView([40.713, 0.581], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        vehicles.forEach(function(v) {
+          if (v.lat && v.lng) {
+            var marker = L.marker([v.lat, v.lng]).addTo(map);
+            marker.bindPopup('<b>' + (v.model ? v.model : '') + '</b><br>Batería: ' + (v.battery_level !== undefined ? v.battery_level + '%' : 'N/A'));
+          }
+        });
+      }
     })();
   </script>
 </body>

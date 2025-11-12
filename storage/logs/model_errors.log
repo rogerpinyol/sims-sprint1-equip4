@@ -1,0 +1,1 @@
+[2025-11-12 16:34:40] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'client@example.test' for key 'email' in /var/www/html/app/core/Model.php:74
