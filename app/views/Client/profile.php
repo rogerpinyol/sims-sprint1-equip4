@@ -12,10 +12,14 @@ $errors = $errors ?? [];
   <title>Edit Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-white text-slate-800 font-sans flex flex-col min-h-screen">
   <div class="flex-grow flex items-center justify-center px-4 py-12">
     <div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+      <a href="/client/dashboard" class="inline-block mb-4 text-blue-600 hover:text-blue-800 font-semibold">
+        <i class="fas fa-arrow-left mr-2"></i>
+      </a>
       <h1 class="text-2xl font-bold mb-6 text-center">Edit Profile</h1>
       <?php if (!empty($errors)): ?>
         <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -69,7 +73,7 @@ $errors = $errors ?? [];
         </div>
       </form>
       <form id="delete-account" method="post" action="/profile/delete" onsubmit="return confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');" class="mt-4">
-        <button type="submit" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-500">Eliminar cuenta</button>
+        <a href="#" onclick="document.getElementById('delete-account').submit();" class="text-red-600 hover:text-red-800 font-semibold">Eliminar cuenta</a>
       </form>
     </div>
   </div>

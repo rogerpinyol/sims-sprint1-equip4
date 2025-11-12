@@ -53,17 +53,17 @@ class ManagerAuthController extends Controller
             exit;
         }
 
-        if ($tenantId <= 0) {
-            $_SESSION['flash_errors'] = ['Selecciona un tenant primero (usa ?tenant=acme o ?tenant_id=1 en dev)'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /manager/login');
-            exit;
+        $row = null;
+        $userModel = null;
+
+        // If we already have a tenant, try tenant-scoped auth first
+        if ($tenantId > 0) {
+            $userModel = new User($tenantId);
+            $row = $userModel->authenticate($email, $password);
         }
 
-        $userModel = new User($tenantId);
-        $row = $userModel->authenticate($email, $password);
+        // If tenant not set or auth failed, try to resolve by authenticating across tenants
         if (!$row) {
-            // Fallback: try authenticate across tenants (helps when tenant_id is wrong/stale)
             try {
                 $any = (new User(0))->authenticateAnyTenant($email, $password);
                 if ($any) {
@@ -74,20 +74,27 @@ class ManagerAuthController extends Controller
                         header('Location: /manager/login');
                         exit;
                     }
-                    // Set resolved tenant and proceed
+                    // Set resolved tenant and proceed with that scope
                     $_SESSION['tenant_id'] = (int)$any['tenant_id'];
-                    $userModel = new User((int)$any['tenant_id']);
+                    $tenantId = (int)$any['tenant_id'];
+                    $userModel = new User($tenantId);
                     $row = $userModel->getById((int)$any['id']);
                 }
             } catch (\Throwable $e) {
                 // ignore lookup errors
             }
-            if (!$row) {
+        }
+
+        if (!$row) {
+            // No auth match; if we still have no tenant set, give a clear hint for dev
+            if ($tenantId <= 0) {
+                $_SESSION['flash_errors'] = ['No se pudo resolver tu empresa automáticamente. Añade ?tenant o ?tenant_id, o verifica tus credenciales.'];
+            } else {
                 $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
-                $_SESSION['flash_old'] = ['email' => $email];
-                header('Location: /manager/login');
-                exit;
             }
+            $_SESSION['flash_old'] = ['email' => $email];
+            header('Location: /manager/login');
+            exit;
         }
 
         // Only allow managers to login here
