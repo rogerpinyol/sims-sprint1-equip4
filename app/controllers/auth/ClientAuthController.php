@@ -20,6 +20,8 @@ class ClientAuthController extends Controller
             'errors' => $errors,
             'success' => $success,
             'old' => $old,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'Register — EcoMotion',
         ]);
     }
 
@@ -109,6 +111,8 @@ class ClientAuthController extends Controller
             'errors' => $errors,
             'old' => $old,
             'success' => $success,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'Login Cliente — EcoMotion',
         ]);
     }
 

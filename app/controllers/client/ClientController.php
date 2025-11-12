@@ -34,7 +34,13 @@ class ClientController extends Controller
         unset($_SESSION['flash_errors']);
         $success = !empty($_SESSION['flash_success']);
         unset($_SESSION['flash_success']);
-    $this->render(__DIR__ . '/../../views/client/profile.php', compact('user','errors','success'));
+        $this->render(__DIR__ . '/../../views/client/profile.php', [
+            'user' => $user,
+            'errors' => $errors,
+            'success' => $success,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'Edit Profile',
+        ]);
     }
 
     public function updateProfile(): void

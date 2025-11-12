@@ -30,6 +30,9 @@ class ClientDashboardController extends Controller
         $this->render(__DIR__ . '/../../views/client/dashboard.php', [
             'user' => $user,
             'tenant_id' => $tenant,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'EcoMotion - Mapa de Vehículos',
+            'scripts' => ['/js/dashboard.js'],
         ]);
     }
 }

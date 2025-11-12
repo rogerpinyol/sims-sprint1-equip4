@@ -27,6 +27,8 @@ class ManagerAuthController extends Controller
             'errors' => $errors,
             'old' => $old,
             'success' => $success,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'Manager Login — EcoMotion',
         ]);
     }
 
@@ -37,7 +39,7 @@ class ManagerAuthController extends Controller
             $token = $_POST['csrf_token'] ?? '';
             if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
                 $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: /manager/login');
+                header('Location: ' . manager_base() . '/login');
                 exit;
             }
         }
@@ -49,7 +51,7 @@ class ManagerAuthController extends Controller
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
             $_SESSION['flash_errors'] = ['Credenciales inválidas'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /manager/login');
+            header('Location: ' . manager_base() . '/login');
             exit;
         }
 
@@ -71,7 +73,7 @@ class ManagerAuthController extends Controller
                     if (($any['role'] ?? '') !== 'manager') {
                         $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
                         $_SESSION['flash_old'] = ['email' => $email];
-                        header('Location: /manager/login');
+                        header('Location: ' . manager_base() . '/login');
                         exit;
                     }
                     // Set resolved tenant and proceed with that scope
@@ -93,7 +95,7 @@ class ManagerAuthController extends Controller
                 $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
             }
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /manager/login');
+            header('Location: ' . manager_base() . '/login');
             exit;
         }
 
@@ -102,14 +104,14 @@ class ManagerAuthController extends Controller
         if ($role !== 'manager') {
             $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
             $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /manager/login');
+            header('Location: ' . manager_base() . '/login');
             exit;
         }
 
         // Auth ok for manager
         $_SESSION['user_id'] = (int)$row['id'];
         $_SESSION['role'] = 'manager';
-        header('Location: /manager');
+        header('Location: ' . manager_base());
         exit;
     }
 

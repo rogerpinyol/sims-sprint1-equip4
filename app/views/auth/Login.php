@@ -6,16 +6,9 @@ $errors = $errors ?? [];
 $old = $old ?? [];
 ?>
 
-<!doctype html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1">
-		<title>Login Cliente — EcoMotion</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-white text-slate-800 font-sans flex flex-col min-h-screen">
-	<div class="flex-grow flex items-center justify-center px-4 py-12">
+<?php include __DIR__ . '/../partials/simpleHeader.php'; ?>
+
+<div class="flex-grow flex items-center justify-center px-4 py-12">
 		<div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 			<div class="text-center mb-6">
 				   <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
@@ -42,18 +35,18 @@ $old = $old ?? [];
 
 				<div>
 					<label class="block text-sm font-medium text-slate-700" for="email">Email</label>
-					<input id="email" name="email" type="email" value="<?= e($old['email'] ?? '') ?>" required class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+					<input id="email" name="email" type="email" value="<?= e($old['email'] ?? '') ?>" required class="input mt-1" />
 					<p id="email-error" class="mt-1 text-sm text-red-600 hidden"></p>
 				</div>
 
 				<div>
 					<label class="block text-sm font-medium text-slate-700" for="password">Password</label>
-					<input id="password" name="password" type="password" required class="mt-1 block w-full rounded-lg border border-slate-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+					<input id="password" name="password" type="password" required class="input mt-1" />
 					<p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
 				</div>
 
 				<div>
-					<button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700">Sign in</button>
+					<button type="submit" class="btn btn-primary w-full">Sign in</button>
 				</div>
 			</form>
 
@@ -62,8 +55,7 @@ $old = $old ?? [];
 			   </p>
 
 		</div>
-	</div>
-</body>
+    </div>
 <script>
 
 // Client-side validation
@@ -110,6 +102,3 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 });
 </script>
-<?php include __DIR__ . '/../footer.php'; ?>
-</body>
-</html>

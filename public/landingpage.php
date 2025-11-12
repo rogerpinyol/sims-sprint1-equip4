@@ -42,8 +42,7 @@
 	<meta property="og:type" content="website">
 	<meta property="og:image" content="/og-image.png">
 		<!-- Favicon -->
-		<link rel="icon" type="image/svg+xml" href="/images/logo.jpg">
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/jpeg" href="/images/logo.jpg">
 </head>
 <body class="bg-white text-slate-800 font-sans">
 	<!-- Navbar -->
@@ -76,7 +75,7 @@
 				<a href="#pricing" class="block px-2 py-2 rounded hover:bg-slate-50">Pricing</a>
 				<a href="#testimonials" class="block px-2 py-2 rounded hover:bg-slate-50">Customers</a>
 				<div class="pt-2 flex gap-2">
-					<a href="/manager/login" class="flex-1 px-4 py-2 text-center rounded-lg border border-blue-600 text-blue-700 font-semibold text-sm hover:bg-blue-50 transition">Manager login</a>
+					<a href="/ecomotion-manager/login" class="flex-1 px-4 py-2 text-center rounded-lg border border-blue-600 text-blue-700 font-semibold text-sm hover:bg-blue-50 transition">Manager login</a>
 				</div>
 			</div>
 		</div>
@@ -98,7 +97,7 @@
 						The platform for companies to manage, optimize, and scale their vehicle fleets, and for customers to easily rent and enjoy electric mobility.
 					</p>
 					<div class="flex flex-col sm:flex-row gap-5 mb-8">
-						<a href="/manager/login" class="flex-1 px-6 py-4 rounded-xl bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 text-center shadow transition">I'm a Manager</a>
+						<a href="/ecomotion-manager/login" class="flex-1 px-6 py-4 rounded-xl bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 text-center shadow transition">I'm a Manager</a>
 					</div>
 					<div class="mt-8 flex items-center gap-6 text-sm text-slate-500">
 						<div class="flex items-center gap-2"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>99.95% uptime</div>

@@ -76,13 +76,29 @@ abstract class Controller
 
     protected function render(string $viewPath, array $vars = []): void
     {
-        extract($vars, EXTR_SKIP);
+        $layout = $vars['layout'] ?? null; // e.g., path to app/views/layouts/app.php
+        $title = $vars['title'] ?? null;
+
+        // Render the view into a buffer first
         if (!is_file($viewPath)) {
             http_response_code(500);
             echo 'View not found: ' . htmlspecialchars($viewPath, ENT_QUOTES, 'UTF-8');
             return;
         }
+
+        extract($vars, EXTR_SKIP);
+        ob_start();
         include $viewPath;
+        $content = ob_get_clean();
+
+        if ($layout && is_file($layout)) {
+            // Provide $content and optional $title to layout
+            include $layout;
+            return;
+        }
+
+        // No layout requested, output raw content
+        echo $content;
     }
 
     protected function parseJsonBody(?string $rawBody = null): array
@@ -98,5 +114,14 @@ abstract class Controller
 if (!function_exists('e')) {
     function e($v) {
         return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('manager_base')) {
+    function manager_base(): string {
+        $base = getenv('MANAGER_BASE');
+        if (!is_string($base) || trim($base) === '') return '/ecomotion-manager';
+        if ($base[0] !== '/') $base = '/' . $base;
+        return rtrim($base, '/');
     }
 }

@@ -1,10 +1,21 @@
 <?php
 
+// Revisar com funciona aquesta variable d'entorn
+$MB = getenv('MANAGER_BASE') ?: '/ecomotion-manager';
+if ($MB === '' || $MB === false) { $MB = '/ecomotion-manager'; }
+if ($MB[0] !== '/') { $MB = '/' . $MB; }
+if ($MB !== '/' && substr($MB, -1) === '/') { $MB = rtrim($MB, '/'); }
+
 return [
     // Manager Login
     ['GET',  '/manager/login',      'auth/ManagerAuthController', 'loginForm'],
     ['POST', '/manager/login',      'auth/ManagerAuthController', 'login'],
     ['POST', '/manager/logout',     'auth/ManagerAuthController', 'logout'],
+
+    // Manager Login (pretty base)
+    ['GET',  $MB . '/login',      'auth/ManagerAuthController', 'loginForm'],
+    ['POST', $MB . '/login',      'auth/ManagerAuthController', 'login'],
+    ['POST', $MB . '/logout',     'auth/ManagerAuthController', 'logout'],
 
     // Client Login and Register
     ['GET',  '/auth/login',     'auth/ClientAuthController', 'loginForm'],
@@ -33,4 +44,13 @@ return [
     ['GET',  '/manager/users/(\d+)', 'manager/ManagerUserController', 'show'],
     ['POST', '/manager/users/(\d+)/update', 'manager/ManagerUserController', 'update'],
     ['POST', '/manager/users/(\d+)/delete', 'manager/ManagerUserController', 'delete'],
+
+    // Pretty base routes (alias)
+    ['GET',  $MB,                       'manager/ManagerDashboardController', 'index'],
+    ['GET',  $MB . '/users',            'manager/ManagerUserController', 'index'],
+    ['GET',  $MB . '/users/create',     'manager/ManagerUserController', 'createForm'],
+    ['POST', $MB . '/users',            'manager/ManagerUserController', 'store'],
+    ['GET',  $MB . '/users/(\d+)',      'manager/ManagerUserController', 'show'],
+    ['POST', $MB . '/users/(\d+)/update','manager/ManagerUserController', 'update'],
+    ['POST', $MB . '/users/(\d+)/delete','manager/ManagerUserController', 'delete'],
 ];

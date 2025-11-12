@@ -24,6 +24,9 @@ class ManagerUserController extends Controller
         $this->render(__DIR__ . '/../../views/manager/ManagerUsers.php', [
             'users' => $list,
             'tenant_id' => $tenant,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'EcoMotion Manager — Users',
+            'scripts' => ['/js/manager-users.js'],
         ]);
     }
 

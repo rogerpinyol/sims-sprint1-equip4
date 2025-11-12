@@ -55,6 +55,25 @@ if ($uri !== '/' && str_ends_with($uri, '/')) {
     $uri = rtrim($uri, '/');
 }
 
+// Redirect legacy /manager* to configured base (e.g., /ecomotion-manager)
+$MB = getenv('MANAGER_BASE') ?: '/ecomotion-manager';
+// normalize base: ensure leading slash and no trailing slash (except root)
+if ($MB === '' || $MB === false) { $MB = '/ecomotion-manager'; }
+if ($MB[0] !== '/') { $MB = '/' . $MB; }
+if ($MB !== '/' && str_ends_with($MB, '/')) { $MB = rtrim($MB, '/'); }
+
+// Redirect only safe methods (GET/HEAD) to avoid breaking POST bodies
+if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET','HEAD'], true)
+    && $MB !== '/manager' && preg_match('#^/manager($|/)#', $uri)) {
+    $target = preg_replace('#^/manager#', $MB, $uri);
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    if (is_string($qs) && $qs !== '') {
+        $target .= (str_contains($target, '?') ? '&' : '?') . $qs;
+    }
+    header('Location: ' . $target, true, 301);
+    exit;
+}
+
 if ($uri === '/' || $uri === '/landingpage') {
     include __DIR__ . '/landingpage.php';
     exit;

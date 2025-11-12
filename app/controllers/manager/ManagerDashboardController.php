@@ -20,6 +20,9 @@ class ManagerDashboardController extends Controller
             'totalVehicles' => 45,
             'activeReservations' => 12,
             'dailyRevenue' => 1230,
+                'layout' => __DIR__ . '/../../views/layouts/app.php',
+                'title' => 'EcoMotion Manager — Dashboard',
+            'scripts' => ['/js/manager-dashboard.js'],
         ]);
     }
 }
