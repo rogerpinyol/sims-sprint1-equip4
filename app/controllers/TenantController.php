@@ -35,13 +35,15 @@ class TenantController extends Controller
         $offset = max(0, (int)($queryParams['offset'] ?? 0));
 
         $data = $this->tenants->listTenants($filters, $limit, $offset);
-        return $this->jsonResponse([
+        // For API callers return JSON; for internal use, Router ignores return values, so echo JSON directly
+        $this->json([
             'data' => $data,
             'pagination' => [
                 'limit' => $limit,
                 'offset' => $offset,
             ],
-        ], 200, $this->jsonHeaders());
+        ]);
+        return [];
     }
 
     public function show(int $id): array
@@ -53,56 +55,130 @@ class TenantController extends Controller
             throw new HttpException(404, 'Tenant not found');
         }
 
-        return $this->jsonResponse(['data' => $tenant], 200, $this->jsonHeaders());
+        $this->json(['data' => $tenant], 200);
+        return [];
     }
 
-    public function store(array $payload): array
+    public function store(): void
     {
         $this->requireSuperAdmin();
-        $clean = $this->filterCreatePayload($payload);
+        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
+        $clean = $this->filterCreatePayload($input);
         if ($clean === null) {
-            throw new HttpException(422, 'Invalid payload');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'Invalid payload',
+                ];
+                header('Location: /admin/tenants');
+                exit;
+            }
+            $this->json(['error' => 'Invalid payload'], 422);
+            return;
         }
 
         $result = $this->tenants->createTenant($clean);
         if ($result === false) {
-            throw new HttpException(400, 'Unable to create tenant');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'Unable to create tenant',
+                ];
+                header('Location: /admin/tenants');
+                exit;
+            }
+            $this->json(['error' => 'Unable to create tenant'], 400);
+            return;
         }
 
         $tenant = $this->tenants->findById($result['id']);
-
-        return $this->jsonResponse([
+        if (!empty($_POST)) {
+            $_SESSION['tenant_create_feedback'] = [
+                'success' => true,
+                'message' => 'Tenant created successfully',
+                'api_key' => $result['api_key'] ?? null,
+            ];
+            header('Location: /admin/tenants');
+            exit;
+        }
+        $this->json([
             'message' => 'Tenant created',
             'data' => $tenant,
             'api_key' => $result['api_key'],
-        ], 201, $this->jsonHeaders());
+        ], 201);
+        return;
     }
 
-    public function update(int $id, array $payload): array
+    public function update(int $id): void
     {
         $this->requireSuperAdmin();
         if ($id <= 0) {
-            throw new HttpException(400, 'Invalid tenant id');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'Invalid tenant id',
+                ];
+                header('Location: /admin/tenants');
+                exit;
+            }
+            $this->json(['error' => 'Invalid tenant id'], 400);
+            return;
         }
 
-        $data = $this->filterUpdatePayload($payload);
+        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
+        $data = $this->filterUpdatePayload($input);
         if (empty($data)) {
-            throw new HttpException(422, 'No valid fields to update');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'No valid fields to update',
+                ];
+                header('Location: /admin/tenants/' . urlencode((string)$id) . '/edit');
+                exit;
+            }
+            $this->json(['error' => 'No valid fields to update'], 422);
+            return;
         }
 
         if (!$this->tenants->updateTenant($id, $data)) {
-            throw new HttpException(400, 'Update failed');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'Update failed',
+                ];
+                header('Location: /admin/tenants/' . urlencode((string)$id) . '/edit');
+                exit;
+            }
+            $this->json(['error' => 'Update failed'], 400);
+            return;
         }
 
         $tenant = $this->tenants->findById($id);
         if ($tenant === null) {
-            throw new HttpException(404, 'Tenant not found after update');
+            if (!empty($_POST)) {
+                $_SESSION['tenant_create_feedback'] = [
+                    'success' => false,
+                    'message' => 'Tenant not found after update',
+                ];
+                header('Location: /admin/tenants');
+                exit;
+            }
+            $this->json(['error' => 'Tenant not found after update'], 404);
+            return;
         }
-
-        return $this->jsonResponse([
+        if (!empty($_POST)) {
+            $_SESSION['tenant_create_feedback'] = [
+                'success' => true,
+                'message' => 'Tenant updated',
+            ];
+            header('Location: /admin/tenants/' . urlencode((string)$id) . '/view');
+            exit;
+        }
+        $this->json([
             'message' => 'Tenant updated',
             'data' => $tenant,
-        ], 200, $this->jsonHeaders());
+        ], 200);
+        return;
     }
 
     public function deactivate(int $id): array
@@ -115,10 +191,16 @@ class TenantController extends Controller
         if (!$this->tenants->deactivateTenant($id)) {
             throw new HttpException(400, 'Unable to deactivate tenant');
         }
-
-        return $this->jsonResponse([
-            'message' => 'Tenant deactivated',
-        ], 200, $this->jsonHeaders());
+        if (!empty($_POST)) {
+            $_SESSION['tenant_create_feedback'] = [
+                'success' => true,
+                'message' => 'Tenant deactivated',
+            ];
+            header('Location: /admin/tenants');
+            exit;
+        }
+        $this->json(['message' => 'Tenant deactivated'], 200);
+        return [];
     }
 
     public function rotateApiKey(int $id): array
@@ -132,11 +214,20 @@ class TenantController extends Controller
         if ($result === false) {
             throw new HttpException(400, 'Unable to rotate API key');
         }
-
-        return $this->jsonResponse([
+        if (!empty($_POST)) {
+            $_SESSION['tenant_create_feedback'] = [
+                'success' => true,
+                'message' => 'API key rotated',
+                'api_key' => $result['api_key'] ?? null,
+            ];
+            header('Location: /admin/tenants');
+            exit;
+        }
+        $this->json([
             'message' => 'API key rotated',
             'api_key' => $result['api_key'],
-        ], 200, $this->jsonHeaders());
+        ], 200);
+        return [];
     }
 
     public function activate(int $id): array
@@ -149,10 +240,16 @@ class TenantController extends Controller
         if (!$this->tenants->updateTenant($id, ['is_active' => 1])) {
             throw new HttpException(400, 'Unable to activate tenant');
         }
-
-        return $this->jsonResponse([
-            'message' => 'Tenant activated',
-        ], 200, $this->jsonHeaders());
+        if (!empty($_POST)) {
+            $_SESSION['tenant_create_feedback'] = [
+                'success' => true,
+                'message' => 'Tenant activated',
+            ];
+            header('Location: /admin/tenants');
+            exit;
+        }
+        $this->json(['message' => 'Tenant activated'], 200);
+        return [];
     }
 
     public function verifyApiKey(string $subdomain, string $apiKey): array
@@ -166,12 +263,33 @@ class TenantController extends Controller
 
         $isValid = $this->tenants->verifyApiKey($subdomain, $apiKey);
 
-        return $this->jsonResponse([
+        $this->json([
             'data' => [
                 'subdomain' => $subdomain,
                 'valid' => $isValid,
             ],
-        ], $isValid ? 200 : 401, $this->jsonHeaders());
+        ], $isValid ? 200 : 401);
+        return [];
+    }
+
+    // Public endpoint-friendly variant that reads POST/JSON body instead of URL params
+    // POST /api/verify-key { subdomain: string, api_key: string }
+    public function verify(): void
+    {
+        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
+        $subdomain = strtolower(trim((string)($input['subdomain'] ?? '')));
+        $apiKey = (string)($input['api_key'] ?? '');
+        if ($subdomain === '' || $apiKey === '') {
+            $this->json(['error' => 'subdomain and api_key are required'], 422);
+            return;
+        }
+        $isValid = $this->tenants->verifyApiKey($subdomain, $apiKey);
+        $this->json([
+            'data' => [
+                'subdomain' => $subdomain,
+                'valid' => $isValid,
+            ],
+        ], $isValid ? 200 : 401);
     }
 
     private function filterCreatePayload(array $payload): ?array

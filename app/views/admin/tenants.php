@@ -87,8 +87,8 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
-                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>" class="text-blue-600 hover:underline" title="View (JSON)">View</a>
-                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/update" class="text-yellow-600 hover:underline" title="Edit (POST)">Edit</a>
+                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/view" class="text-blue-600 hover:underline">View</a>
+                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/edit" class="text-yellow-600 hover:underline">Edit</a>
                                     <?php if ($tenant['is_active']): ?>
                                         <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/deactivate" style="display:inline;">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">

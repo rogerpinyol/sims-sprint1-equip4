@@ -12,7 +12,6 @@ if ($MB[0] !== '/') { $MB = '/' . $MB; }
 if ($MB !== '/' && substr($MB, -1) === '/') { $MB = rtrim($MB, '/'); }
 
 // Manager auth (legacy + pretty base)
-// Manager auth (no tenant required yet)
 $router->add('GET', '/manager/login', ['auth/ManagerAuthController','loginForm']);
 $router->add('POST','/manager/login', ['auth/ManagerAuthController','login']);
 $router->add('POST','/manager/logout',['auth/ManagerAuthController','logout']);
@@ -27,7 +26,6 @@ $router->add('POST', '/auth/logout',   ['auth/ClientAuthController','logout']);
 $router->add('GET',  '/register',      ['auth/ClientAuthController','form']);
 $router->add('POST', '/register',      ['auth/ClientAuthController','register']);
 
-// Client profile & dashboard
 // Client profile & dashboard (tenant scoped middleware)
 $tenantMw = [TenantContext::detect()];
 $router->add('GET',  '/profile',             ['client/ClientController','profile'], $tenantMw);
@@ -37,7 +35,6 @@ $router->add('GET',  '/client',              ['client/ClientDashboardController'
 $router->add('GET',  '/client/dashboard',    ['client/ClientDashboardController','index'], $tenantMw);
 $router->add('GET',  '/client/api/vehicles', ['client/VehiclesApiController','list'], $tenantMw);
 
-// Manager dashboard & users (legacy + pretty base) using {id} placeholder
 // Manager dashboard & users (tenant scoped)
 $router->add('GET',  '/manager',                     ['manager/ManagerDashboardController','index'], $tenantMw);
 $router->add('GET',  '/manager/users',               ['manager/ManagerUserController','index'], $tenantMw);
@@ -54,17 +51,21 @@ $router->add('GET',  $MB . '/users/{id}',            ['manager/ManagerUserContro
 $router->add('POST', $MB . '/users/{id}/update',     ['manager/ManagerUserController','update'], $tenantMw);
 $router->add('POST', $MB . '/users/{id}/delete',     ['manager/ManagerUserController','delete'], $tenantMw);
 
-// Super admin tenant management (REST style)
 // Super admin tenant management (no tenant middleware - root entity)
 $router->add('GET',  '/admin/login',   ['auth/TenantAdminAuthController','loginForm']);
 $router->add('POST', '/admin/login',   ['auth/TenantAdminAuthController','login']);
 $router->add('POST', '/admin/logout',  ['auth/TenantAdminAuthController','logout']);
 $router->add('GET',  '/admin/tenants',                   ['admin/TenantAdminDashboardController','index']);
+$router->add('GET',  '/admin/tenants/{id}/view',         ['admin/TenantAdminDashboardController','show']);
+$router->add('GET',  '/admin/tenants/{id}/edit',         ['admin/TenantAdminDashboardController','editForm']);
 $router->add('GET',  '/admin/tenants/{id}',              ['TenantController','show']);
 $router->add('POST', '/admin/tenants',                   ['TenantController','store']);
 $router->add('POST', '/admin/tenants/{id}/update',       ['TenantController','update']);
 $router->add('POST', '/admin/tenants/{id}/deactivate',   ['TenantController','deactivate']);
 $router->add('POST', '/admin/tenants/{id}/activate',     ['TenantController','activate']);
 $router->add('POST', '/admin/tenants/{id}/rotate-api-key',['TenantController','rotateApiKey']);
+
+// Public API utility: verify tenant API key (body: { subdomain, api_key })
+$router->add('POST', '/api/verify-key', ['TenantController','verify']);
 
 return $router;

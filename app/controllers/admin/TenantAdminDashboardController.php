@@ -45,6 +45,45 @@ class TenantAdminDashboardController extends Controller
         ]);
     }
 
+    public function show(int $id): void
+    {
+        if ($id <= 0) {
+            http_response_code(400);
+            echo 'Invalid tenant id';
+            return;
+        }
+        $tenant = (new Tenant())->findById($id);
+        if (!$tenant) {
+            http_response_code(404);
+            echo 'Tenant not found';
+            return;
+        }
+        $this->render(__DIR__ . '/../../views/admin/tenant_show.php', [
+            'tenant' => $tenant,
+        ]);
+    }
+
+    public function editForm(int $id): void
+    {
+        if ($id <= 0) {
+            http_response_code(400);
+            echo 'Invalid tenant id';
+            return;
+        }
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+        }
+        $tenant = (new Tenant())->findById($id);
+        if (!$tenant) {
+            http_response_code(404);
+            echo 'Tenant not found';
+            return;
+        }
+        $this->render(__DIR__ . '/../../views/admin/tenant_edit.php', [
+            'tenant' => $tenant,
+        ]);
+    }
+
     private function toBoolean(mixed $value): bool
     {
         if (is_bool($value)) return $value;
