@@ -12,21 +12,46 @@ class ClientDashboardController extends Controller
 
     public function index(): void
     {
-        // Require authenticated end user
+        $this->ensureClientSession();
+        $this->redirectIfAdminRole();
+        $tenant = $this->resolveTenant();
+        $user = $this->loadDashboardUser($tenant);
+        $this->renderDashboard($user, $tenant);
+    }
+
+    // ---- Helpers (single responsibility) ----
+    private function ensureClientSession(): void
+    {
         if (empty($_SESSION['user_id'])) {
             header('Location: /auth/login');
             exit;
         }
-        // Optional: restrict to non-admin roles
+    }
+
+    private function redirectIfAdminRole(): void
+    {
         $role = $_SESSION['role'] ?? 'client';
         if (in_array($role, ['tenant_admin','super_admin'], true)) {
             header('Location: /manager');
             exit;
         }
-        $tenant = (int)($_SESSION['tenant_id'] ?? 0);
+    }
+
+    private function resolveTenant(): int
+    {
+        $tenant = method_exists('TenantContext', 'tenantId') ? (int)(TenantContext::tenantId() ?? 0) : 0;
+        return $tenant > 0 ? $tenant : $this->requireTenant();
+    }
+
+    private function loadDashboardUser(int $tenant): array
+    {
         $userId = (int)($_SESSION['user_id']);
         $userModel = new User($tenant);
-        $user = $userModel->getById($userId) ?: ['name' => 'Cliente', 'email' => ''];
+        return $userModel->getById($userId) ?: ['name' => 'Cliente', 'email' => ''];
+    }
+
+    private function renderDashboard(array $user, int $tenant): void
+    {
         $this->render(__DIR__ . '/../../views/client/dashboard.php', [
             'user' => $user,
             'tenant_id' => $tenant,

@@ -47,26 +47,48 @@ class Router
                 }
             }
 
-            // Invoke handler
+            // Invoke handler (callable or [class, method])
             $handler = $route['handler'];
             if (is_callable($handler)) {
                 call_user_func($handler, $params);
                 return;
             }
             if (is_array($handler) && count($handler) === 2) {
-                [$class, $methodName] = $handler;
+                [$classOrPath, $methodName] = $handler;
+
+                // Support controller path like "auth/ManagerAuthController"
+                $class = $classOrPath;
+                if (str_contains($classOrPath, '/')) {
+                    $segments = explode('/', $classOrPath);
+                    $class = end($segments);
+                    $controllerFile = __DIR__ . '/../app/controllers/' . $classOrPath . '.php';
+                    if (is_file($controllerFile)) {
+                        require_once $controllerFile;
+                    }
+                } else {
+                    // Try conventional location
+                    $controllerFile = __DIR__ . '/../app/controllers/' . $class . '.php';
+                    if (is_file($controllerFile) && !class_exists($class)) {
+                        require_once $controllerFile;
+                    }
+                }
+
                 if (!class_exists($class)) {
-                    http_response_code(500); echo 'Handler class not found'; return;
+                    http_response_code(500); echo 'Handler class not found: ' . htmlspecialchars($class); return;
                 }
                 $instance = new $class();
                 if (!method_exists($instance, $methodName)) {
-                    http_response_code(500); echo 'Handler method not found'; return;
+                    http_response_code(500); echo 'Handler method not found: ' . htmlspecialchars($class . '::' . $methodName); return;
                 }
-                $instance->$methodName(...array_values($params));
+                try {
+                    $instance->$methodName(...array_values($params));
+                } catch (Throwable $e) {
+                    http_response_code(500); echo 'Controller error: ' . htmlspecialchars($e->getMessage());
+                }
                 return;
             }
 
-            http_response_code(500); echo 'Bad route handler';
+            http_response_code(500); echo 'Bad route handler definition';
             return;
         }
 

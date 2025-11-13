@@ -19,21 +19,73 @@ class ClientController extends Controller
 
     public function profile(): void
     {
+        $this->requireClientAuth();
+        $tenantId = $this->requireTenant();
+        $model = $this->ensureUserModel($tenantId);
+        $user = $model->getById((int)$_SESSION['user_id']);
+        [$errors, $success] = $this->consumeFlashes();
+        $this->renderProfile($user, $errors, $success);
+    }
+
+    public function updateProfile(): void
+    {
+        $this->requireClientAuth();
+        $tenantId = $this->requireTenant();
+        $model = $this->ensureUserModel($tenantId);
+        $data = $this->collectProfileInput();
+        $this->attemptUpdateProfile($model, (int)$_SESSION['user_id'], $data);
+        $this->redirect('/profile');
+    }
+
+    // POST /profile/delete
+    public function deleteAccount(): void
+    {
+        $this->requireClientAuth();
+        $tenantId = $this->requireTenant();
+        $model = $this->ensureUserModel($tenantId);
+        $uid = (int)$_SESSION['user_id'];
+        $user = $model->getById($uid);
+        if (!$user) {
+            $this->logoutAndRedirect('/');
+            return;
+        }
+        if (!$this->canDeleteClient($user)) {
+            $_SESSION['flash_errors'] = ['Solo cuentas de cliente pueden eliminarse.'];
+            $this->redirect('/profile');
+            return;
+        }
+        $ok = $model->delete($uid);
+        $this->logoutAndRedirect('/auth/login' . ($ok ? '' : '?deleted=0'));
+    }
+
+    // ---- Helpers ----
+    private function requireClientAuth(): void
+    {
         if (empty($_SESSION['user_id'])) {
             header('Location: /client/login');
             exit;
         }
-        $this->requireTenant();
+    }
+
+    private function ensureUserModel(int $tenantId): User
+    {
         if (!$this->users) {
-            http_response_code(500);
-            echo 'User model unavailable';
-            return;
+            $this->users = new User($tenantId);
         }
-        $user = $this->users->getById((int)$_SESSION['user_id']);
+        return $this->users;
+    }
+
+    private function consumeFlashes(): array
+    {
         $errors = $_SESSION['flash_errors'] ?? [];
         unset($_SESSION['flash_errors']);
         $success = !empty($_SESSION['flash_success']);
         unset($_SESSION['flash_success']);
+        return [$errors, $success];
+    }
+
+    private function renderProfile(array $user, array $errors, bool $success): void
+    {
         $this->render(__DIR__ . '/../../views/client/profile.php', [
             'user' => $user,
             'errors' => $errors,
@@ -43,67 +95,42 @@ class ClientController extends Controller
         ]);
     }
 
-    public function updateProfile(): void
+    private function collectProfileInput(): array
     {
-        if (empty($_SESSION['user_id'])) {
-            header('Location: /client/login');
-            exit;
-        }
-        $this->requireTenant();
-        if (!$this->users) {
-            $_SESSION['flash_errors'] = ['User model not available.'];
-            header('Location: /profile');
-            exit;
-        }
-        $data = [
+        return [
             'name' => trim((string)($_POST['name'] ?? '')),
             'email' => trim((string)($_POST['email'] ?? '')),
             'phone' => trim((string)($_POST['phone'] ?? '')),
             'accessibility_flags' => $_POST['accessibility_flags'] ?? null,
         ];
+    }
+
+    private function attemptUpdateProfile(User $model, int $userId, array $data): void
+    {
         try {
-            $this->users->updateDetails((int)$_SESSION['user_id'], $data);
+            $model->updateDetails($userId, $data);
             $_SESSION['flash_success'] = true;
         } catch (\Throwable $e) {
             $_SESSION['flash_errors'] = [$e->getMessage()];
         }
-        header('Location: /profile');
+    }
+
+    private function canDeleteClient(array $user): bool
+    {
+        return in_array($user['role'] ?? 'client', ['client'], true);
+    }
+
+    private function logoutAndRedirect(string $location): void
+    {
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) session_destroy();
+        header('Location: ' . $location);
         exit;
     }
 
-    // POST /profile/delete
-    public function deleteAccount(): void
+    private function redirect(string $location): void
     {
-        if (empty($_SESSION['user_id'])) {
-            header('Location: /auth/login');
-            exit;
-        }
-        $this->requireTenant();
-        if (!$this->users) {
-            $_SESSION['flash_errors'] = ['User model not available.'];
-            header('Location: /profile');
-            exit;
-        }
-        $uid = (int)$_SESSION['user_id'];
-        // Prevent deletion of non-client roles (defensive)
-        $user = $this->users->getById($uid);
-        if (!$user) {
-            $_SESSION = [];
-            session_destroy();
-            header('Location: /');
-            exit;
-        }
-        if (!in_array($user['role'] ?? 'client', ['client'], true)) {
-            $_SESSION['flash_errors'] = ['Solo cuentas de cliente pueden eliminarse.'];
-            header('Location: /profile');
-            exit;
-        }
-        $ok = $this->users->delete($uid);
-        // Destroy session regardless for privacy if deletion attempted
-        $_SESSION = [];
-        if (session_status() === PHP_SESSION_ACTIVE) session_destroy();
-        // If deletion failed for some reason, still logout but pass a flag via query (optional)
-        header('Location: /auth/login' . ($ok ? '' : '?deleted=0'));
+        header('Location: ' . $location);
         exit;
     }
 }

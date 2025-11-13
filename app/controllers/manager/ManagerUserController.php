@@ -2,25 +2,24 @@
 
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../services/ManagerUserService.php';
 
 class ManagerUserController extends Controller
 {
-    private User $users;
-    private int $tenantId = 0;
+    private ?User $users = null;
 
     public function __construct()
     {
         parent::__construct();
-        $this->tenantId = (int)($_SESSION['tenant_id'] ?? 0);
         $this->requireRole(['manager']);
-        $this->users = new User($this->tenantId ?: 0);
     }
 
-    // GET /manager/users -> list all users but show role; managers primarily manage clients
+    // GET /manager/users -> list all users (single responsibility: fetch & render list)
     public function index(): void
     {
-        $tenant = $this->requireTenant();
-        $list = $this->users->getAll() ?: [];
+        $tenant = $this->resolveTenant();
+        $model = $this->getUserModel($tenant);
+        $list = $model->getAll() ?: [];
         $this->render(__DIR__ . '/../../views/manager/ManagerUsers.php', [
             'users' => $list,
             'tenant_id' => $tenant,
@@ -30,60 +29,35 @@ class ManagerUserController extends Controller
         ]);
     }
 
-    // Show form (reuses index)
+    // GET /manager/users/create -> show creation form only (single responsibility)
     public function createForm(): void
     {
-        $this->index();
+        $tenant = $this->resolveTenant();
+        $this->render(__DIR__ . '/../../views/manager/ManagerUserCreate.php', [
+            'tenant_id' => $tenant,
+            'layout' => __DIR__ . '/../../views/layouts/app.php',
+            'title' => 'Crear Usuario — EcoMotion Manager',
+        ]);
     }
 
-    // POST /manager/users -> create a user with role client or manager
+    // POST /manager/users -> create user (single responsibility: orchestrate create)
     public function store(): void
     {
-        $tenant = $this->requireTenant();
-        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
-        $name = trim((string)($input['name'] ?? ''));
-        $email = trim((string)($input['email'] ?? ''));
-        $password = (string)($input['password'] ?? '');
-        $phone = trim((string)($input['phone'] ?? ''));
-        $access = $input['accessibility_flags'] ?? null;
-        $role = strtolower(trim((string)($input['role'] ?? 'client')));
-
-        $errors = [];
-        if ($name === '' || strlen($name) < 2) $errors[] = 'Name must be at least 2 chars';
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email';
-        if (strlen($password) < 6) $errors[] = 'Password min length 6';
-        if (!in_array($role, ['client', 'manager'], true)) $errors[] = 'Invalid role (allowed: client, manager)';
-
+        $tenant = $this->resolveTenant();
+        $model = $this->getUserModel($tenant);
+        $input = $this->collectInput();
+        $svc = new ManagerUserService($model);
+        $errors = $svc->validateCreate($input);
         if ($errors) {
-            if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = $errors;
-                header('Location: /manager/users');
-                exit;
-            }
-            $this->json(['errors' => $errors], 422);
+            $this->handleFormErrors($errors, '/manager/users');
             return;
         }
-
         try {
-            $id = $this->users->createUserWithRole($name, $email, $password, $role);
-            if ($id === false) throw new RuntimeException('Insert failed');
-            // Persist optional details if provided
-            $extra = [];
-            if ($phone !== '') $extra['phone'] = $phone;
-            if ($access !== null && $access !== '') $extra['accessibility_flags'] = $access;
-            if ($extra) {
-                $this->users->updateDetails((int)$id, $extra);
-            }
+            $id = $svc->create($input);
         } catch (Throwable $e) {
-            if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = [$e->getMessage()];
-                header('Location: /manager/users');
-                exit;
-            }
-            $this->json(['error' => $e->getMessage()], ($e instanceof InvalidArgumentException ? 400 : 500));
+            $this->handleFormErrors([$e->getMessage()], '/manager/users', ($e instanceof InvalidArgumentException ? 400 : 500));
             return;
         }
-
         if (!empty($_POST)) {
             header('Location: /manager/users');
             exit;
@@ -94,8 +68,9 @@ class ManagerUserController extends Controller
     // GET /manager/users/{id}
     public function show(int $id): void
     {
-        $this->requireTenant();
-        $row = $this->users->getById($id);
+        $tenant = $this->resolveTenant();
+        $model = $this->getUserModel($tenant);
+        $row = $model->getById($id);
         if (!$row) {
             http_response_code(404);
             echo 'User not found';
@@ -107,72 +82,55 @@ class ManagerUserController extends Controller
     // POST /manager/users/{id}/update -> managers can update basic fields and role (client/manager) for users in their tenant
     public function update(int $id): void
     {
-        $this->requireTenant();
-        $target = $this->users->getById($id);
+        $tenant = $this->resolveTenant();
+        $model = $this->getUserModel($tenant);
+        $svc = new ManagerUserService($model);
+        $target = $model->getById($id);
         if (!$target) {
-            $_SESSION['flash_errors'] = ['User not found'];
-            header('Location: /manager/users');
-            exit;
+            $this->handleFormErrors(['User not found'], '/manager/users', 404);
+            return;
         }
         if (($target['role'] ?? '') === 'tenant_admin') {
-            $_SESSION['flash_errors'] = ['Managers cannot modify tenant_admin users'];
+            $this->handleFormErrors(['Managers cannot modify tenant_admin users'], '/manager/users', 403);
+            return;
+        }
+        $input = $this->collectInput();
+        $errors = $svc->validateUpdate($input, $target);
+        if ($errors) {
+            $this->handleFormErrors($errors, '/manager/users');
+            return;
+        }
+        try {
+            $svc->update($id, $input, $target);
+        } catch (Throwable $e) {
+            $this->handleFormErrors([$e->getMessage()], '/manager/users', ($e instanceof InvalidArgumentException ? 422 : 500));
+            return;
+        }
+        if (!empty($_POST)) {
+            $_SESSION['flash_success'] = true;
             header('Location: /manager/users');
             exit;
         }
-
-        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
-        $data = [
-            'name' => trim((string)($input['name'] ?? '')),
-            'email' => trim((string)($input['email'] ?? '')),
-            'phone' => trim((string)($input['phone'] ?? '')),
-            'accessibility_flags' => $input['accessibility_flags'] ?? null,
-        ];
-        $role = isset($input['role']) ? strtolower(trim((string)$input['role'])) : null;
-
-        try {
-            // Update basic details
-            $this->users->updateDetails($id, $data);
-            // Update role if provided and allowed (only client/manager)
-            if ($role !== null && $role !== '' && in_array($role, ['client', 'manager'], true)) {
-                // Avoid no-op
-                if (($target['role'] ?? null) !== $role) {
-                    $this->users->updateRole($id, $role);
-                }
-            } elseif ($role !== null && $role !== '') {
-                throw new InvalidArgumentException('Invalid role (allowed: client, manager)');
-            }
-            if (!empty($_POST)) {
-                $_SESSION['flash_success'] = true;
-                header('Location: /manager/users');
-                exit;
-            }
-            $this->json(['updated' => true]);
-        } catch (Throwable $e) {
-            if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = [$e->getMessage()];
-                header('Location: /manager/users');
-                exit;
-            }
-            $this->json(['error' => $e->getMessage()], ($e instanceof InvalidArgumentException ? 422 : 500));
-        }
+        $this->json(['updated' => true]);
     }
 
     // POST /manager/users/{id}/delete -> managers can only delete client users
     public function delete(int $id): void
     {
-        $this->requireTenant();
-        $target = $this->users->getById($id);
+        $tenant = $this->resolveTenant();
+        $model = $this->getUserModel($tenant);
+        $svc = new ManagerUserService($model);
+        $target = $model->getById($id);
         if (!$target) {
-            $_SESSION['flash_errors'] = ['User not found'];
-            header('Location: /manager/users');
-            exit;
+            $this->handleFormErrors(['User not found'], '/manager/users', 404);
+            return;
         }
-        if (($target['role'] ?? '') !== 'client') {
-            $_SESSION['flash_errors'] = ['Managers can only delete client users'];
-            header('Location: /manager/users');
-            exit;
+        $errors = $svc->validateDelete($target);
+        if ($errors) {
+            $this->handleFormErrors($errors, '/manager/users', 403);
+            return;
         }
-        $ok = $this->users->delete($id);
+        $ok = $svc->delete($id);
         if (!empty($_POST)) {
             $_SESSION['flash_success'] = $ok ? true : false;
             if (!$ok) $_SESSION['flash_errors'] = ['Delete failed'];
@@ -180,5 +138,43 @@ class ManagerUserController extends Controller
             exit;
         }
         $this->json(['deleted' => (bool)$ok]);
+    }
+
+    // ---------------- Private helpers (single-purpose) ----------------
+
+    private function resolveTenant(): int
+    {
+        $tenant = method_exists('TenantContext', 'tenantId') ? (int)(TenantContext::tenantId() ?? 0) : 0;
+        return $tenant > 0 ? $tenant : $this->requireTenant();
+    }
+
+    private function getUserModel(int $tenant): User
+    {
+        if ($this->users instanceof User) return $this->users;
+        $this->users = new User($tenant);
+        return $this->users;
+    }
+
+    private function collectInput(): array
+    {
+        $input = !empty($_POST) ? $_POST : $this->parseJsonBody();
+        return [
+            'name' => trim((string)($input['name'] ?? '')),
+            'email' => trim((string)($input['email'] ?? '')),
+            'password' => (string)($input['password'] ?? ''),
+            'phone' => trim((string)($input['phone'] ?? '')),
+            'accessibility_flags' => $input['accessibility_flags'] ?? null,
+            'role' => strtolower(trim((string)($input['role'] ?? 'client'))),
+        ];
+    }
+
+    private function handleFormErrors(array $errors, string $redirect, int $jsonStatus = 422): void
+    {
+        if (!empty($_POST)) {
+            $_SESSION['flash_errors'] = $errors;
+            header('Location: ' . $redirect);
+            exit;
+        }
+        $this->json(['errors' => $errors], $jsonStatus);
     }
 }

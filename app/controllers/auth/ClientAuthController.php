@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../services/ClientAuthService.php';
 
 class ClientAuthController extends Controller
 {
@@ -27,71 +28,29 @@ class ClientAuthController extends Controller
 
     public function register(): void
     {
-        $input = $this->parseJsonBody() ?: $_POST;
-        $name = trim((string)($input['name'] ?? ''));
-        $email = trim((string)($input['email'] ?? ''));
-        $password = (string)($input['password'] ?? '');
+        // 1) CSRF check (only for HTML form POST)
+        $this->verifyCsrfForPost('/register');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $token = $_POST['csrf_token'] ?? '';
-            if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
-                $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: /register');
-                exit;
-            }
-        }
+        // 2) Gather inputs
+        [$name, $email, $password] = $this->getRegisterInput();
 
-        $errors = [];
-        if ($name === '' || strlen($name) < 2) {
-            $errors[] = 'Name must be at least 2 characters.';
-        } else if (!preg_match("/^[A-Za-zÀ-ÿ ]+$/u", $name)) {
-            $errors[] = 'Name must contain only letters and spaces.';
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Email is not valid.';
-        }
-        if (strlen($password) < 8
-            || !preg_match('/[A-Z]/', $password)
-            || !preg_match('/[a-z]/', $password)
-            || !preg_match('/\d/', $password)
-            || !preg_match('/[^A-Za-z\d]/', $password)) {
-            $errors[] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.';
-        }
-
-        if ($errors) {
-            if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = $errors;
-                $_SESSION['flash_old'] = ['name' => $name, 'email' => $email];
-                header('Location: /register');
-                exit;
-            }
-            $this->json(['errors' => $errors], 422);
+        // 3) Validate
+        $svc = new ClientAuthService();
+        $errors = $svc->validateRegistrationInput($name, $email, $password);
+        if (!empty($errors)) {
+            $this->handleRegisterErrors($errors, $name, $email);
             return;
         }
 
+        // 4) Perform registration (single responsibility delegated to service/model)
         try {
-            $users = new User((int)($_SESSION['tenant_id'] ?? 0));
-            $result = $users->registerWithTenant($name, $email, $password);
-            // Keep tenant resolved so login works, but DO NOT auto log user in.
+            $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
+            $result = $svc->registerClient($tenantId, $name, $email, $password);
             $_SESSION['tenant_id'] = (int)$result['tenant_id'];
-            // Ensure no auto-login remnants
-            unset($_SESSION['user_id']);
-            unset($_SESSION['role']);
-            if (!empty($_POST)) {
-                $_SESSION['flash_success'] = true; // Show success message in login
-                $_SESSION['flash_old'] = ['email' => $email];
-                header('Location: /auth/login');
-                exit;
-            }
-            $this->json(['tenant_id' => $result['tenant_id'], 'registered' => true], 201);
+            unset($_SESSION['user_id'], $_SESSION['role']);
+            $this->handleRegisterSuccess($email, (int)$result['tenant_id']);
         } catch (Throwable $e) {
-            if (!empty($_POST)) {
-                $_SESSION['flash_errors'] = [$e->getMessage()];
-                header('Location: /register');
-                exit;
-            }
-            $status = ($e->getMessage() === 'Email already used') ? 409 : 500;
-            $this->json(['error' => $e->getMessage()], $status);
+            $this->handleRegisterException($e, $name, $email);
         }
     }
 
@@ -118,60 +77,40 @@ class ClientAuthController extends Controller
 
     public function login(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-            $token = $_POST['csrf_token'] ?? '';
-            if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
-                $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: /auth/login');
-                exit;
-            }
-        }
+        // 1) CSRF for HTML form
+        $this->verifyCsrfForPost('/auth/login');
 
+        // 2) Input & validation
         $email = trim((string)($_POST['email'] ?? ''));
         $password = (string)($_POST['password'] ?? '');
+        $svc = new ClientAuthService();
+        $valErrors = $svc->validateLoginInput($email, $password);
+        if (!empty($valErrors)) {
+            $this->loginFail($valErrors, $email);
+            return;
+        }
+
+        // 3) Authenticate (with or without tenant pre-resolved)
         $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
-            $_SESSION['flash_errors'] = ['Credenciales inválidas'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /auth/login');
-            exit;
-        }
-
-        if ($tenantId <= 0) {
-            // Try to resolve tenant by authenticating across tenants via User model
-            try {
-                    $lookup = (new User(0))->authenticateAnyTenant($email, $password);
-                    if ($lookup) {
-                        $_SESSION['tenant_id'] = (int)$lookup['tenant_id'];
-                        $_SESSION['user_id'] = (int)$lookup['id'];
-                        $_SESSION['role'] = (string)($lookup['role'] ?? 'client');
-                        header('Location: /client');
-                        exit;
-                    }
-            } catch (\Throwable $e) {
-                // logging disabled
-            }
-            $_SESSION['flash_errors'] = ['No se pudo resolver tu empresa automáticamente. Añade ?tenant o inicia sesión tras registrarte.'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /auth/login');
-            exit;
-        }
-
-        $userModel = new User($tenantId);
-        $row = $userModel->authenticate($email, $password);
+        $row = $svc->authenticate($email, $password, $tenantId);
         if (!$row) {
-            $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: /auth/login');
-            exit;
+            $this->loginFail(['Email o contraseña incorrectos'], $email);
+            return;
         }
 
-    // Auth ok
-    $_SESSION['user_id'] = (int)$row['id'];
-    $_SESSION['role'] = (string)($row['role'] ?? 'client');
-    header('Location: /client/dashboard');
+        // If row didn't include tenant_id and none in session, block (shouldn't happen if svc works)
+        if ($tenantId <= 0) {
+            if (!isset($row['tenant_id'])) {
+                $this->loginFail(['No se pudo resolver tu empresa automáticamente. Añade ?tenant o usa subdominio.'], $email);
+                return;
+            }
+            $_SESSION['tenant_id'] = (int)$row['tenant_id'];
+        }
+
+        // 4) Session set and redirect
+        $_SESSION['user_id'] = (int)$row['id'];
+        $_SESSION['role'] = (string)($row['role'] ?? 'client');
+        header('Location: /client/dashboard');
         exit;
     }
 
@@ -184,6 +123,70 @@ class ClientAuthController extends Controller
         session_start();
         if ($tenantId > 0) $_SESSION['tenant_id'] = $tenantId;
         header('Location: /');
+        exit;
+    }
+
+    // ------------ Private helpers (single-purpose) ------------
+
+    private function verifyCsrfForPost(string $redirectOnFail): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        $token = $_POST['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
+            $_SESSION['flash_errors'] = ['Token CSRF inválido'];
+            header('Location: ' . $redirectOnFail);
+            exit;
+        }
+    }
+
+    private function getRegisterInput(): array
+    {
+        $input = $this->parseJsonBody() ?: $_POST;
+        $name = trim((string)($input['name'] ?? ''));
+        $email = trim((string)($input['email'] ?? ''));
+        $password = (string)($input['password'] ?? '');
+        return [$name, $email, $password];
+    }
+
+    private function handleRegisterErrors(array $errors, string $name, string $email): void
+    {
+        if (!empty($_POST)) {
+            $_SESSION['flash_errors'] = $errors;
+            $_SESSION['flash_old'] = ['name' => $name, 'email' => $email];
+            header('Location: /register');
+            exit;
+        }
+        $this->json(['errors' => $errors], 422);
+    }
+
+    private function handleRegisterSuccess(string $email, int $tenantId): void
+    {
+        if (!empty($_POST)) {
+            $_SESSION['flash_success'] = true;
+            $_SESSION['flash_old'] = ['email' => $email];
+            header('Location: /auth/login');
+            exit;
+        }
+        $this->json(['tenant_id' => $tenantId, 'registered' => true], 201);
+    }
+
+    private function handleRegisterException(\Throwable $e, string $name, string $email): void
+    {
+        if (!empty($_POST)) {
+            $_SESSION['flash_errors'] = [$e->getMessage()];
+            $_SESSION['flash_old'] = ['name' => $name, 'email' => $email];
+            header('Location: /register');
+            exit;
+        }
+        $status = ($e->getMessage() === 'Email already used') ? 409 : 500;
+        $this->json(['error' => $e->getMessage()], $status);
+    }
+
+    private function loginFail(array $errors, string $email): void
+    {
+        $_SESSION['flash_errors'] = $errors;
+        $_SESSION['flash_old'] = ['email' => $email];
+        header('Location: /auth/login');
         exit;
     }
 }

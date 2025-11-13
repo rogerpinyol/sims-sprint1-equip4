@@ -4,6 +4,7 @@
 
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../services/ManagerAuthService.php';
 
 class ManagerAuthController extends Controller
 {
@@ -34,81 +35,29 @@ class ManagerAuthController extends Controller
 
     public function login(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-            $token = $_POST['csrf_token'] ?? '';
-            if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
-                $_SESSION['flash_errors'] = ['Token CSRF inválido'];
-                header('Location: ' . manager_base() . '/login');
-                exit;
-            }
+        $this->verifyCsrfForPost(manager_base() . '/login');
+        [$email, $password] = $this->getLoginInput();
+        $svc = new ManagerAuthService();
+        $valErrors = $svc->validateLoginInput($email, $password);
+        if ($valErrors) {
+            $this->failLogin($valErrors, $email);
+            return;
         }
-
-        $email = trim((string)($_POST['email'] ?? ''));
-        $password = (string)($_POST['password'] ?? '');
         $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
-            $_SESSION['flash_errors'] = ['Credenciales inválidas'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: ' . manager_base() . '/login');
-            exit;
-        }
-
-        $row = null;
-        $userModel = null;
-
-        // If we already have a tenant, try tenant-scoped auth first
-        if ($tenantId > 0) {
-            $userModel = new User($tenantId);
-            $row = $userModel->authenticate($email, $password);
-        }
-
-        // If tenant not set or auth failed, try to resolve by authenticating across tenants
+        $row = $svc->authenticate($tenantId, $email, $password);
         if (!$row) {
-            try {
-                $any = (new User(0))->authenticateAnyTenant($email, $password);
-                if ($any) {
-                    // Only allow manager role here
-                    if (($any['role'] ?? '') !== 'manager') {
-                        $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
-                        $_SESSION['flash_old'] = ['email' => $email];
-                        header('Location: ' . manager_base() . '/login');
-                        exit;
-                    }
-                    // Set resolved tenant and proceed with that scope
-                    $_SESSION['tenant_id'] = (int)$any['tenant_id'];
-                    $tenantId = (int)$any['tenant_id'];
-                    $userModel = new User($tenantId);
-                    $row = $userModel->getById((int)$any['id']);
-                }
-            } catch (\Throwable $e) {
-                // ignore lookup errors
-            }
+            $msg = ($tenantId <= 0) ? 'No se pudo resolver tu empresa automáticamente. Añade ?tenant o ?tenant_id.' : 'Email o contraseña incorrectos';
+            $this->failLogin([$msg], $email);
+            return;
         }
-
-        if (!$row) {
-            // No auth match; if we still have no tenant set, give a clear hint for dev
-            if ($tenantId <= 0) {
-                $_SESSION['flash_errors'] = ['No se pudo resolver tu empresa automáticamente. Añade ?tenant o ?tenant_id, o verifica tus credenciales.'];
-            } else {
-                $_SESSION['flash_errors'] = ['Email o contraseña incorrectos'];
-            }
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: ' . manager_base() . '/login');
-            exit;
+        if (!$svc->ensureManagerRole($row)) {
+            $this->failLogin(['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'], $email);
+            return;
         }
-
-        // Only allow managers to login here
-        $role = (string)($row['role'] ?? '');
-        if ($role !== 'manager') {
-            $_SESSION['flash_errors'] = ['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'];
-            $_SESSION['flash_old'] = ['email' => $email];
-            header('Location: ' . manager_base() . '/login');
-            exit;
+        // Resolve tenant if not set
+        if ($tenantId <= 0 && isset($row['tenant_id'])) {
+            $_SESSION['tenant_id'] = (int)$row['tenant_id'];
         }
-
-        // Auth ok for manager
         $_SESSION['user_id'] = (int)$row['id'];
         $_SESSION['role'] = 'manager';
         header('Location: ' . manager_base());
@@ -124,6 +73,33 @@ class ManagerAuthController extends Controller
         session_start();
         if ($tenantId > 0) $_SESSION['tenant_id'] = $tenantId;
         header('Location: /');
+        exit;
+    }
+
+    // ---- Helpers ----
+    private function verifyCsrfForPost(string $redirectOnFail): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        $token = $_POST['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', (string)$token)) {
+            $_SESSION['flash_errors'] = ['Token CSRF inválido'];
+            header('Location: ' . $redirectOnFail);
+            exit;
+        }
+    }
+
+    private function getLoginInput(): array
+    {
+        $email = trim((string)($_POST['email'] ?? ''));
+        $password = (string)($_POST['password'] ?? '');
+        return [$email, $password];
+    }
+
+    private function failLogin(array $errors, string $email): void
+    {
+        $_SESSION['flash_errors'] = $errors;
+        $_SESSION['flash_old'] = ['email' => $email];
+        header('Location: ' . manager_base() . '/login');
         exit;
     }
 }
