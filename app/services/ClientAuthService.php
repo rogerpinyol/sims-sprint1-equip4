@@ -4,11 +4,12 @@ require_once __DIR__ . '/../models/User.php';
 
 class ClientAuthService
 {
-    public function validateRegistrationInput(string $name, string $email, string $password): array
+    public function validateRegistrationInput(string $name, string $email, string $password, string $role = 'client'): array
     {
         $errors = [];
         $name = trim($name);
         $email = trim($email);
+        $role = strtolower(trim($role));
         if ($name === '' || strlen($name) < 2) {
             $errors[] = 'Name must be at least 2 characters.';
         } else if (!preg_match("/^[A-Za-zÀ-ÿ ]+$/u", $name)) {
@@ -24,12 +25,23 @@ class ClientAuthService
             || !preg_match('/[^A-Za-z\d]/', $password)) {
             $errors[] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.';
         }
+        if (!in_array($role, ['client','tenant_admin'], true)) {
+            $errors[] = 'Invalid role selection.';
+        }
         return $errors;
     }
 
-    public function registerClient(int $tenantId, string $name, string $email, string $password): array
+    public function registerClient(int $tenantId, string $name, string $email, string $password, string $role = 'client'): array
     {
         $users = new User($tenantId);
+        if ($role === 'tenant_admin') {
+            // Create tenant first if needed via registerWithTenant then elevate role
+            $result = $users->registerWithTenant($name, $email, $password);
+            // Update role to tenant_admin
+            $modelAdmin = new User((int)$result['tenant_id']);
+            $modelAdmin->update((int)$result['user_id'], ['role' => 'tenant_admin']);
+            return $result;
+        }
         return $users->registerWithTenant($name, $email, $password);
     }
 

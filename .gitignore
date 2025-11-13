@@ -42,3 +42,5 @@ mariadb_data/
 ## Test output
 tests/*.out
 tests/*.log
+
+architecture.md

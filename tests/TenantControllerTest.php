@@ -95,7 +95,7 @@ if (session_status() === PHP_SESSION_ACTIVE) {
 
 $_SESSION['user'] = [
     'id' => 1,
-    'role' => 'super_admin',
+    'role' => 'tenant_admin',
 ];
 
 $controller = new TenantController($pdo);
@@ -166,7 +166,7 @@ try {
 assert_true($failed, 'Unauthorized store should throw HttpException');
 
 // Missing tenant test
-$_SESSION['user']['role'] = 'super_admin';
+$_SESSION['user']['role'] = 'tenant_admin';
 $notFound = false;
 try {
     $controller->show(9999);

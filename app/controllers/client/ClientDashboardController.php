@@ -31,7 +31,7 @@ class ClientDashboardController extends Controller
     private function redirectIfAdminRole(): void
     {
         $role = $_SESSION['role'] ?? 'client';
-        if (in_array($role, ['tenant_admin','super_admin'], true)) {
+        if (in_array($role, ['tenant_admin'], true)) {
             header('Location: /manager');
             exit;
         }

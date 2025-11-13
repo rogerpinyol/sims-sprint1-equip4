@@ -59,7 +59,8 @@ abstract class Controller
 
     protected function requireSuperAdmin(): void
     {
-        $this->requireRole(['super_admin']);
+        // Project policy: platform admin is 'tenant_admin'
+        $this->requireRole(['tenant_admin']);
     }
 
     protected function requireTenant(): int

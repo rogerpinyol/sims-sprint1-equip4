@@ -8,7 +8,7 @@ class ManagerDashboardController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->requireRole(['manager']);
+        $this->requireRole(['manager','tenant_admin']);
     }
 
     // GET /manager -> Overview only (no user CRUD here)

@@ -26,6 +26,7 @@ class ManagerAuthService
 
     public function ensureManagerRole(array $row): bool
     {
-        return ($row['role'] ?? '') === 'manager';
+        $role = strtolower((string)($row['role'] ?? ''));
+        return in_array($role, ['manager', 'tenant_admin'], true);
     }
 }

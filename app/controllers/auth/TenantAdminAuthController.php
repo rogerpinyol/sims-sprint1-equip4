@@ -1,12 +1,12 @@
 <?php
 
-// Managers login, logout
+// Tenant Admin login/logout (platform-level)
 
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../../models/User.php';
-require_once __DIR__ . '/../../services/ManagerAuthService.php';
+require_once __DIR__ . '/../../services/ManagerAuthService.php'; // reuse validate/authenticate
 
-class ManagerAuthController extends Controller
+class TenantAdminAuthController extends Controller
 {
     public function __construct()
     {
@@ -24,18 +24,18 @@ class ManagerAuthController extends Controller
             $success = true;
             unset($_SESSION['flash_success']);
         }
-        $this->render(__DIR__ . '/../../views/auth/ManagerLogin.php', [
+        $this->render(__DIR__ . '/../../views/auth/TenantAdminLogin.php', [
             'errors' => $errors,
             'old' => $old,
             'success' => $success,
             'layout' => __DIR__ . '/../../views/layouts/app.php',
-            'title' => 'Manager Login — EcoMotion',
+            'title' => 'Tenant Admin Login — EcoMotion',
         ]);
     }
 
     public function login(): void
     {
-        $this->verifyCsrfForPost(manager_base() . '/login');
+        $this->verifyCsrfForPost('/admin/login');
         [$email, $password] = $this->getLoginInput();
         $svc = new ManagerAuthService();
         $valErrors = $svc->validateLoginInput($email, $password);
@@ -43,41 +43,29 @@ class ManagerAuthController extends Controller
             $this->failLogin($valErrors, $email);
             return;
         }
-        $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
-        $row = $svc->authenticate($tenantId, $email, $password);
+        $row = $svc->authenticate(0, $email, $password);
         if (!$row) {
-            $msg = ($tenantId <= 0) ? 'No se pudo resolver tu empresa automáticamente. Añade ?tenant o ?tenant_id.' : 'Email o contraseña incorrectos';
-            $this->failLogin([$msg], $email);
+            $this->failLogin(['Credenciales incorrectas'], $email);
             return;
         }
-        if (!$svc->ensureManagerRole($row)) {
-            $this->failLogin(['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'], $email);
+        if (strtolower((string)($row['role'] ?? '')) !== 'tenant_admin') {
+            $this->failLogin(['Acceso restringido a Tenant Admin'], $email);
             return;
         }
-        // Resolve tenant id to keep across session regeneration
-        if ($tenantId <= 0 && isset($row['tenant_id'])) {
-            $tenantId = (int)$row['tenant_id'];
-        }
-        // Preserve actual role (could be manager or tenant_admin) and harden session
-        $this->resetSessionSecurity();
-        if ($tenantId > 0) {
-            $_SESSION['tenant_id'] = $tenantId;
-        }
+        $this->resetSessionPreserving(['csrf_token']);
         $_SESSION['user_id'] = (int)$row['id'];
-        $_SESSION['role'] = (string)($row['role'] ?? 'manager');
-        header('Location: ' . manager_base());
+        $_SESSION['role'] = $row['role'];
+        header('Location: /admin/tenants');
         exit;
     }
 
     public function logout(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
         session_unset();
         session_destroy();
         session_start();
-        if ($tenantId > 0) $_SESSION['tenant_id'] = $tenantId;
-        header('Location: /');
+        header('Location: /admin/login');
         exit;
     }
 
@@ -104,19 +92,19 @@ class ManagerAuthController extends Controller
     {
         $_SESSION['flash_errors'] = $errors;
         $_SESSION['flash_old'] = ['email' => $email];
-        header('Location: ' . manager_base() . '/login');
+        header('Location: /admin/login');
         exit;
     }
 
-    private function resetSessionSecurity(): void
+    private function resetSessionPreserving(array $keysToKeep = []): void
     {
-        // Regenerate ID and rotate CSRF token
-        if (session_status() !== PHP_SESSION_ACTIVE) return;
-        $oldToken = $_SESSION['csrf_token'] ?? null;
+        $preserved = [];
+        foreach ($keysToKeep as $k) {
+            if (isset($_SESSION[$k])) $preserved[$k] = $_SESSION[$k];
+        }
         session_regenerate_id(true);
-        // Clear all except old token (optional reuse) then issue new
-        $keep = $oldToken; foreach (array_keys($_SESSION) as $k) { unset($_SESSION[$k]); }
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
-        // Could store previous token if needed for parallel tabs
+        foreach (array_keys($_SESSION) as $k) { unset($_SESSION[$k]); }
+        foreach ($preserved as $k => $v) { $_SESSION[$k] = $v; }
+        if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
     }
 }

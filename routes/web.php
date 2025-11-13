@@ -56,7 +56,10 @@ $router->add('POST', $MB . '/users/{id}/delete',     ['manager/ManagerUserContro
 
 // Super admin tenant management (REST style)
 // Super admin tenant management (no tenant middleware - root entity)
-$router->add('GET',  '/admin/tenants',                   ['TenantController','index']);
+$router->add('GET',  '/admin/login',   ['auth/TenantAdminAuthController','loginForm']);
+$router->add('POST', '/admin/login',   ['auth/TenantAdminAuthController','login']);
+$router->add('POST', '/admin/logout',  ['auth/TenantAdminAuthController','logout']);
+$router->add('GET',  '/admin/tenants',                   ['admin/TenantAdminDashboardController','index']);
 $router->add('GET',  '/admin/tenants/{id}',              ['TenantController','show']);
 $router->add('POST', '/admin/tenants',                   ['TenantController','store']);
 $router->add('POST', '/admin/tenants/{id}/update',       ['TenantController','update']);

@@ -1,13 +1,13 @@
 <?php
-// Super Admin Tenants Dashboard
-// Requires: super_admin role
+// Tenant Admin Tenants Dashboard
+// Requires: tenant_admin role
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenants Management - Super Admin</title>
+    <title>Tenants Management - Tenant Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -87,22 +87,22 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
-                                    <a href="/admin/tenants/show.php?id=<?= urlencode($tenant['id']) ?>" class="text-blue-600 hover:underline">View</a>
-                                    <a href="/admin/tenants/edit.php?id=<?= urlencode($tenant['id']) ?>" class="text-yellow-600 hover:underline">Edit</a>
+                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>" class="text-blue-600 hover:underline" title="View (JSON)">View</a>
+                                    <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/update" class="text-yellow-600 hover:underline" title="Edit (POST)">Edit</a>
                                     <?php if ($tenant['is_active']): ?>
-                                        <form method="POST" action="/admin/tenants/deactivate.php" style="display:inline;">
+                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/deactivate" style="display:inline;">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                             <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Deactivate this tenant?')">Deactivate</button>
                                         </form>
                                     <?php else: ?>
-                                        <form method="POST" action="/admin/tenants/activate.php" style="display:inline;">
+                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/activate" style="display:inline;">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                             <button type="submit" class="text-green-600 hover:underline" onclick="return confirm('Activate this tenant?')">Activate</button>
                                         </form>
                                     <?php endif; ?>
-                                    <form method="POST" action="/admin/tenants/rotate_api_key.php" style="display:inline;">
+                                    <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/rotate-api-key" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                         <button type="submit" class="text-indigo-600 hover:underline" onclick="return confirm('Rotate API key for this tenant?')">Rotate API Key</button>
@@ -127,7 +127,7 @@
         <!-- Create Tenant Modal/Section (placeholder) -->
     <div id="create" class="mt-10 bg-login-bg p-6 rounded shadow">
             <h2 class="text-xl font-bold mb-4 text-heading">Create New Tenant</h2>
-            <form method="POST" action="/admin/tenants/create.php" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form method="POST" action="/admin/tenants" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                 <div>
                     <label class="block text-sm font-medium text-input-text">Name</label>

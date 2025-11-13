@@ -11,7 +11,7 @@ class ManagerUserController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->requireRole(['manager']);
+        $this->requireRole(['manager','tenant_admin']);
     }
 
     // GET /manager/users -> list all users (single responsibility: fetch & render list)

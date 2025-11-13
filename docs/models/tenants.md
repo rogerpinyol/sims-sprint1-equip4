@@ -10,7 +10,7 @@ This document explains how the Tenant model works, how to use it in controllers,
 
 Every other table is scoped by `tenant_id`. The `tenants` table is the root that defines each tenant and therefore is not scoped by `tenant_id`. For this reason, the Tenant model overrides the base model’s tenant‑filtered methods and provides safe, purpose‑built operations.
 
-Controllers MUST enforce RBAC (e.g., super‑admin only) before calling any method that modifies tenants.
+Controllers MUST enforce RBAC (tenant_admin only) before calling any method that modifies tenants.
 
 ## Schema (from `config/init.sql`)
 
@@ -94,7 +94,7 @@ Create a new tenant (controller snippet):
 
 ```php
 $tenantModel = new Tenant();
-$this->requireRole(['super_admin']); // controller-level RBAC
+$this->requireRole(['tenant_admin']); // controller-level RBAC
 $result = $tenantModel->createTenant([
   'name' => 'City A',
   'subdomain' => 'city-a',
@@ -111,7 +111,7 @@ Rotate API key:
 
 ```php
 $tenantModel = new Tenant();
-$this->requireRole(['super_admin']);
+$this->requireRole(['tenant_admin']);
 $new = $tenantModel->rotateApiKey($tenantId);
 // present $new['api_key'] once to the operator
 ```
@@ -166,6 +166,6 @@ class Vehicle extends Model {
 - Duplicate subdomain is rejected by DB (unique index) and handled gracefully.
 - API key verification succeeds for the correct key and fails for a wrong key.
 - Deactivating a tenant stops API key verification.
-- RBAC prevents non‑super‑admins from mutating tenants.
+- RBAC prevents non‑tenant_admins from mutating tenants.
 
 By following this pattern, you get strong tenant isolation, safe API key handling, and reusable foundations for the rest of your MVC components.

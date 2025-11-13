@@ -49,6 +49,15 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
 
         <div>
+          <label class="block text-sm font-medium text-slate-700" for="role">Role</label>
+          <select id="role" name="role" class="input mt-1">
+            <option value="client" <?= ((($old['role'] ?? ($_POST['role'] ?? 'client'))) === 'client') ? 'selected' : '' ?>>Client</option>
+            <option value="tenant_admin" <?= ((($old['role'] ?? ($_POST['role'] ?? ''))) === 'tenant_admin') ? 'selected' : '' ?>>Tenant Admin</option>
+          </select>
+          <p class="mt-1 text-xs text-slate-500">Seleccione "Tenant Admin" solo si gestionará múltiples tenants.</p>
+        </div>
+
+        <div>
           <button id="submit-btn" type="submit" class="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed">
             Create account
           </button>

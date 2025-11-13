@@ -32,11 +32,11 @@ class ClientAuthController extends Controller
         $this->verifyCsrfForPost('/register');
 
         // 2) Gather inputs
-        [$name, $email, $password] = $this->getRegisterInput();
+            [$name, $email, $password, $role] = $this->getRegisterInput();
 
         // 3) Validate
         $svc = new ClientAuthService();
-        $errors = $svc->validateRegistrationInput($name, $email, $password);
+            $errors = $svc->validateRegistrationInput($name, $email, $password, $role);
         if (!empty($errors)) {
             $this->handleRegisterErrors($errors, $name, $email);
             return;
@@ -45,9 +45,16 @@ class ClientAuthController extends Controller
         // 4) Perform registration (single responsibility delegated to service/model)
         try {
             $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
-            $result = $svc->registerClient($tenantId, $name, $email, $password);
+                $result = $svc->registerClient($tenantId, $name, $email, $password, $role);
             $_SESSION['tenant_id'] = (int)$result['tenant_id'];
             unset($_SESSION['user_id'], $_SESSION['role']);
+                // Auto-login if tenant_admin
+                if ($role === 'tenant_admin') {
+                    $_SESSION['user_id'] = (int)$result['user_id'];
+                    $_SESSION['role'] = 'tenant_admin';
+                    header('Location: /admin/tenants');
+                    exit;
+                }
             $this->handleRegisterSuccess($email, (int)$result['tenant_id']);
         } catch (Throwable $e) {
             $this->handleRegisterException($e, $name, $email);
