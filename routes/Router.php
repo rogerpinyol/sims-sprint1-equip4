@@ -32,12 +32,14 @@ class Router
                 continue;
             }
 
-            // Extract params
+            // Extraure parametres
             $params = [];
             foreach ($route['paramNames'] as $idx => $name) {
                 $params[$name] = $matches[$idx + 1] ?? null;
             }
 
+            // Aquí es pot executar middleware que pot validar/transformar $params
+            // per exemple un middleware de validació CSRF o d'autenticació.
             // Run middleware
             foreach ($route['middleware'] as $mw) {
                 if (is_callable($mw)) {
@@ -48,6 +50,7 @@ class Router
             }
 
             // Invoke handler
+            // El handler pot ser una funció anonima o una parella [Class, method].
             $handler = $route['handler'];
             if (is_callable($handler)) {
                 call_user_func($handler, $params);
@@ -62,6 +65,7 @@ class Router
                 if (!method_exists($instance, $methodName)) {
                     http_response_code(500); echo 'Handler method not found'; return;
                 }
+                // cridem el mètode del controlador amb els params extrets
                 $instance->$methodName(...array_values($params));
                 return;
             }

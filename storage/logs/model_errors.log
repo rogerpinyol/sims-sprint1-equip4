@@ -14,3 +14,15 @@
 [2025-11-10 19:01:23] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'location' cannot be null in /var/www/html/app/core/Model.php:123
 [2025-11-10 19:14:04] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'latitude' in 'INSERT INTO' in /var/www/html/app/core/Model.php:86
 [2025-11-10 19:14:33] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'latitude' in 'INSERT INTO' in /var/www/html/app/core/Model.php:86
+[2025-11-11 16:10:55] SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'battery_capacity' at row 1 in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:11:25] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:37:30] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:38:03] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:45:22] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:46:49] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:48:09] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:52:14] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'status' at row 1 in /var/www/html/app/core/Model.php:80
+[2025-11-11 16:54:54] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-11 17:46:10] SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'battery_capacity' at row 1 in /var/www/html/app/core/Model.php:126
+[2025-11-11 17:50:33] SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'battery_capacity' at row 1 in /var/www/html/app/core/Model.php:86
+[2025-11-11 18:11:03] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80

@@ -45,8 +45,8 @@ require_once __DIR__ . '/../partials/navbar.php';
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Ubicació (lat lon)</label>
-            <input type="text" name="location" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['location'] ?? '0 0') ?>">
+            <label class="block font-bold mb-1">Ubicació (POINT(lat lon))</label>
+            <input type="text" name="location" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['location'] ?? 'POINT(0 0)') ?>">
         </div>
 
         <div>
@@ -101,22 +101,18 @@ require_once __DIR__ . '/../partials/navbar.php';
     });
 
     function formatPoint(lat, lon){
-        return `${lat.toFixed(6)} ${lon.toFixed(6)}`;
+        return `POINT(${lat.toFixed(6)} ${lon.toFixed(6)})`;
     }
 
-    // If location input already has a value (POINT(...) or 'lat lon'), initialize marker there
+    // If location input already has a POINT, initialize marker there
     const locInput = document.querySelector('input[name="location"]');
     if (locInput && locInput.value) {
-        let lat = null, lon = null;
-        const mPoint = locInput.value.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
-        const mPlain = locInput.value.match(/^\s*([-0-9\.]+)\s*[ ,]?\s*([-0-9\.]+)\s*$/);
-        if (mPoint) { lat = parseFloat(mPoint[1]); lon = parseFloat(mPoint[2]); }
-        else if (mPlain) { lat = parseFloat(mPlain[1]); lon = parseFloat(mPlain[2]); }
-        if (lat !== null && lon !== null) {
+        const m = locInput.value.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
+        if (m) {
+            const lat = parseFloat(m[1]);
+            const lon = parseFloat(m[2]);
             selectedMarker = L.marker([lat, lon], {icon: carIcon}).addTo(map);
             map.setView([lat, lon], 14);
-            // normalize input value to plain text
-            locInput.value = formatPoint(lat, lon);
         }
     }
 

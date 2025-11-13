@@ -31,12 +31,11 @@ CREATE TABLE vehicles (
 	model VARCHAR(100),
 	battery_capacity DECIMAL(5,2),
 	status ENUM('available', 'booked', 'maintenance', 'charging', 'out_of_order') DEFAULT 'available',
-	-- store coordinates as plain text "lat lon" for admin visibility
-	location VARCHAR(64) DEFAULT NULL,
+	location POINT NOT NULL,
 	last_maintenance DATE,
 	sensor_data JSON,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	
+	SPATIAL INDEX idx_location (location),
 	INDEX idx_tenant_status (tenant_id, status),
 	FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
 );

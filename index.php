@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Start session early before any output so session_start() in views won't trigger
+// Inicia la sessió si no està iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -27,9 +27,7 @@ spl_autoload_register(function ($class) {
 
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 
-// If the new router bootstrap exists, use it. Otherwise fall back to the
-// legacy simple dispatcher below. This lets you adopt `routes/web.php`
-// without removing the old code immediately.
+// Careguem el router, si no existeix, creem manualment un vehiclecontroller
 $routerBootstrap = __DIR__ . '/routes/web.php';
 if (file_exists($routerBootstrap)) {
     // Ensure the Router class is loaded first to avoid "class not found"
@@ -53,7 +51,6 @@ if (file_exists($routerBootstrap)) {
     return;
 }
 
-// Legacy fallback dispatcher (kept for compatibility)
 $controller = new VehicleController();
 
 match ($uri) {

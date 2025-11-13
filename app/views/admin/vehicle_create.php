@@ -42,8 +42,8 @@ require_once __DIR__ . '/../partials/navbar.php';
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Ubicació (lat lon)</label>
-            <input type="text" name="location" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="41.385100 2.173400">
+            <label class="block font-bold mb-1">Ubicació (POINT(lat lon))</label>
+            <input type="text" name="location" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="POINT(41.3851 2.1734)">
         </div>
 
         <div>
@@ -75,6 +75,7 @@ require_once __DIR__ . '/../partials/navbar.php';
     </div>
 </div>
 
+
 <!-- Leaflet CSS/JS (CDN) - using jsDelivr to avoid SRI/blocking issues -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -102,23 +103,28 @@ require_once __DIR__ . '/../partials/navbar.php';
         popupAnchor: [0, -28]
     });
 
-    function formatPoint(lat, lon){
-        return `${lat.toFixed(6)} ${lon.toFixed(6)}`;
+    // Helpers: parse and format the location input consistently as `POINT(lat lon)`
+    const locInput = document.querySelector('input[name="location"]');
+
+    function formatPoint(lat, lon) {
+        // Keep the same format as before to avoid breaking server-side expectations.
+        return `POINT(${lat.toFixed(6)} ${lon.toFixed(6)})`;
     }
 
-    // If location input already has a value (POINT(...) or 'lat lon'), initialize marker there
-    const locInput = document.querySelector('input[name="location"]');
+    function parsePointString(s) {
+        // Accepts strings like 'POINT(41.3851 2.1734)' (case-insensitive)
+        if (!s || typeof s !== 'string') return null;
+        const m = s.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
+        if (!m) return null;
+        return { lat: parseFloat(m[1]), lon: parseFloat(m[2]) };
+    }
+
+    // If the location input already has a POINT(...) value, initialize the marker there
     if (locInput && locInput.value) {
-        let lat = null, lon = null;
-        const mPoint = locInput.value.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
-        const mPlain = locInput.value.match(/^\s*([-0-9\.]+)\s*[ ,]?\s*([-0-9\.]+)\s*$/);
-        if (mPoint) { lat = parseFloat(mPoint[1]); lon = parseFloat(mPoint[2]); }
-        else if (mPlain) { lat = parseFloat(mPlain[1]); lon = parseFloat(mPlain[2]); }
-        if (lat !== null && lon !== null) {
-            selectedMarker = L.marker([lat, lon], {icon: carIcon}).addTo(map);
-            map.setView([lat, lon], 14);
-            // normalize input value to plain text
-            locInput.value = formatPoint(lat, lon);
+        const p = parsePointString(locInput.value);
+        if (p) {
+            selectedMarker = L.marker([p.lat, p.lon], { icon: carIcon }).addTo(map);
+            map.setView([p.lat, p.lon], 14);
         }
     }
 
@@ -141,12 +147,15 @@ require_once __DIR__ . '/../partials/navbar.php';
     });
 
     // On click, set selected marker and update input
-    map.on('click', function(e){
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-        if (selectedMarker) selectedMarker.setLatLng(e.latlng);
-        else selectedMarker = L.marker(e.latlng, {icon: carIcon}).addTo(map);
-        if (locInput) locInput.value = formatPoint(lat, lon);
+    // When the user clicks the map set or move the selected marker, and update the input
+    map.on('click', function(e) {
+        const lat = Number(e.latlng.lat);
+        const lon = Number(e.latlng.lng);
+        if (Number.isFinite(lat) && Number.isFinite(lon)) {
+            if (selectedMarker) selectedMarker.setLatLng(e.latlng);
+            else selectedMarker = L.marker(e.latlng, { icon: carIcon }).addTo(map);
+            if (locInput) locInput.value = formatPoint(lat, lon);
+        }
     });
 
 })();
