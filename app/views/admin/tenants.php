@@ -90,22 +90,22 @@
                                     <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/view" class="text-blue-600 hover:underline">View</a>
                                     <a href="/admin/tenants/<?= urlencode($tenant['id']) ?>/edit" class="text-yellow-600 hover:underline">Edit</a>
                                     <?php if ($tenant['is_active']): ?>
-                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/deactivate" style="display:inline;">
+                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/deactivate" class="tenant-action" data-confirm="Deactivate this tenant?" style="display:inline;">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                            <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Deactivate this tenant?')">Deactivate</button>
+                                            <button type="submit" class="text-red-600 hover:underline">Deactivate</button>
                                         </form>
                                     <?php else: ?>
-                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/activate" style="display:inline;">
+                                        <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/activate" class="tenant-action" data-confirm="Activate this tenant?" style="display:inline;">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                            <button type="submit" class="text-green-600 hover:underline" onclick="return confirm('Activate this tenant?')">Activate</button>
+                                            <button type="submit" class="text-green-600 hover:underline">Activate</button>
                                         </form>
                                     <?php endif; ?>
-                                    <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/rotate-api-key" style="display:inline;">
+                                    <form method="POST" action="/admin/tenants/<?= urlencode($tenant['id']) ?>/rotate-api-key" class="tenant-action" data-confirm="Rotate API key for this tenant?" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($tenant['id']) ?>">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                        <button type="submit" class="text-indigo-600 hover:underline" onclick="return confirm('Rotate API key for this tenant?')">Rotate API Key</button>
+                                        <button type="submit" class="text-indigo-600 hover:underline">Rotate API Key</button>
                                     </form>
                                 </td>
                             </tr>
@@ -150,5 +150,6 @@
             </form>
         </div>
     </div>
+<script src="/assets/js/validations/admin-tenants.js" defer></script>
 </body>
 </html>

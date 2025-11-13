@@ -63,8 +63,9 @@ $errors = $errors ?? [];
       </div>
     </form>
 
-    <form id="delete-account" method="post" action="/profile/delete" onsubmit="return confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');" class="mt-4 text-center">
-      <a href="#" onclick="document.getElementById('delete-account').submit();" class="text-red-600 hover:text-red-700 text-sm font-medium">Eliminar cuenta</a>
+    <form id="delete-account" method="post" action="/profile/delete" class="mt-4 text-center">
+      <a href="#" id="delete-account-link" class="text-red-600 hover:text-red-700 text-sm font-medium">Eliminar cuenta</a>
     </form>
   </div>
 </div>
+<script src="/assets/js/validations/profile.js" defer></script>
