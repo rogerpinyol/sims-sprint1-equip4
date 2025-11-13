@@ -34,14 +34,17 @@ abstract class Controller
 
     protected function getAuthenticatedUser(): ?array
     {
+        // Prefer aggregated user array if present
+        $user = $_SESSION['user'] ?? null;
+        if (is_array($user)) return $user;
         $userId  = $_SESSION['user_id'] ?? null;
         $role    = $_SESSION['role'] ?? null;
         $tenant  = $_SESSION['tenant_id'] ?? null;
         if ($userId === null && $role === null && $tenant === null) return null;
         return array_filter([
-            'id' => is_numeric($userId) ? (int)$userId : null,
-            'role' => is_string($role) ? $role : null,
-            'tenant_id' => is_numeric($tenant) ? (int)$tenant : null,
+            'id' => is_numeric($userId) ? (int)$userId : $userId,
+            'role' => is_string($role) ? $role : $role,
+            'tenant_id' => is_numeric($tenant) ? (int)$tenant : $tenant,
         ], static fn($v) => $v !== null);
     }
 
@@ -50,19 +53,20 @@ abstract class Controller
         $user = $this->getAuthenticatedUser();
         $role = $user['role'] ?? null;
         if ($role === null || !in_array($role, $allowedRoles, true)) {
-            http_response_code(403);
-            echo 'Forbidden';
-            exit;
+            throw new HttpException(403, 'Forbidden');
         }
+    }
+
+    protected function requireSuperAdmin(): void
+    {
+        $this->requireRole(['super_admin']);
     }
 
     protected function requireTenant(): int
     {
         $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
         if ($tenantId <= 0) {
-            http_response_code(400);
-            echo 'Tenant not resolved. Provide ?tenant or ?tenant_id in dev, or use subdomain.';
-            exit;
+            throw new HttpException(400, 'Tenant not resolved. Provide ?tenant or ?tenant_id in dev, or use subdomain.');
         }
         return $tenantId;
     }
@@ -74,30 +78,31 @@ abstract class Controller
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
+    protected function jsonResponse(array $body, int $statusCode = 200, array $headers = []): array
+    {
+        return [
+            'status' => $statusCode,
+            'headers' => $headers,
+            'body' => $body,
+        ];
+    }
+
     protected function render(string $viewPath, array $vars = []): void
     {
-        $layout = $vars['layout'] ?? null; // e.g., path to app/views/layouts/app.php
-        $title = $vars['title'] ?? null;
-
-        // Render the view into a buffer first
+        $layout = $vars['layout'] ?? null;
         if (!is_file($viewPath)) {
             http_response_code(500);
             echo 'View not found: ' . htmlspecialchars($viewPath, ENT_QUOTES, 'UTF-8');
             return;
         }
-
         extract($vars, EXTR_SKIP);
         ob_start();
         include $viewPath;
         $content = ob_get_clean();
-
         if ($layout && is_file($layout)) {
-            // Provide $content and optional $title to layout
             include $layout;
             return;
         }
-
-        // No layout requested, output raw content
         echo $content;
     }
 
@@ -108,13 +113,10 @@ abstract class Controller
         $decoded = json_decode($rawBody, true);
         return is_array($decoded) ? $decoded : [];
     }
-
 }
 
 if (!function_exists('e')) {
-    function e($v) {
-        return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
-    }
+    function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 }
 
 if (!function_exists('manager_base')) {

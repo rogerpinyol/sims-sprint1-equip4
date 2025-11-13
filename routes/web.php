@@ -1,56 +1,61 @@
 <?php
+// Bootstrap Router instance and register all routes using Router::add
+require_once __DIR__ . '/Router.php';
 
-// Revisar com funciona aquesta variable d'entorn
+$router = new Router();
+
+// Normalize manager base path
 $MB = getenv('MANAGER_BASE') ?: '/ecomotion-manager';
 if ($MB === '' || $MB === false) { $MB = '/ecomotion-manager'; }
 if ($MB[0] !== '/') { $MB = '/' . $MB; }
 if ($MB !== '/' && substr($MB, -1) === '/') { $MB = rtrim($MB, '/'); }
 
-return [
-    // Manager Login
-    ['GET',  '/manager/login',      'auth/ManagerAuthController', 'loginForm'],
-    ['POST', '/manager/login',      'auth/ManagerAuthController', 'login'],
-    ['POST', '/manager/logout',     'auth/ManagerAuthController', 'logout'],
+// Manager auth (legacy + pretty base)
+$router->add('GET', '/manager/login', ['ManagerAuthController','loginForm']);
+$router->add('POST','/manager/login', ['ManagerAuthController','login']);
+$router->add('POST','/manager/logout',['ManagerAuthController','logout']);
+$router->add('GET', $MB . '/login',   ['ManagerAuthController','loginForm']);
+$router->add('POST',$MB . '/login',   ['ManagerAuthController','login']);
+$router->add('POST',$MB . '/logout',  ['ManagerAuthController','logout']);
 
-    // Manager Login (pretty base)
-    ['GET',  $MB . '/login',      'auth/ManagerAuthController', 'loginForm'],
-    ['POST', $MB . '/login',      'auth/ManagerAuthController', 'login'],
-    ['POST', $MB . '/logout',     'auth/ManagerAuthController', 'logout'],
+// Client auth
+$router->add('GET',  '/auth/login',    ['ClientAuthController','loginForm']);
+$router->add('POST', '/auth/login',    ['ClientAuthController','login']);
+$router->add('POST', '/auth/logout',   ['ClientAuthController','logout']);
+$router->add('GET',  '/register',      ['ClientAuthController','form']);
+$router->add('POST', '/register',      ['ClientAuthController','register']);
 
-    // Client Login and Register
-    ['GET',  '/auth/login',     'auth/ClientAuthController', 'loginForm'],
-    ['POST', '/auth/login',     'auth/ClientAuthController', 'login'],
-    ['POST', '/auth/logout',    'auth/ClientAuthController', 'logout'],
+// Client profile & dashboard
+$router->add('GET',  '/profile',             ['ClientController','profile']);
+$router->add('POST', '/profile',             ['ClientController','updateProfile']);
+$router->add('POST', '/profile/delete',      ['ClientController','deleteAccount']);
+$router->add('GET',  '/client',              ['ClientDashboardController','index']);
+$router->add('GET',  '/client/dashboard',    ['ClientDashboardController','index']);
+$router->add('GET',  '/client/api/vehicles', ['VehiclesApiController','list']);
 
-    // Optional GET convenience redirectors (non-RESTful but handy)
-    ['GET',  '/register',         'auth/ClientAuthController', 'form'],
-    ['POST', '/register',         'auth/ClientAuthController', 'register'],
+// Manager dashboard & users (legacy + pretty base) using {id} placeholder
+$router->add('GET',  '/manager',                     ['ManagerDashboardController','index']);
+$router->add('GET',  '/manager/users',               ['ManagerUserController','index']);
+$router->add('GET',  '/manager/users/create',        ['ManagerUserController','createForm']);
+$router->add('POST', '/manager/users',               ['ManagerUserController','store']);
+$router->add('GET',  '/manager/users/{id}',          ['ManagerUserController','show']);
+$router->add('POST', '/manager/users/{id}/update',   ['ManagerUserController','update']);
+$router->add('POST', '/manager/users/{id}/delete',   ['ManagerUserController','delete']);
+$router->add('GET',  $MB,                            ['ManagerDashboardController','index']);
+$router->add('GET',  $MB . '/users',                 ['ManagerUserController','index']);
+$router->add('GET',  $MB . '/users/create',          ['ManagerUserController','createForm']);
+$router->add('POST', $MB . '/users',                 ['ManagerUserController','store']);
+$router->add('GET',  $MB . '/users/{id}',            ['ManagerUserController','show']);
+$router->add('POST', $MB . '/users/{id}/update',     ['ManagerUserController','update']);
+$router->add('POST', $MB . '/users/{id}/delete',     ['ManagerUserController','delete']);
 
-    // Client CRUD
-    ['GET', '/profile',           'client/ClientController', 'profile'],
-    ['POST', '/profile',          'client/ClientController', 'updateProfile'],
-    ['POST', '/profile/delete',   'client/ClientController', 'deleteAccount'],
-    ['GET', '/client',            'client/ClientDashboardController', 'index'],
-    ['GET', '/client/dashboard',  'client/ClientDashboardController', 'index'],
-    // Live vehicles API for client dashboard map (Leaflet)
-    ['GET', '/client/api/vehicles', 'client/VehiclesApiController', 'list'],
+// Super admin tenant management (REST style)
+$router->add('GET',  '/admin/tenants',                   ['TenantController','index']);
+$router->add('GET',  '/admin/tenants/{id}',              ['TenantController','show']);
+$router->add('POST', '/admin/tenants',                   ['TenantController','store']);
+$router->add('POST', '/admin/tenants/{id}/update',       ['TenantController','update']);
+$router->add('POST', '/admin/tenants/{id}/deactivate',   ['TenantController','deactivate']);
+$router->add('POST', '/admin/tenants/{id}/activate',     ['TenantController','activate']);
+$router->add('POST', '/admin/tenants/{id}/rotate-api-key',['TenantController','rotateApiKey']);
 
-    // Manager overview (no CRUD here)
-    ['GET',  '/manager',          'manager/ManagerDashboardController', 'index'],
-    // Manager users section (CRUD)
-    ['GET',  '/manager/users',    'manager/ManagerUserController', 'index'],
-    ['GET',  '/manager/users/create', 'manager/ManagerUserController', 'createForm'],
-    ['POST', '/manager/users',    'manager/ManagerUserController', 'store'],
-    ['GET',  '/manager/users/(\d+)', 'manager/ManagerUserController', 'show'],
-    ['POST', '/manager/users/(\d+)/update', 'manager/ManagerUserController', 'update'],
-    ['POST', '/manager/users/(\d+)/delete', 'manager/ManagerUserController', 'delete'],
-
-    // Pretty base routes (alias)
-    ['GET',  $MB,                       'manager/ManagerDashboardController', 'index'],
-    ['GET',  $MB . '/users',            'manager/ManagerUserController', 'index'],
-    ['GET',  $MB . '/users/create',     'manager/ManagerUserController', 'createForm'],
-    ['POST', $MB . '/users',            'manager/ManagerUserController', 'store'],
-    ['GET',  $MB . '/users/(\d+)',      'manager/ManagerUserController', 'show'],
-    ['POST', $MB . '/users/(\d+)/update','manager/ManagerUserController', 'update'],
-    ['POST', $MB . '/users/(\d+)/delete','manager/ManagerUserController', 'delete'],
-];
+return $router;

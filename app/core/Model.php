@@ -5,17 +5,27 @@ class Model
     protected $table;
     protected $tenantId;
 
-    public function __construct(string $table, int $tenantId)
+    public function __construct(string $table, int $tenantId, ?PDO $injectedPdo = null)
     {
-        // Usa tu clase Database singleton
-    require_once __DIR__ . '/../../config/database.php';
-        $this->pdo = Database::getInstance()->getConnection();
-
-        // Validación de nombre de tabla
+        if ($injectedPdo instanceof PDO) {
+            $pdo = $injectedPdo;
+        } else {
+            require_once __DIR__ . '/../../config/database.php';
+            if (!isset($pdo) || !($pdo instanceof PDO)) {
+                // fallback to singleton if available
+                if (class_exists('Database')) {
+                    $pdo = Database::getInstance()->getConnection();
+                }
+            }
+            if (!isset($pdo) || !($pdo instanceof PDO)) {
+                throw new RuntimeException('PDO instance not available from config/database.php');
+            }
+        }
+        // Whitelist table name
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
             throw new InvalidArgumentException('Invalid table name');
         }
-
+        $this->pdo = $pdo;
         $this->table = $table;
         $this->tenantId = $tenantId;
     }
@@ -123,6 +133,8 @@ class Model
         }
     }
 
+    // Simple join helper: returns rows from this table (a) joined with $joinTable (b).
+    // $foreignKey = column in this table that references joinTable.id
     public function findWithJoin(string $joinTable, string $foreignKey, array $conditions = []): array|false
     {
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $joinTable) || !preg_match('/^[a-zA-Z0-9_]+$/', $foreignKey)) {
