@@ -17,7 +17,7 @@
             <file>tests/ClientAuthServiceTest.php</file>
         </testsuite>
         <testsuite name="Manager">
-            <directory>tests/ManagerUserServiceTest.php</directory>
+            <file>tests/ManagerUserServiceTest.php</file>
         </testsuite>
     </testsuites>
 
