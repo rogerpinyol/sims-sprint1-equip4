@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: test_db
+          MARIADB_USER: test
+          MARIADB_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ptest" --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      MARIADB_HOST: 127.0.0.1
+      MARIADB_DATABASE: test_db
+      MARIADB_USER: test
+      MARIADB_PASSWORD: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: xdebug
+          tools: composer
+      - name: Wait for MariaDB
+        run: |
+          for i in {1..20}; do
+            if mysql -h 127.0.0.1 -utest -ptest -e 'SELECT 1' 2>/dev/null; then echo "DB ready"; break; fi; sleep 3; done
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --colors=always --coverage-text

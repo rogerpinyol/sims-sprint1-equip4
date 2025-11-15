@@ -1,6 +1,6 @@
 # Unit and Integration Testing in SIMS SaaS
 
-This document explains how to run and extend unit/integration tests for the PHP backend, using the Tenant model as a working example.
+This document explains how to run and extend unit/integration tests for the PHP backend. It now includes examples for the User domain (models + services) in addition to the Tenant examples.
 
 ## Test Environment Setup
 
@@ -83,6 +83,56 @@ TenantControllerTest: OK
 - **Reset the test DB before each run** to ensure tests are repeatable and isolated.
 - **Inject PDO connections** for testability and to avoid global state.
 - **Add new tests** in the `tests/` directory, following the pattern in `TenantModelMySqlTest.php` and `TenantControllerTest.php`.
+
+## User Domain Tests (PHPUnit)
+
+File: `tests/UserDomainTest.php`
+
+**Cubre:**
+- Registro con creación automática de tenant (`registerWithTenant`).
+- Autenticación correcta e incorrecta (`authenticate`).
+- Validaciones de `updateDetails` (teléfono y email).
+- Rechazo de roles inválidos en `updateRole`.
+- Registro de `tenant_admin` vía `ClientAuthService` y verificación de rol.
+- Verificación de rol para managers (`ManagerAuthService::ensureManagerRole`).
+- Creación y actualización de usuario con `ManagerUserService` (incluye cambio de rol).
+
+**Ejecutar:**
+```powershell
+vendor\bin\phpunit --filter UserDomainTest
+```
+
+## Comandos Útiles (PowerShell)
+
+```powershell
+# Instalar dependencias
+composer install
+
+# Ejecutar todos los tests
+vendor\bin\phpunit
+
+# Ejecutar un test específico
+vendor\bin\phpunit --filter UserDomainTest
+
+# Mostrar cobertura en texto
+vendor\bin\phpunit --coverage-text
+```
+
+## CI/CD con GitHub Actions
+
+Workflow: `.github/workflows/ci.yml`
+
+**Resumen:**
+- Arranca servicio MariaDB.
+- Instala PHP 8.1 y dependencias Composer.
+- Ejecuta PHPUnit con cobertura.
+
+**Extender:**
+- Agregar matriz de versiones PHP (`strategy.matrix.php: [8.1, 8.2]`).
+- Subir reporte cobertura a Codecov (añadir paso con `codecov/codecov-action`).
+
+---
+Con esto la base de tests de usuarios queda integrada al pipeline y es fácil de extender.
 
 ## Extending
 - To add tests for other models, create a new test script in `tests/`, inject a test PDO, and follow the same setup/teardown pattern.
