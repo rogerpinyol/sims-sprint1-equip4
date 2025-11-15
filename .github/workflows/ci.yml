@@ -73,7 +73,11 @@ jobs:
         sudo mysql -e "FLUSH PRIVILEGES;"
         mariadb -h 127.0.0.1 -u test -ptest -e "CREATE DATABASE IF NOT EXISTS test_db;"
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
-        mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
+        if [ -f config/seed.sql ]; then
+          mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql;
+        else
+          echo "Warning: config/seed.sql not found. Skipping seed step.";
+        fi
 
     - name: Verify SQL files
       run: |

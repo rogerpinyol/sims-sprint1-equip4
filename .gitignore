@@ -44,3 +44,7 @@ tests/*.out
 tests/*.log
 
 architecture.md
+
+# Permitir archivos SQL específicos
+!config/seed.sql
+!config/init.sql
