@@ -29,6 +29,8 @@
         <env name="DB_DATABASE" value="test_db"/>
         <env name="DB_USERNAME" value="test"/>
         <env name="DB_PASSWORD" value="test"/>
+        <env name="MARIADB_DATABASE" value="test_db"/>
+        <env name="MARIADB_DB" value="test_db"/>
     </php>
 
     <coverage processUncoveredFiles="true">
