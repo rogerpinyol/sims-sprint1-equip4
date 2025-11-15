@@ -2,13 +2,16 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches:
+      - users-CRUD
   pull_request:
-    branches: ["**"]
+    branches:
+      - users-CRUD
 
 jobs:
-  tests:
+  phpunit:
     runs-on: ubuntu-latest
+
     services:
       mariadb:
         image: mariadb:10.11
@@ -17,29 +20,58 @@ jobs:
           MARIADB_DATABASE: test_db
           MARIADB_USER: test
           MARIADB_PASSWORD: test
-        ports:
-          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -ptest" --health-interval=10s --health-timeout=5s --health-retries=5
-    env:
-      MARIADB_HOST: 127.0.0.1
-      MARIADB_DATABASE: test_db
-      MARIADB_USER: test
-      MARIADB_PASSWORD: test
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -utest -ptest --silent" --health-interval=10s --health-timeout=5s --health-retries=30 --health-start-period=60s
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: xdebug
-          tools: composer
-      - name: Wait for MariaDB
-        run: |
-          for i in {1..20}; do
-            if mysql -h 127.0.0.1 -utest -ptest -e 'SELECT 1' 2>/dev/null; then echo "DB ready"; break; fi; sleep 3; done
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
-      - name: Run PHPUnit
-        run: vendor/bin/phpunit --colors=always --coverage-text
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install MySQL client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mariadb-client
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        extensions: mbstring, pdo, pdo_mysql
+        ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=2G
+        coverage: none
+        tools: composer:v2
+
+    - name: Verify PHP and Composer
+      run: |
+        php -v
+        which php
+        composer --version
+        which composer
+
+    - name: Prepare database
+      run: |
+        mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
+        mariadb -h 127.0.0.1 -u root -proot test_db < config/init.sql
+        mariadb -h 127.0.0.1 -u root -proot test_db < config/seed.sql
+
+    - name: Install dependencies
+      run: composer install --no-interaction --no-progress --prefer-dist
+
+    - name: Run PHPUnit
+      env:
+        MARIADB_HOST: 127.0.0.1
+        MARIADB_PORT: 3306
+        MARIADB_DATABASE: test_db
+        MARIADB_DB: test_db
+        MARIADB_USER: test
+        MARIADB_PASSWORD: test
+      run: ./vendor/bin/phpunit --configuration phpunit.xml
+
+    - name: Dump MariaDB logs (on failure)
+      if: ${{ failure() }}
+      run: |
+        docker ps -a
+        ID=$(docker ps -aqf "name=mariadb")
+        if [ -n "$ID" ]; then
+          docker logs "$ID"
+        fi
