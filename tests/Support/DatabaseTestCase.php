@@ -33,7 +33,6 @@ abstract class DatabaseTestCase extends TestCase
     {
         $root = dirname(__DIR__, 2);
         static::loadEnvFile($root . DIRECTORY_SEPARATOR . '.env.test');
-        static::loadEnvFile($root . DIRECTORY_SEPARATOR . '.env');
 
         $database = static::env('MARIADB_DATABASE', static::env('MARIADB_DB', 'test_db'));
         if ($database === 'ecomotiondb') {
@@ -64,6 +63,12 @@ abstract class DatabaseTestCase extends TestCase
         $_ENV['MARIADB_PASSWORD'] = static::$config['password'];
 
         echo "Using database: " . $database . PHP_EOL;
+        echo "Environment variables:" . PHP_EOL;
+        echo "MARIADB_HOST: " . static::env('MARIADB_HOST', '127.0.0.1') . PHP_EOL;
+        echo "MARIADB_PORT: " . static::env('MARIADB_PORT', '3306') . PHP_EOL;
+        echo "MARIADB_DATABASE: " . static::env('MARIADB_DATABASE', static::env('MARIADB_DB', 'test_db')) . PHP_EOL;
+        echo "MARIADB_USER: " . static::env('MARIADB_USER', 'test') . PHP_EOL;
+        echo "MARIADB_PASSWORD: " . static::env('MARIADB_PASSWORD', 'test') . PHP_EOL;
     }
 
     protected static function ensureDatabase(): void
