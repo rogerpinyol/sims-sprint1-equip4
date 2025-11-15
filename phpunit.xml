@@ -13,6 +13,12 @@
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>
+        <testsuite name="Client">
+            <directory>tests/client</directory>
+        </testsuite>
+        <testsuite name="Manager">
+            <directory>tests/manager</directory>
+        </testsuite>
     </testsuites>
 
     <php>
