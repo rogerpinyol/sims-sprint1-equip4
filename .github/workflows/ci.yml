@@ -50,9 +50,12 @@ jobs:
 
     - name: Prepare database
       run: |
-        mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
-        mariadb -h 127.0.0.1 -u root -proot test_db < config/init.sql
-        mariadb -h 127.0.0.1 -u root -proot test_db < config/seed.sql
+        sudo mysql -e "CREATE USER IF NOT EXISTS 'test'@'%' IDENTIFIED BY 'test';"
+        sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'test'@'%';"
+        sudo mysql -e "FLUSH PRIVILEGES;"
+        mariadb -h 127.0.0.1 -u test -ptest -e "CREATE DATABASE IF NOT EXISTS test_db;"
+        mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
+        mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
 
     - name: Install dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
