@@ -2,11 +2,13 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          bootstrap="vendor/autoload.php"
-         colors="true">
+         colors="true"
+         stopOnFailure="true"
+         verbose="true">
 
     <testsuites>
         <testsuite name="Unit">
-            <directory>tests/Unit</directory>
+            <directory>tests</directory>
         </testsuite>
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
@@ -22,4 +24,10 @@
         <env name="DB_USERNAME" value="test"/>
         <env name="DB_PASSWORD" value="test"/>
     </php>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory>app/</directory>
+        </include>
+    </coverage>
 </phpunit>
