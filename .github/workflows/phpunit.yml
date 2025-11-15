@@ -23,6 +23,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y mariadb-client
 
+    - name: Install and start MariaDB
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mariadb-server
+        sudo service mysql start
+
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
