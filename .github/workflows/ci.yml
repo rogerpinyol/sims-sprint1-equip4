@@ -32,6 +32,24 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y mariadb-client
 
+    - name: Install and start MariaDB
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mariadb-server
+        sudo service mysql start
+        for i in {1..10}; do
+          if sudo mysqladmin ping --silent; then
+            echo "MariaDB is up and running!";
+            break;
+          fi;
+          echo "Waiting for MariaDB to start... ($i/10)";
+          sleep 3;
+        done
+        if ! sudo mysqladmin ping --silent; then
+          echo "MariaDB failed to start.";
+          exit 1;
+        fi
+
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -47,22 +65,6 @@ jobs:
         which php
         composer --version
         which composer
-
-    - name: Start MariaDB service
-      run: |
-        sudo service mysql start
-        for i in {1..10}; do
-          if sudo mysqladmin ping --silent; then
-            echo "MariaDB is up and running!";
-            break;
-          fi;
-          echo "Waiting for MariaDB to start... ($i/10)";
-          sleep 3;
-        done
-        if ! sudo mysqladmin ping --silent; then
-          echo "MariaDB failed to start.";
-          exit 1;
-        fi
 
     - name: Prepare database
       run: |
