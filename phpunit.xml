@@ -14,10 +14,10 @@
             <directory>tests/Integration</directory>
         </testsuite>
         <testsuite name="Client">
-            <directory>tests/client</directory>
+            <file>tests/ClientAuthServiceTest.php</file>
         </testsuite>
         <testsuite name="Manager">
-            <directory>tests/manager</directory>
+            <directory>tests/ManagerUserServiceTest</directory>
         </testsuite>
     </testsuites>
 
