@@ -26,3 +26,6 @@
 [2025-11-11 17:46:10] SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'battery_capacity' at row 1 in /var/www/html/app/core/Model.php:126
 [2025-11-11 17:50:33] SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'battery_capacity' at row 1 in /var/www/html/app/core/Model.php:86
 [2025-11-11 18:11:03] SQLSTATE[22003]: Numeric value out of range: 1416 Cannot get geometry object from data you send to the GEOMETRY field in /var/www/html/app/core/Model.php:80
+[2025-11-13 15:11:37] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'WF0TEST0000000078' for key 'vin' in /var/www/html/app/core/Model.php:86
+[2025-11-13 15:14:05] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'location' cannot be null in /var/www/html/app/core/Model.php:123
+[2025-11-13 15:14:48] SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'location' cannot be null in /var/www/html/app/core/Model.php:123

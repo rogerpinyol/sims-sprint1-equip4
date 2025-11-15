@@ -103,28 +103,19 @@ require_once __DIR__ . '/../partials/navbar.php';
         popupAnchor: [0, -28]
     });
 
-    // Helpers: parse and format the location input consistently as `POINT(lat lon)`
-    const locInput = document.querySelector('input[name="location"]');
-
-    function formatPoint(lat, lon) {
-        // Keep the same format as before to avoid breaking server-side expectations.
+    function formatPoint(lat, lon){
         return `POINT(${lat.toFixed(6)} ${lon.toFixed(6)})`;
     }
 
-    function parsePointString(s) {
-        // Accepts strings like 'POINT(41.3851 2.1734)' (case-insensitive)
-        if (!s || typeof s !== 'string') return null;
-        const m = s.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
-        if (!m) return null;
-        return { lat: parseFloat(m[1]), lon: parseFloat(m[2]) };
-    }
-
-    // If the location input already has a POINT(...) value, initialize the marker there
+    // If location input already has a POINT, initialize marker there
+    const locInput = document.querySelector('input[name="location"]');
     if (locInput && locInput.value) {
-        const p = parsePointString(locInput.value);
-        if (p) {
-            selectedMarker = L.marker([p.lat, p.lon], { icon: carIcon }).addTo(map);
-            map.setView([p.lat, p.lon], 14);
+        const m = locInput.value.match(/POINT\s*\(([-0-9\.]+)\s+([-0-9\.]+)\)/i);
+        if (m) {
+            const lat = parseFloat(m[1]);
+            const lon = parseFloat(m[2]);
+            selectedMarker = L.marker([lat, lon], {icon: carIcon}).addTo(map);
+            map.setView([lat, lon], 14);
         }
     }
 
@@ -147,15 +138,12 @@ require_once __DIR__ . '/../partials/navbar.php';
     });
 
     // On click, set selected marker and update input
-    // When the user clicks the map set or move the selected marker, and update the input
-    map.on('click', function(e) {
-        const lat = Number(e.latlng.lat);
-        const lon = Number(e.latlng.lng);
-        if (Number.isFinite(lat) && Number.isFinite(lon)) {
-            if (selectedMarker) selectedMarker.setLatLng(e.latlng);
-            else selectedMarker = L.marker(e.latlng, { icon: carIcon }).addTo(map);
-            if (locInput) locInput.value = formatPoint(lat, lon);
-        }
+    map.on('click', function(e){
+        const lat = e.latlng.lat;
+        const lon = e.latlng.lng;
+        if (selectedMarker) selectedMarker.setLatLng(e.latlng);
+        else selectedMarker = L.marker(e.latlng, {icon: carIcon}).addTo(map);
+        if (locInput) locInput.value = formatPoint(lat, lon);
     });
 
 })();
