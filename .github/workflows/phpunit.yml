@@ -35,10 +35,13 @@ jobs:
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 8.1
+        php-version: 8.3
         extensions: mbstring, pdo, pdo_mysql
         ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=2G
         coverage: none
+
+    - name: Install dependencies
+      run: composer install --no-interaction --no-progress --prefer-dist
 
     - name: Wait for MariaDB
       run: |
@@ -61,6 +64,13 @@ jobs:
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
 
     - name: Run PHPUnit
+      env:
+        MARIADB_HOST: 127.0.0.1
+        MARIADB_PORT: 3306
+        MARIADB_DATABASE: test_db
+        MARIADB_DB: test_db
+        MARIADB_USER: test
+        MARIADB_PASSWORD: test
       run: ./vendor/bin/phpunit --configuration phpunit.xml
 
     - name: Dump MariaDB logs (on failure)
