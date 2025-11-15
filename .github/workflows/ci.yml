@@ -107,7 +107,7 @@ jobs:
         MARIADB_USER: test
         MARIADB_PASSWORD: test
       run: |
-        ./vendor/bin/phpunit --configuration phpunit.xml --testsuite Client,Manager --verbose
+        ./vendor/bin/phpunit --configuration phpunit.xml --testsuite Client,Manager --testdox
 
     - name: Dump MariaDB logs (on failure)
       if: ${{ failure() }}
