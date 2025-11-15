@@ -21,7 +21,7 @@ jobs:
           MARIADB_USER: test
           MARIADB_PASSWORD: test
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=20 --health-start-period=60s
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -utest -ptest --silent" --health-interval=10s --health-timeout=5s --health-retries=30 --health-start-period=60s
 
     steps:
     - name: Checkout code
@@ -43,20 +43,8 @@ jobs:
     - name: Install dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
 
-    - name: Wait for MariaDB
-      run: |
-        for i in {1..60}; do
-          if mysqlshow -h 127.0.0.1 -uroot -proot >/dev/null 2>&1; then
-            echo "MariaDB is ready"; exit 0;
-          fi
-          echo "Waiting for MariaDB..."; sleep 3;
-        done
-        echo "MariaDB did not become ready in time" >&2
-        exit 1
-
-    - name: Create database
-      run: |
-        mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
+    - name: Verify MariaDB readiness
+      run: mysqladmin ping -h 127.0.0.1 -utest -ptest --silent --wait=120 --connect-timeout=5
 
     - name: Prepare database
       run: |
