@@ -12,16 +12,7 @@ jobs:
   phpunit:
     runs-on: ubuntu-latest
 
-    services:
-      mariadb:
-        image: mariadb:10.11
-        env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: test_db
-          MARIADB_USER: test
-          MARIADB_PASSWORD: test
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -utest -ptest --silent" --health-interval=10s --health-timeout=5s --health-retries=30 --health-start-period=60s
+    services: {}
 
     steps:
     - name: Checkout code
@@ -48,16 +39,14 @@ jobs:
         composer --version
         which composer
 
-    - name: Install dependencies
-      run: composer install --no-interaction --no-progress --prefer-dist
-
-    - name: Verify MariaDB readiness
-      run: mysqladmin ping -h 127.0.0.1 -utest -ptest --silent --wait=120 --connect-timeout=5
-
     - name: Prepare database
       run: |
-        mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
-        mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
+        mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
+        mariadb -h 127.0.0.1 -u root -proot test_db < config/init.sql
+        mariadb -h 127.0.0.1 -u root -proot test_db < config/seed.sql
+
+    - name: Install dependencies
+      run: composer install --no-interaction --no-progress --prefer-dist
 
     - name: Run PHPUnit
       env:
@@ -65,15 +54,6 @@ jobs:
         MARIADB_PORT: 3306
         MARIADB_DATABASE: test_db
         MARIADB_DB: test_db
-        MARIADB_USER: test
-        MARIADB_PASSWORD: test
+        MARIADB_USER: root
+        MARIADB_PASSWORD: root
       run: ./vendor/bin/phpunit --configuration phpunit.xml
-
-    - name: Dump MariaDB logs (on failure)
-      if: ${{ failure() }}
-      run: |
-        docker ps -a
-        ID=$(docker ps -aqf "name=mariadb")
-        if [ -n "$ID" ]; then
-          docker logs "$ID"
-        fi
