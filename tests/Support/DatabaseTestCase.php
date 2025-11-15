@@ -62,6 +62,8 @@ abstract class DatabaseTestCase extends TestCase
         $_ENV['MARIADB_DB'] = static::$config['database'];
         $_ENV['MARIADB_USER'] = static::$config['user'];
         $_ENV['MARIADB_PASSWORD'] = static::$config['password'];
+
+        echo "Using database: " . $database . PHP_EOL;
     }
 
     protected static function ensureDatabase(): void
