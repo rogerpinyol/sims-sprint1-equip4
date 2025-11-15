@@ -45,6 +45,11 @@ jobs:
         composer --version
         which composer
 
+    - name: Ensure PHP 8.3 is active
+      run: |
+        sudo update-alternatives --set php /usr/bin/php8.3
+        php -v
+
     - name: Prepare database
       run: |
         mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
