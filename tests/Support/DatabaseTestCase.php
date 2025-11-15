@@ -35,7 +35,7 @@ abstract class DatabaseTestCase extends TestCase
         static::loadEnvFile($root . DIRECTORY_SEPARATOR . '.env.test');
         static::loadEnvFile($root . DIRECTORY_SEPARATOR . '.env');
 
-        $database = static::env('MARIADB_DATABASE', static::env('MARIADB_DB', 'ecomotiondb_test'));
+        $database = static::env('MARIADB_DATABASE', static::env('MARIADB_DB', 'test_db'));
         if ($database === 'ecomotiondb') {
             throw new RuntimeException('Refusing to run tests against production database (ecomotiondb).');
         }
@@ -44,8 +44,8 @@ abstract class DatabaseTestCase extends TestCase
             'host' => static::env('MARIADB_HOST', '127.0.0.1'),
             'port' => (int) static::env('MARIADB_PORT', 3306),
             'database' => $database,
-            'user' => static::env('MARIADB_USER', 'root'),
-            'password' => static::env('MARIADB_PASSWORD', ''),
+            'user' => static::env('MARIADB_USER', 'test'),
+            'password' => static::env('MARIADB_PASSWORD', 'test'),
             'charset' => 'utf8mb4',
         ];
 
