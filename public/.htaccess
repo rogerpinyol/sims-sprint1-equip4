@@ -5,7 +5,7 @@ DirectoryIndex index.php
 RewriteEngine On
 RewriteBase /
 
-# Bloquear acceso a archivos ocultos (.git, .env, etc.)
+# prohibits access to(.git, .env, etc.)
 RewriteRule "(^|/)\.[^/]+" - [F]
 
 <FilesMatch "^(composer\.json|composer\.lock|package\.json|yarn\.lock|phpunit\.xml|\.env(\..*)?)$">

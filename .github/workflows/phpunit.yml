@@ -1,0 +1,53 @@
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - users-CRUD
+  pull_request:
+    branches:
+      - users-CRUD
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11.3
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: test_db
+          MARIADB_USER: test
+          MARIADB_PASSWORD: test
+        ports:
+          - 3307:3306
+        options: >
+          --health-cmd "mariadb-admin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        extensions: mbstring, pdo, pdo_mysql
+        ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=2G
+        coverage: none
+
+    - name: Create database
+      run: |
+        mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
+
+    - name: Prepare database
+      run: |
+        mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
+        mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
+
+    - name: Run PHPUnit
+      run: ./vendor/bin/phpunit --configuration phpunit.xml

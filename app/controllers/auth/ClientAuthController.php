@@ -32,11 +32,13 @@ class ClientAuthController extends Controller
         $this->verifyCsrfForPost('/register');
 
         // 2) Gather inputs
-            [$name, $email, $password, $role] = $this->getRegisterInput();
+        [$name, $email, $password] = $this->getRegisterInput();
+        // Rol por defecto ya que el selector fue eliminado de la vista
+        $role = 'client';
 
         // 3) Validate
         $svc = new ClientAuthService();
-            $errors = $svc->validateRegistrationInput($name, $email, $password, $role);
+        $errors = $svc->validateRegistrationInput($name, $email, $password, $role);
         if (!empty($errors)) {
             $this->handleRegisterErrors($errors, $name, $email);
             return;

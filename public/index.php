@@ -1,16 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 require_once __DIR__ . '/../config/database.php';
-// Build router instance with all routes
+
 $router = require __DIR__ . '/../routes/web.php';
 
 $pdo = $pdo ?? (class_exists('Database') ? Database::getInstance()->getConnection() : null);
 
-// Resolve tenant early (subdomain or dev overrides)
-// Tenant context handled by middleware on protected routes (legacy inline resolver removed)
+// Tenant context handled by middleware on protected routes
 
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -23,6 +23,7 @@ if (preg_match('#^/(assets|favicon\.ico|robots\.txt)#', $uri)) {
 if ($uri !== '/' && str_ends_with($uri, '/')) {
     $uri = rtrim($uri, '/');
 }
+
 
 $MB = getenv('MANAGER_BASE') ?: '/ecomotion-manager';
 if ($MB === '' || $MB === false) { $MB = '/ecomotion-manager'; }

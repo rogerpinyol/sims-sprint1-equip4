@@ -59,12 +59,12 @@ $errors = $errors ?? [];
         <textarea id="accessibility_flags" name="accessibility_flags" maxlength="255" class="input mt-1" rows="3"><?php echo e($acc_value); ?></textarea>
       </div>
       <div>
-        <button type="submit" class="btn btn-primary w-full">Guardar cambios</button>
+        <button type="submit" class="btn btn-primary w-full">Save changes</button>
       </div>
     </form>
 
     <form id="delete-account" method="post" action="/profile/delete" class="mt-4 text-center">
-      <a href="#" id="delete-account-link" class="text-red-600 hover:text-red-700 text-sm font-medium">Eliminar cuenta</a>
+      <a href="#" id="delete-account-link" class="text-red-600 hover:text-red-700 text-sm font-medium">Delete account</a>
     </form>
   </div>
 </div>

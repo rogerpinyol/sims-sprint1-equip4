@@ -1,5 +1,5 @@
 <?php
-// Bootstrap Router instance and register all routes using Router::add
+
 require_once __DIR__ . '/Router.php';
 require_once __DIR__ . '/../app/middleware/TenantContext.php';
 
