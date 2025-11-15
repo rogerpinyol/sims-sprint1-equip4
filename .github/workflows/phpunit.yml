@@ -14,16 +14,14 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:latest
+        image: mariadb:10.11
         env:
           MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: test_db
           MARIADB_USER: test
           MARIADB_PASSWORD: test
-        ports:
-          - 3306:3306
         options: >
-          --health-cmd "mysqladmin ping -h localhost -uroot -proot"
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -40,6 +38,15 @@ jobs:
         ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=2G
         coverage: none
 
+    - name: Wait for MariaDB
+      run: |
+        for i in {1..20}; do
+          if mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1" 2>/dev/null; then echo "MariaDB is ready"; exit 0; fi;
+          echo "Waiting for MariaDB..."; sleep 3;
+        done
+        echo "MariaDB did not become ready in time" >&2
+        exit 1
+
     - name: Create database
       run: |
         mariadb -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_db;"
@@ -48,13 +55,6 @@ jobs:
       run: |
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
-
-    - name: Wait for MariaDB
-      run: |
-        for i in {1..20}; do
-          if mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1" 2>/dev/null; then echo "MariaDB is ready"; break; fi;
-          echo "Waiting for MariaDB..."; sleep 3;
-        done
 
     - name: Run PHPUnit
       run: ./vendor/bin/phpunit --configuration phpunit.xml
