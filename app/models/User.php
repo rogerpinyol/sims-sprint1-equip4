@@ -167,13 +167,14 @@ class User extends Model {
         }
 
         if (isset($data['accessibility_flags'])) {
-            $val = trim($data['accessibility_flags']);
-            if ($val === '') {
-                $data['accessibility_flags'] = null;
-            } elseif (is_array($val)) {
+            $val = $data['accessibility_flags'];
+            if (is_array($val)) {
                 $data['accessibility_flags'] = json_encode($val);
             } elseif (is_string($val)) {
-                $data['accessibility_flags'] = json_encode($val);
+                $val = trim($val);
+                $data['accessibility_flags'] = $val === '' ? null : json_encode($val);
+            } else {
+                $data['accessibility_flags'] = null;
             }
         }
 
