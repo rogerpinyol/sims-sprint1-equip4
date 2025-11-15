@@ -39,6 +39,14 @@ jobs:
         extensions: mbstring, pdo, pdo_mysql
         ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=2G
         coverage: none
+        tools: composer:v2
+
+    - name: Verify PHP and Composer
+      run: |
+        php -v
+        which php
+        composer --version
+        which composer
 
     - name: Install dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
