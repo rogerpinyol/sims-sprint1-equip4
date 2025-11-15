@@ -93,6 +93,11 @@ jobs:
     - name: Install dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
 
+    - name: Debug environment variables
+      run: |
+        echo "MARIADB_DATABASE: $MARIADB_DATABASE"
+        echo "MARIADB_DB: $MARIADB_DB"
+
     - name: Run PHPUnit
       env:
         MARIADB_HOST: 127.0.0.1
