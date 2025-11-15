@@ -75,6 +75,17 @@ jobs:
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/init.sql
         mariadb -h 127.0.0.1 -u test -ptest test_db < config/seed.sql
 
+    - name: Verify SQL files
+      run: |
+        if [ ! -f config/init.sql ]; then
+          echo "Error: config/init.sql not found.";
+          exit 1;
+        fi
+        if [ ! -f config/seed.sql ]; then
+          echo "Error: config/seed.sql not found.";
+          exit 1;
+        fi
+
     - name: Install dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
 
