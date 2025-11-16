@@ -1,6 +1,6 @@
 <?php
 
-$user = $user ?? ['name' => 'Cliente', 'email' => '']; ?>
+$user = $user ?? ['name' => 'Client', 'email' => '']; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

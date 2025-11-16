@@ -49,7 +49,7 @@ class TenantAdminAuthController extends Controller
             return;
         }
         if (strtolower((string)($row['role'] ?? '')) !== 'tenant_admin') {
-            $this->failLogin(['Acceso restringido a Tenant Admin'], $email);
+            $this->failLogin(['Access restricted to Tenant Admin'], $email);
             return;
         }
         $this->resetSessionPreserving(['csrf_token']);

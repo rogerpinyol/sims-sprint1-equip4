@@ -47,7 +47,7 @@ class ClientDashboardController extends Controller
     {
         $userId = (int)($_SESSION['user_id']);
         $userModel = new User($tenant);
-        return $userModel->getById($userId) ?: ['name' => 'Cliente', 'email' => ''];
+        return $userModel->getById($userId) ?: ['name' => 'Client', 'email' => ''];
     }
 
     private function renderDashboard(array $user, int $tenant): void

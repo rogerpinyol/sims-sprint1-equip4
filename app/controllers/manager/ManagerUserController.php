@@ -36,7 +36,7 @@ class ManagerUserController extends Controller
         $this->render(__DIR__ . '/../../views/manager/ManagerUserCreate.php', [
             'tenant_id' => $tenant,
             'layout' => __DIR__ . '/../../views/layouts/app.php',
-            'title' => 'Crear Usuario — EcoMotion Manager',
+            'title' => 'Create User — EcoMotion Manager',
         ]);
     }
 

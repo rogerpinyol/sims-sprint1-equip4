@@ -12,7 +12,7 @@ $users = $users ?? [];
       <?php include __DIR__ . '/../partials/manager/header.php'; ?>
 
       <div class="p-4 space-y-4">
-        <h2 class="text-base font-semibold">Gestión de Usuarios</h2>
+        <h2 class="text-base font-semibold">User Management</h2>
 
         <?php if (!empty($_SESSION['flash_errors'])): $errs = $_SESSION['flash_errors']; unset($_SESSION['flash_errors']); ?>
           <div class="mb-3 rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
@@ -21,7 +21,7 @@ $users = $users ?? [];
         <?php endif; ?>
         <?php if (!empty($_SESSION['flash_success'])): unset($_SESSION['flash_success']); ?>
           <div class="mb-3 rounded-md border border-green-200 bg-green-50 text-green-700 px-3 py-2 text-sm">
-            Operación realizada correctamente.
+            Operation completed successfully.
           </div>
         <?php endif; ?>
 
@@ -32,11 +32,11 @@ $users = $users ?? [];
           <input name="phone" placeholder="Phone" class="input">
           <input name="accessibility_flags" placeholder="Accessibility" class="input">
           <select name="role" class="input">
-            <option value="client">Cliente</option>
+            <option value="client">Client</option>
             <option value="manager">Manager</option>
           </select>
           <div class="sm:col-span-2 lg:col-span-1">
-            <button type="submit" class="btn btn-primary w-full sm:w-auto">Crear Usuario</button>
+            <button type="submit" class="btn btn-primary w-full sm:w-auto">Create User</button>
           </div>
         </form>
 
@@ -86,10 +86,10 @@ $users = $users ?? [];
                     <td class="align-top whitespace-nowrap">
                       <?php if (($u['role'] ?? '') !== 'tenant_admin'): ?>
                         <form id="upd-<?= $uid ?>" method="post" action="/manager/users/<?= $uid ?>/update" class="inline"></form>
-                        <button form="upd-<?= $uid ?>" type="submit" class="bg-amber-500 hover:bg-amber-600 text-white rounded-md px-3 py-1">Guardar</button>
+                        <button form="upd-<?= $uid ?>" type="submit" class="bg-amber-500 hover:bg-amber-600 text-white rounded-md px-3 py-1">Save</button>
                         <?php if (in_array(($u['role'] ?? ''), ['client', 'manager'], true)): ?>
                             <form class="js-delete-user inline" method="post" action="/manager/users/<?= $uid ?>/delete" data-id="<?= $uid ?>">
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1">Eliminar</button>
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1">Delete</button>
                             </form>
                         <?php endif; ?>
                       <?php else: ?>

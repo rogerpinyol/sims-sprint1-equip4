@@ -51,7 +51,7 @@ class ManagerAuthController extends Controller
             return;
         }
         if (!$svc->ensureManagerRole($row)) {
-            $this->failLogin(['Solo los usuarios con rol Manager pueden iniciar sesión aquí.'], $email);
+            $this->failLogin(['Only users with Manager role can log in here.'], $email);
             return;
         }
         // Resolve tenant id to keep across session regeneration

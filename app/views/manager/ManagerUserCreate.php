@@ -3,7 +3,7 @@
 $csrf = $_SESSION['csrf_token'] ?? '';
 ?>
 <div class="p-4 space-y-4">
-  <h1 class="text-lg font-semibold">Crear Usuario</h1>
+  <h1 class="text-lg font-semibold">Create User</h1>
   <?php if (!empty($_SESSION['flash_errors'])): ?>
     <div class="text-red-600 text-sm">
       <ul class="list-disc pl-5">
@@ -35,7 +35,7 @@ $csrf = $_SESSION['csrf_token'] ?? '';
       <label class="flex flex-col text-sm">
         <span class="font-medium mb-1">Rol</span>
         <select name="role" class="input">
-          <option value="client">Cliente</option>
+          <option value="client">Client</option>
           <option value="manager">Manager</option>
         </select>
       </label>

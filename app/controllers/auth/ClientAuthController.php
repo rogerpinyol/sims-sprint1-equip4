@@ -17,7 +17,7 @@ class ClientAuthController extends Controller
         unset($_SESSION['flash_old']);
 
         $this->render(__DIR__ . '/../../views/auth/register.php', [
-              'show_role' => false, // mantiene mismo nombre de vista
+              'show_role' => false,
             'errors' => $errors,
             'success' => $success,
             'old' => $old,
@@ -33,7 +33,6 @@ class ClientAuthController extends Controller
 
         // 2) Gather inputs
         [$name, $email, $password] = $this->getRegisterInput();
-        // Rol por defecto ya que el selector fue eliminado de la vista
         $role = 'client';
 
         // 3) Validate
@@ -80,7 +79,7 @@ class ClientAuthController extends Controller
             'old' => $old,
             'success' => $success,
             'layout' => __DIR__ . '/../../views/layouts/app.php',
-            'title' => 'Login Cliente — EcoMotion',
+            'title' => 'Client Login — EcoMotion',
         ]);
     }
 

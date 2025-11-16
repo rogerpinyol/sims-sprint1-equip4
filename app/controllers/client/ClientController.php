@@ -50,7 +50,7 @@ class ClientController extends Controller
             return;
         }
         if (!$this->canDeleteClient($user)) {
-            $_SESSION['flash_errors'] = ['Solo cuentas de cliente pueden eliminarse.'];
+            $_SESSION['flash_errors'] = ['Only client accounts can be deleted.'];
             $this->redirect('/profile');
             return;
         }

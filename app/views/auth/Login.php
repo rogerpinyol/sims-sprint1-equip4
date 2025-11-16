@@ -12,7 +12,7 @@ $old = $old ?? [];
 		<div class="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 			<div class="text-center mb-6">
 				   <img src="/images/logo.jpg" alt="EcoMotion logo" class="mx-auto w-12 h-12 rounded-full shadow" />
-				   <h1 class="text-2xl font-extrabold mt-3">Acceso Clientes</h1>
+				   <h1 class="text-2xl font-extrabold mt-3">Client Access</h1>
 			</div>
 
 
@@ -51,7 +51,7 @@ $old = $old ?? [];
 			</form>
 
 			   <p class="mt-4 text-center text-sm text-slate-500">
-				   ¿No tienes cuenta? <a href="/register" class="text-blue-600 hover:underline">Regístrate aquí</a>
+				   Don't have an account? <a href="/register" class="text-blue-600 hover:underline">Register here</a>
 			   </p>
 
 		</div>
