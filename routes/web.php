@@ -51,6 +51,13 @@ $router->add('GET',  $MB . '/users/{id}',            ['manager/ManagerUserContro
 $router->add('POST', $MB . '/users/{id}/update',     ['manager/ManagerUserController','update'], $tenantMw);
 $router->add('POST', $MB . '/users/{id}/delete',     ['manager/ManagerUserController','delete'], $tenantMw);
 
+$router->add('GET', $MB . '/vehicles', ['VehicleController','index'], $tenantMw);
+$router->add('GET', $MB . '/vehicle/create', ['VehicleController','create'], $tenantMw);
+$router->add('POST', $MB . '/vehicle/store', ['VehicleController','store'], $tenantMw);
+$router->add('GET', $MB . '/vehicle/edit', ['VehicleController','edit'], $tenantMw);
+$router->add('POST', $MB . '/vehicle/update', ['VehicleController','update'], $tenantMw);
+$router->add('POST', $MB . '/vehicle/delete', ['VehicleController','delete'], $tenantMw);
+
 // Super admin tenant management (no tenant middleware - root entity)
 $router->add('GET',  '/admin/login',   ['auth/TenantAdminAuthController','loginForm']);
 $router->add('POST', '/admin/login',   ['auth/TenantAdminAuthController','login']);
@@ -67,5 +74,15 @@ $router->add('POST', '/admin/tenants/{id}/rotate-api-key',['TenantController','r
 
 // Public API utility: verify tenant API key (body: { subdomain, api_key })
 $router->add('POST', '/api/verify-key', ['TenantController','verify']);
+
+// Vehicle routes (merged from CRUD)
+$router->add('GET', '/vehicles', ['VehicleController','index'], $tenantMw);
+$router->add('GET', '/vehicle/create', ['VehicleController','create'], $tenantMw);
+$router->add('POST', '/vehicle/store', ['VehicleController','store'], $tenantMw);
+$router->add('GET', '/vehicle/edit', ['VehicleController','edit'], $tenantMw);
+$router->add('POST', '/vehicle/update', ['VehicleController','update'], $tenantMw);
+$router->add('POST', '/vehicle/delete', ['VehicleController','delete'], $tenantMw);
+
+// Manager vehicle routes (pretty base)
 
 return $router;

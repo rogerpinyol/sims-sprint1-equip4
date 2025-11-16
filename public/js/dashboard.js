@@ -1,6 +1,6 @@
 // Dashboard map & vehicle logic externalized
 (function(){
-  const API_URL = '/mock-vehicles.json';
+  const API_URL = '/client/api/vehicles';
   let map, clusterLayer;
   const vehiclesById = new Map();
   let userInteracting = false;

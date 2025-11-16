@@ -83,6 +83,74 @@ class Vehicle extends Model {
         }
     }
 
+    public function getAll(): array|false {
+        try {
+            $sql = "SELECT id, vin, model, status, battery_capacity, ST_X(location) AS lng, ST_Y(location) AS lat, sensor_data, created_at
+                    FROM `{$this->table}`
+                    WHERE tenant_id = :tenant_id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['tenant_id' => $this->tenantId]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            foreach ($rows as &$r) { $this->normalizeRow($r); }
+            return $rows;
+        } catch (PDOException $e) {
+            $this->logError($e);
+            return false;
+        }
+    }
+
+    public function findById(int $id): array|false {
+        try {
+            $sql = "SELECT id, vin, model, status, battery_capacity, ST_X(location) AS lng, ST_Y(location) AS lat, sensor_data, created_at
+                    FROM `{$this->table}`
+                    WHERE id = :id AND tenant_id = :tenant_id LIMIT 1";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['id' => $id, 'tenant_id' => $this->tenantId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $this->normalizeRow($row);
+            }
+            return $row ?: false;
+        } catch (PDOException $e) {
+            $this->logError($e);
+            return false;
+        }
+    }
+
+    public function create(array $data): int|false {
+        $data['tenant_id'] = $this->tenantId;
+
+        // Normalize location input
+        if (!empty($data['location'])) {
+            if (preg_match('/POINT\s*\(([^)]+)\)/i', $data['location'], $m)) {
+                $coords = preg_split('/[ ,]+/', trim($m[1]));
+                if (count($coords) >= 2) {
+                    $a = floatval($coords[0]);
+                    $b = floatval($coords[1]);
+                    if ($a < -90 || $a > 90) { $lon = $a; $lat = $b; }
+                    else { $lat = $a; $lon = $b; }
+                    $data['location'] = sprintf('POINT(%F %F)', $lon, $lat);
+                } else {
+                    $data['location'] = 'POINT(0 0)';
+                }
+            } else {
+                $data['location'] = 'POINT(0 0)';
+            }
+        } else {
+            $data['location'] = 'POINT(0 0)';
+        }
+
+        return $this->insert($data);
+    }
+
+    public function update(int $id, array $data): bool {
+        return parent::update($id, $data);
+    }
+
+    public function delete(int $id): bool {
+        return parent::delete($id);
+    }
+
     private function normalizeRow(array &$r): void {
         $r['lat'] = isset($r['lat']) ? (float)$r['lat'] : null;
         $r['lng'] = isset($r['lng']) ? (float)$r['lng'] : null;

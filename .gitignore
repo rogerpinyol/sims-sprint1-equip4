@@ -1,5 +1,6 @@
 ## Environment files
 .env
+.env.test
 TODO.txt
 
 ## Node dependencies and build output
@@ -43,6 +44,3 @@ tests/*.out
 tests/*.log
 
 architecture.md
-
-!config/seed.sql
-!config/init.sql

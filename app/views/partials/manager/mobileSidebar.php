@@ -12,7 +12,7 @@
   </div>
   <nav class="flex flex-col p-3">
     <a class="px-3 py-2 rounded-md <?= $active==='dashboard' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800' ?>" href="<?= e(manager_base()) ?>">Dashboard</a>
-    <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>
+    <a class="px-3 py-2 rounded-md <?= $active==='vehicles' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800' ?>" href="<?= e(manager_base()) ?>/vehicles">Vehicles</a>
     <a class="px-3 py-2 rounded-md <?= $active==='users' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800' ?>" href="<?= e(manager_base()) ?>/users">Users</a>
     <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Reservations</a>
     <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Payments</a>

@@ -36,15 +36,18 @@ $dailyRevenue = $dailyRevenue ?? 1230;
           <div class="bg-white border border-slate-200 rounded-xl p-4 min-h-[260px]">
             <h3 class="text-sm font-semibold mb-2">Vehicles</h3>
             <?php
-            // Load vehicles from mock-vehicles.json if not set
+            // Load vehicles from database if not set
             if (!isset($vehicles)) {
-              $json = @file_get_contents(__DIR__ . '/../../../public/mock-vehicles.json');
               $vehicles = [];
-              if ($json) {
-                $data = json_decode($json, true);
-                if (isset($data['vehicles']) && is_array($data['vehicles'])) {
-                  $vehicles = $data['vehicles'];
+              try {
+                $tenantId = method_exists('TenantContext', 'tenantId') ? (int)(TenantContext::tenantId() ?? 0) : 0;
+                if ($tenantId > 0) {
+                  require_once __DIR__ . '/../../models/Vehicle.php';
+                  $vehicleModel = new Vehicle($tenantId);
+                  $vehicles = $vehicleModel->listAll() ?: [];
                 }
+              } catch (Exception $e) {
+                $vehicles = [];
               }
             }
             ?>
