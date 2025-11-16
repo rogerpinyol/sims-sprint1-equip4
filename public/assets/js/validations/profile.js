@@ -4,9 +4,20 @@ document.addEventListener('DOMContentLoaded', function(){
   if (link && form) {
     link.addEventListener('click', function(e){
       e.preventDefault();
-      if (confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) {
-        form.submit();
-      }
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
     });
   }
 
@@ -21,24 +32,14 @@ document.addEventListener('DOMContentLoaded', function(){
       initialValues[input.name] = input.value;
     });
 
-    // Disable button initially
-    saveButton.disabled = true;
-
-    // Function to check for changes
-    function checkChanges() {
-      var changed = false;
-      inputs.forEach(function(input) {
-        if (input.value !== initialValues[input.name]) {
-          changed = true;
-        }
-      });
-      saveButton.disabled = !changed;
-    }
-
-    // Add event listeners to inputs
+    // Detect changes
     inputs.forEach(function(input) {
-      input.addEventListener('input', checkChanges);
-      input.addEventListener('change', checkChanges);
+      input.addEventListener('input', function() {
+        var hasChanges = Array.from(inputs).some(function(input) {
+          return input.value !== initialValues[input.name];
+        });
+        saveButton.disabled = !hasChanges;
+      });
     });
   }
 });

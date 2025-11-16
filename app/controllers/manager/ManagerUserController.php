@@ -95,6 +95,7 @@ class ManagerUserController extends Controller
             return;
         }
         $input = $this->collectInput();
+        $input['phone'] = $input['phone'] ?? null;
         $errors = $svc->validateUpdate($input, $target);
         if ($errors) {
             $this->handleFormErrors($errors, '/manager/users');

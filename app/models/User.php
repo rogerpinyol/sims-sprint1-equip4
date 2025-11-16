@@ -157,7 +157,7 @@ class User extends Model {
         }
         
         // Validate phone format
-        if (isset($data['phone'])) {
+        if (!empty($data['phone'])) {
             $phone = trim($data['phone']);
             $phone = preg_replace('/\D/', '', $phone); // Remove non-digits
             if (strlen($phone) !== 9) {

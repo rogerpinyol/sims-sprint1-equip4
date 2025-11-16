@@ -71,8 +71,8 @@ class ManagerUserService
     public function validateDelete(array $target): array
     {
         $errors = [];
-        if (($target['role'] ?? '') !== 'client') {
-            $errors[] = 'Managers can only delete client users';
+        if (($target['role'] ?? '') === 'tenant_admin') {
+            $errors[] = 'Managers cannot delete tenant_admin users';
         }
         return $errors;
     }

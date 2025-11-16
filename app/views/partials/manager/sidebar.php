@@ -1,9 +1,11 @@
 <?php $active = $active ?? ''; ?>
 <aside class="hidden md:flex flex-col gap-2 bg-slate-900 text-slate-200 p-4">
-  <div class="flex items-center gap-2 font-bold text-lg mb-2">
-    <div class="w-7 h-7 rounded-md" style="background: var(--brand-green);"></div>
-    EcoMotion Manager
-  </div>
+  <div class="flex items-center gap-2">
+		<a href="#" class="flex items-center gap-2">
+			<img src="/images/logo.jpg" alt="EcoMotion logo" class="w-8 h-8 rounded-full shadow" />
+			<span class="text-lg font-bold">EcoMotion</span>
+		</a>
+	</div>
   <nav class="flex flex-col">
     <a class="px-3 py-2 rounded-md <?= $active==='dashboard' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800' ?>" href="<?= e(manager_base()) ?>">Dashboard</a>
     <a class="px-3 py-2 rounded-md hover:bg-slate-800" href="#">Vehicles</a>

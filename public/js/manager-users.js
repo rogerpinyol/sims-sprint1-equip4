@@ -18,23 +18,39 @@
       if (f.__bound) return; f.__bound = true;
       f.addEventListener('submit', function(ev){
         ev.preventDefault();
-        if (!confirm('¿Eliminar este usuario?')) return;
-        var action = f.getAttribute('action');
-        fetch(action, { method: 'POST', headers: { 'Accept': 'application/json' } })
-          .then(function(res){
-            var ct = res.headers.get('content-type') || '';
-            if (ct.includes('application/json')) return res.json();
-            return { deleted: res.ok && !res.redirected };
-          })
-          .then(function(data){
-            if (data && data.deleted) {
-              var row = closestRow(f);
-              if (row && row.parentElement) row.parentElement.removeChild(row);
-            } else {
-              alert('No se pudo eliminar el usuario.');
-            }
-          })
-          .catch(function(){ alert('Error de red al eliminar.'); });
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'This action will delete the user.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            var action = f.getAttribute('action');
+            fetch(action, { method: 'POST', headers: { 'Accept': 'application/json' } })
+              .then(function(res){
+                var ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) return res.json();
+                return { deleted: res.ok && !res.redirected };
+              })
+              .then(function(data){
+                if (data && data.deleted) {
+                  var row = closestRow(f);
+                  if (row && row.parentElement) row.parentElement.removeChild(row);
+                } else {
+                  Swal.fire({
+                    title: 'Error',
+                    text: 'The user could not be deleted.',
+                    icon: 'error',
+                    confirmButtonText: 'Accept'
+                  });
+                }
+              });
+          }
+        });
       });
     });
   }

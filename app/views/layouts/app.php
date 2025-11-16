@@ -24,5 +24,7 @@ $title = isset($title) ? (string)$title : 'EcoMotion';
       <script src="<?= e($src) ?>" defer></script>
     <?php endforeach; ?>
   <?php endif; ?>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

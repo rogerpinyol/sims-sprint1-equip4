@@ -87,10 +87,10 @@ $users = $users ?? [];
                       <?php if (($u['role'] ?? '') !== 'tenant_admin'): ?>
                         <form id="upd-<?= $uid ?>" method="post" action="/manager/users/<?= $uid ?>/update" class="inline"></form>
                         <button form="upd-<?= $uid ?>" type="submit" class="bg-amber-500 hover:bg-amber-600 text-white rounded-md px-3 py-1">Guardar</button>
-                        <?php if (($u['role'] ?? '') === 'client'): ?>
-                          <form class="js-delete-user inline" method="post" action="/manager/users/<?= $uid ?>/delete" data-id="<?= $uid ?>">
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1">Eliminar</button>
-                          </form>
+                        <?php if (in_array(($u['role'] ?? ''), ['client', 'manager'], true)): ?>
+                            <form class="js-delete-user inline" method="post" action="/manager/users/<?= $uid ?>/delete" data-id="<?= $uid ?>">
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1">Eliminar</button>
+                            </form>
                         <?php endif; ?>
                       <?php else: ?>
                         <span class="text-slate-400">—</span>

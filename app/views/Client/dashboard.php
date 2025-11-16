@@ -1,4 +1,16 @@
-<?php $user = $user ?? ['name' => 'Cliente', 'email' => '']; ?>
+<?php
+
+$user = $user ?? ['name' => 'Cliente', 'email' => '']; ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMotion</title>
+    <link rel="stylesheet" href="/path/to/your/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
 <div class="h-full min-h-screen flex flex-col" id="appBody">
   <header class="flex items-center justify-between px-4 py-3 bg-white border-b border-[color:var(--brand-beige)] shadow-sm relative z-50">
       <div class="flex items-center gap-3">
@@ -18,6 +30,7 @@
       </div>
     </header>
   <div class="flex-1 relative flex min-h-0">
+
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-[color:var(--brand-green-light)] z-40 transform -translate-x-full transition-transform duration-200 absolute inset-y-0 left-0 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none flex-shrink-0">
       <div class="flex flex-col h-full">
@@ -44,7 +57,7 @@
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="booked" class="accent-yellow-500" checked> <span>Reservado</span></label>
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="maintenance" class="accent-orange-500" checked> <span>Mantenimiento</span></label>
             <label class="flex items-center gap-1"><input type="checkbox" name="status" value="charging" class="accent-blue-500" checked> <span>Cargando</span></label>
-            <button type="submit" class="btn btn-primary col-span-2 mt-1 w-full">Aplicar</button>
+            <button type="submit" class="btn btn-primary col-span-2 mt-1 w-full">Apply</button>
           </form>
         </div>
       </div>
@@ -52,6 +65,10 @@
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200 z-30 md:hidden"></div>
     <!-- Map container -->
   <div id="map" class="flex-1 min-h-[60vh] sm:min-h-0 h-full"></div>
-    <button id="btnRecenter" class="btn btn-primary absolute z-40 fab-bottom-right">Ubicarme</button>
+    <button id="btnRecenter" class="btn btn-primary absolute z-40 fab-bottom-right" aria-label="Locate Me">
+      <i class="fas fa-location-arrow text-lg"></i>
+    </button>
   </div>
   </div>
+</body>
+</html>

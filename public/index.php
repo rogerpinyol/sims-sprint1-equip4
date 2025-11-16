@@ -48,6 +48,14 @@ if ($uri === '/' || $uri === '/landingpage') {
 if ($uri === '/terms') { include __DIR__ . '/terms.php'; exit; }
 if ($uri === '/privacy') { include __DIR__ . '/privacy.php'; exit; }
 
+// Custom route for /ecomotion/renting to show the new landing page
+if ($uri === '/ecomotion/renting') {
+    if (file_exists(__DIR__ . '/landingpage-Renting.php')) {
+        require __DIR__ . '/landingpage-Renting.php';
+        exit;
+    }
+}
+
 // Dispatch via Router class (auto parameter extraction)
 if ($router instanceof Router) {
     $router->dispatch($method, $uri);
