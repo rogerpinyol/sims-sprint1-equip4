@@ -45,7 +45,7 @@ class TenantAdminAuthController extends Controller
         }
         $row = $svc->authenticate(0, $email, $password);
         if (!$row) {
-            $this->failLogin(['Credenciales incorrectas'], $email);
+            $this->failLogin(['Incorrect credentials'], $email);
             return;
         }
         if (strtolower((string)($row['role'] ?? '')) !== 'tenant_admin') {

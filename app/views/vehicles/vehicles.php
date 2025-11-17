@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
-  <title>Gestió de Vehicles - EcoMotion</title>
+  <title>Vehicle Management - EcoMotion</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/logo.jpg" type="image/jpeg">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -70,18 +70,18 @@ $active = 'vehicles';
 
       <div class="p-4 space-y-4">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold">Gestió de Vehicles</h2>
+          <h2 class="text-2xl font-bold">Vehicle Management</h2>
           <a href="/vehicle/create" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
-            Afegir Vehicle
+            Add Vehicle
           </a>
         </div>
 
         <?php if (empty($vehicles)): ?>
           <div class="card">
-            <p class="text-slate-600">No hi ha vehicles registrats. <a href="/vehicle/create" class="text-blue-600 hover:underline font-semibold">Afegeix el primer!</a></p>
+            <p class="text-slate-600">No vehicles registered. <a href="/vehicle/create" class="text-blue-600 hover:underline font-semibold">Add the first one!</a></p>
           </div>
         <?php else: ?>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -90,9 +90,9 @@ $active = 'vehicles';
                     <tr>
                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-700 uppercase">VIN</th>
                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-700 uppercase">Model</th>
-                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Bateria</th>
-                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Estat</th>
-                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Accions</th>
+                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Battery</th>
+                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Status</th>
+                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-700 uppercase">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
@@ -119,8 +119,8 @@ $active = 'vehicles';
                             <span class="inline-block px-2 py-1 rounded text-xs font-semibold <?= $colorClass ?>"><?= ucfirst($status) ?></span>
                         </td>
                         <td class="py-3 px-4 text-center space-x-2">
-                            <a href="/vehicle/edit?id=<?= htmlspecialchars($v['id']) ?>" class="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition">Editar</a>
-                            <button type="button" data-href="/vehicle/delete?id=<?= htmlspecialchars($v['id']) ?>" data-name="<?= htmlspecialchars($v['model'] ?? $v['vin'] ?? 'vehicle') ?>" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition js-delete">Eliminar</button>
+                            <a href="/vehicle/edit?id=<?= htmlspecialchars($v['id']) ?>" class="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition">Edit</a>
+                            <button type="button" data-href="/vehicle/delete?id=<?= htmlspecialchars($v['id']) ?>" data-name="<?= htmlspecialchars($v['model'] ?? $v['vin'] ?? 'vehicle') ?>" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition js-delete">Delete</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -158,14 +158,14 @@ document.querySelectorAll('.js-delete').forEach(btn => {
     const href = this.getAttribute('data-href');
     const name = this.getAttribute('data-name');
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Vas a eliminar el vehículo: ${name}`,
+      title: 'Are you sure?',
+      text: `You are about to delete the vehicle: ${name}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.href = href;

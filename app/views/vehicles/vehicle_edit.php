@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
-  <title>Editar Vehicle - EcoMotion</title>
+  <title>Edit Vehicle - EcoMotion</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/logo.jpg" type="image/jpeg">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -73,8 +73,8 @@ $active = 'vehicles';
 
       <div class="p-4 space-y-4">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold">Editar Vehicle</h2>
-          <a href="/vehicles" class="btn btn-secondary">Tornar</a>
+          <h2 class="text-2xl font-bold">Edit Vehicle</h2>
+          <a href="/vehicles" class="btn btn-secondary">Back</a>
         </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,11 +98,11 @@ $active = 'vehicles';
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block font-bold mb-1">Capacitat Bateria (kWh)</label>
+                <label class="block font-bold mb-1">Battery Capacity (kWh)</label>
                 <input type="number" step="0.01" id="battery_capacity" name="battery_capacity" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['battery_capacity'] ?? '0') ?>" min="0.1" max="200" required>
             </div>
             <div>
-                <label class="block font-bold mb-1">Estat</label>
+                <label class="block font-bold mb-1">Status</label>
                 <select name="status" class="w-full px-3 py-1.5 border rounded-lg">
                     <?php $statuses = ['available','charging','booked','maintenance','offline'];
                     $current = $vehicle['status'] ?? '';
@@ -114,32 +114,32 @@ $active = 'vehicles';
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Ubicació (POINT(lat lon))</label>
+            <label class="block font-bold mb-1">Location (POINT(lat lon))</label>
             <input type="text" name="location" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['location'] ?? 'POINT(0 0)') ?>" required>
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Últim Manteniment</label>
+            <label class="block font-bold mb-1">Last Maintenance</label>
             <input type="date" name="last_maintenance" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['last_maintenance'] ?? '') ?>">
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Dades Sensor (JSON)</label>
+            <label class="block font-bold mb-1">Sensor Data (JSON)</label>
             <textarea name="sensor_data" rows="4" class="w-full px-3 py-1.5 border rounded-lg"><?= htmlspecialchars($vehicle['sensor_data'] ?? '{}') ?></textarea>
             <button type="button" id="formatJsonBtn" class="mt-1 text-sm text-blue-600 hover:underline">Format JSON</button>
         </div>
 
         <div class="flex gap-4 pt-4 justify-center">
-            <button type="submit" class="bg-brand hover:bg-brand-variant text-white font-semibold py-2 px-6 rounded-lg">Actualizar</button>
-            <a href="/vehicles" class="bg-neutral-900 hover:bg-neutral-700 text-white font-semibold py-2 px-6 rounded-lg">Cancel·lar</a>
+            <button type="submit" class="bg-brand hover:bg-brand-variant text-white font-semibold py-2 px-6 rounded-lg">Update</button>
+            <a href="/vehicles" class="bg-neutral-900 hover:bg-neutral-700 text-white font-semibold py-2 px-6 rounded-lg">Cancel</a>
         </div>
         </form>
 
         <!-- Map column for edit view -->
         <div class="bg-white shadow-lg rounded-lg p-4">
-            <h2 class="block font-bold mb-1">Ubicació al mapa</h2>
+            <h2 class="block font-bold mb-1">Location on map</h2>
             <div id="edit-map" style="height:520px; width:100%; border-radius:6px; overflow:hidden"></div>
-            <p class="text-sm text-neutral-600 mt-2">Fes clic al mapa per seleccionar la ubicació; el camp <code>Ubicació</code> s'emplenarà automàticament.</p>
+            <p class="text-sm text-neutral-600 mt-2">Click on the map to select the location; the <code>Location</code> field will be filled automatically.</p>
         </div>
     </div>
 </div>

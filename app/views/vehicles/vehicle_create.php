@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
-  <title>Afegir Vehicle - EcoMotion</title>
+  <title>Add Vehicle - EcoMotion</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/logo.jpg" type="image/jpeg">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -68,8 +68,8 @@ $active = 'vehicles';
 
       <div class="p-4 space-y-4">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold">Afegir Nou Vehicle</h2>
-          <a href="/vehicles" class="btn btn-secondary">Tornar</a>
+          <h2 class="text-2xl font-bold">Add New Vehicle</h2>
+          <a href="/vehicles" class="btn btn-secondary">Back</a>
         </div>
 
         <!-- Flash alerts are shown centrally under the navbar (partials/navbar.php) -->
@@ -81,7 +81,7 @@ $active = 'vehicles';
         <?php endif; ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block font-bold mb-1">VIN (17 caràcters)</label>
+                <label class="block font-bold mb-1">VIN (17 characters)</label>
                 <input type="text" name="vin" maxlength="17" minlength="17" required class="w-full px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="WF0XXXXXXXXXXXXXX" pattern="[A-HJ-NPR-Z0-9]{17}" title="17 alphanumeric characters (no I, O, Q)">
             </div>
             <div>
@@ -92,51 +92,51 @@ $active = 'vehicles';
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block font-bold mb-1">Capacitat Bateria (kWh)</label>
+                <label class="block font-bold mb-1">Battery Capacity (kWh)</label>
                 <input type="number" step="0.1" min="0.1" max="200" name="battery_capacity" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="75">
             </div>
             <div>
-                <label class="block font-bold mb-1">Estat</label>
+                <label class="block font-bold mb-1">Status</label>
                 <select name="status" required class="w-full px-3 py-1.5 border rounded-lg">
-                    <option value="available">Disponible</option>
-                    <option value="charging">Carregant</option>
-                    <option value="booked">Reservat</option>
-                    <option value="maintenance">Manteniment</option>
-                    <option value="offline">Fora de servei</option>
+                    <option value="available">Available</option>
+                    <option value="charging">Charging</option>
+                    <option value="booked">Booked</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="offline">Offline</option>
                 </select>
             </div>
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Ubicació (POINT(lat lon))</label>
+            <label class="block font-bold mb-1">Location (POINT(lat lon))</label>
             <input type="text" name="location" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="POINT(41.3851 2.1734)">
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Últim Manteniment (YYYY-MM-DD)</label>
+            <label class="block font-bold mb-1">Last Maintenance (YYYY-MM-DD)</label>
             <input type="date" name="last_maintenance" class="w-full px-3 py-1.5 border rounded-lg">
         </div>
 
         <div>
-            <label class="block font-bold mb-1">Dades Sensor (JSON)</label>
+            <label class="block font-bold mb-1">Sensor Data (JSON)</label>
             <textarea name="sensor_data" rows="4" class="w-full px-3 py-1.5 border rounded-lg" placeholder='{"temp": 25, "battery_level": 90}'></textarea>
         </div>
 
         <div class="flex gap-4 pt-4 justify-center">
             <button type="submit" class="bg-brand hover:bg-brand-variant text-white font-semibold py-2 px-6 rounded-lg transition">
-                Guardar Vehicle
+                Save Vehicle
             </button>
             <a href="/vehicles" class="bg-neutral-900 hover:bg-neutral-700 text-white font-semibold py-2 px-6 rounded-lg transition">
-                Cancel·lar
+                Cancel
             </a>
         </div>
         </form>
 
         <!-- Map column -->
         <div class="bg-white shadow-lg rounded-lg p-4">
-            <h2 class="block font-bold mb-1">Ubicació al mapa</h2>
+            <h2 class="block font-bold mb-1">Location on map</h2>
             <div id="create-map" style="height:520px; width:100%; border-radius:6px; overflow:hidden"></div>
-            <p class="text-sm text-neutral-600 mt-2">Fes clic al mapa per seleccionar la ubicació; el camp <code>Ubicació</code> s'emplenarà automàticament.</p>
+            <p class="text-sm text-neutral-600 mt-2">Click on the map to select the location; the <code>Location</code> field will be filled automatically.</p>
         </div>
     </div>
 </div>
