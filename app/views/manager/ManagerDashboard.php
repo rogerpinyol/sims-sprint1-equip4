@@ -14,19 +14,19 @@ $dailyRevenue = $dailyRevenue ?? 1230;
       <?php include __DIR__ . '/../partials/manager/header.php'; ?>
 
       <div class="p-4 space-y-4">
-        <h2 class="text-base font-semibold">Overview</h2>
+        <h2 class="text-base font-semibold"><?= htmlspecialchars(__('manager.dashboard.overview')) ?></h2>
         <!-- Stat cards -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="card">
-            <div class="text-slate-500 text-xs">Vehículos Disponibles</div>
+            <div class="text-slate-500 text-xs"><?= htmlspecialchars(__('manager.dashboard.stats.total_vehicles')) ?></div>
             <div class="text-3xl font-extrabold mt-1"><?= e(number_format($totalVehicles)) ?></div>
           </div>
           <div class="card">
-            <div class="text-slate-500 text-xs">Reservas Activas</div>
+            <div class="text-slate-500 text-xs"><?= htmlspecialchars(__('manager.dashboard.stats.active_reservations')) ?></div>
             <div class="text-3xl font-extrabold mt-1"><?= e(number_format($activeReservations)) ?></div>
           </div>
           <div class="card">
-            <div class="text-slate-500 text-xs">Ingresos Diarios</div>
+            <div class="text-slate-500 text-xs"><?= htmlspecialchars(__('manager.dashboard.stats.daily_revenue')) ?></div>
             <div class="text-3xl font-extrabold mt-1">€<?= e(number_format($dailyRevenue, 0, ',', '.')) ?></div>
           </div>
         </section>
@@ -34,7 +34,7 @@ $dailyRevenue = $dailyRevenue ?? 1230;
         <!-- Charts placeholder -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-xl p-4 min-h-[260px]">
-            <h3 class="text-sm font-semibold mb-2">Vehicles</h3>
+            <h3 class="text-sm font-semibold mb-2"><?= htmlspecialchars(__('manager.dashboard.vehicles.title')) ?></h3>
             <?php
             // Load vehicles from database if not set
             if (!isset($vehicles)) {
@@ -57,9 +57,9 @@ $dailyRevenue = $dailyRevenue ?? 1230;
                   <tr>
                     <th>ID</th>
                     <th>VIN</th>
-                    <th>Modelo</th>
-                    <th>Estado</th>
-                    <th>Batería</th>
+                    <th>Model</th>
+                    <th>Status</th>
+                    <th>Battery</th>
                     <th>Lat</th>
                     <th>Lng</th>
                   </tr>
@@ -93,13 +93,13 @@ $dailyRevenue = $dailyRevenue ?? 1230;
             </div>
           </div>
           <div class="bg-white border border-slate-200 rounded-xl p-4 min-h-[260px]">
-            <h3 class="text-sm font-semibold mb-2">Mapa de Vehículos</h3>
+            <h3 class="text-sm font-semibold mb-2"><?= htmlspecialchars(__('manager.dashboard.map.title')) ?></h3>
             <div id="vehiclesMap" data-vehicles='<?= e(json_encode($vehicles ?? [])) ?>' class="h-96 rounded-md bg-slate-200"></div>
           </div>
         </section>
 
       </div>
-      <footer class="mt-auto w-full text-center text-slate-500 text-xs py-4 border-t border-slate-100 bg-white">EcoMotion © <?= date('Y') ?> | Version 1.0</footer>
+      <footer class="mt-auto w-full text-center text-slate-500 text-xs py-4 border-t border-slate-100 bg-white"><?= htmlspecialchars(__('manager.footer.version', ['year' => (string)date('Y'), 'version' => '1.0'])) ?></footer>
     </main>
   </div>
 

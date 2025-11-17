@@ -182,6 +182,8 @@ I18n::init($locale);
 			</div>
 		</div>
 	</footer>
+	<link rel="stylesheet" href="/assets/css/cookie-manager.css" />
+	<script src="/assets/js/cookie-manager.js"></script>
 	<script>
 		const yearEl = document.getElementById('year');
 		if (yearEl) yearEl.textContent = new Date().getFullYear();

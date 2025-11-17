@@ -78,7 +78,7 @@ $active = 'vehicles';
         </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <form action="/vehicle/update" method="POST" class="bg-white shadow-lg rounded-lg p-4 space-y-4">
+        <form action="/vehicle/update" method="POST" class="bg-white shadow-lg rounded-lg p-4 space-y-4" novalidate data-validate="true">
         <?php if (!empty($_SESSION['csrf_token'])): ?>
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
         <?php endif; ?>
@@ -88,18 +88,18 @@ $active = 'vehicles';
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block font-bold mb-1">VIN</label>
-                <input type="text" name="vin" value="<?= htmlspecialchars($vehicle['vin'] ?? '') ?>" class="w-full px-3 py-1.5 border rounded-lg">
+                <input type="text" name="vin" value="<?= htmlspecialchars($vehicle['vin'] ?? '') ?>" class="w-full px-3 py-1.5 border rounded-lg" pattern="[A-HJ-NPR-Z0-9]{17}" minlength="17" maxlength="17" required>
             </div>
             <div>
                 <label class="block font-bold mb-1">Model</label>
-                <input type="text" name="model" value="<?= htmlspecialchars($vehicle['model'] ?? '') ?>" class="w-full px-3 py-1.5 border rounded-lg">
+                <input type="text" name="model" value="<?= htmlspecialchars($vehicle['model'] ?? '') ?>" class="w-full px-3 py-1.5 border rounded-lg" minlength="2" maxlength="100" required>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block font-bold mb-1">Capacitat Bateria (kWh)</label>
-                <input type="number" step="0.01" id="battery_capacity" name="battery_capacity" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['battery_capacity'] ?? '0') ?>">
+                <input type="number" step="0.01" id="battery_capacity" name="battery_capacity" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['battery_capacity'] ?? '0') ?>" min="0.1" max="200" required>
             </div>
             <div>
                 <label class="block font-bold mb-1">Estat</label>
@@ -115,7 +115,7 @@ $active = 'vehicles';
 
         <div>
             <label class="block font-bold mb-1">Ubicació (POINT(lat lon))</label>
-            <input type="text" name="location" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['location'] ?? 'POINT(0 0)') ?>">
+            <input type="text" name="location" class="w-full px-3 py-1.5 border rounded-lg" value="<?= htmlspecialchars($vehicle['location'] ?? 'POINT(0 0)') ?>" required>
         </div>
 
         <div>
@@ -126,6 +126,7 @@ $active = 'vehicles';
         <div>
             <label class="block font-bold mb-1">Dades Sensor (JSON)</label>
             <textarea name="sensor_data" rows="4" class="w-full px-3 py-1.5 border rounded-lg"><?= htmlspecialchars($vehicle['sensor_data'] ?? '{}') ?></textarea>
+            <button type="button" id="formatJsonBtn" class="mt-1 text-sm text-blue-600 hover:underline">Format JSON</button>
         </div>
 
         <div class="flex gap-4 pt-4 justify-center">
@@ -215,7 +216,11 @@ $active = 'vehicles';
 
 <script src="/assets/js/leaflet-check.js"></script>
 
-</script>
+<!-- Cookie Manager CSS for validation styles -->
+<link rel="stylesheet" href="/assets/css/cookie-manager.css" />
+
+<!-- Vehicle Form Validation -->
+<script src="/assets/js/vehicle-form.js"></script>
 
 <script>
 // Mobile sidebar toggle

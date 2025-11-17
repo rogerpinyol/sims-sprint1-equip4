@@ -26,26 +26,26 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
       <?php endif; ?>
 
-  <form id="register-form" method="post" action="/register" class="space-y-4">
+  <form id="register-form" method="post" action="/register" class="space-y-4" data-validate="true" novalidate>
         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
         <input type="hidden" name="tenant_id" value="<?= e($tenantId) ?>">
 
         <div>
           <label class="block text-sm font-medium text-slate-700" for="name"><?= htmlspecialchars(__('form.full_name')) ?></label>
           <input id="name" name="name" value="<?= e(($old['name'] ?? ($_POST['name'] ?? ''))) ?>" required minlength="2" maxlength="80" pattern="^[A-Za-zÀ-ÿ ]+$" title="<?= htmlspecialchars(__('form.full_name_title')) ?>" autocomplete="name" class="input mt-1" placeholder="<?= htmlspecialchars(__('form.full_name_placeholder')) ?>" />
-          <p id="name-error" class="mt-1 text-sm text-red-600 hidden"></p>
+          <p id="name-error" class="invalid-feedback"></p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700" for="email"><?= htmlspecialchars(__('form.work_email')) ?></label>
           <input id="email" name="email" type="email" value="<?= e(($old['email'] ?? ($_POST['email'] ?? ''))) ?>" required maxlength="120" autocomplete="email" class="input mt-1" placeholder="<?= htmlspecialchars(__('form.work_email_placeholder')) ?>" />
-          <p id="email-error" class="mt-1 text-sm text-red-600 hidden"></p>
+          <p id="email-error" class="invalid-feedback"></p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700" for="password"><?= htmlspecialchars(__('form.password')) ?></label>
           <input id="password" type="password" name="password" required minlength="6" maxlength="128" autocomplete="new-password" class="input mt-1" placeholder="<?= htmlspecialchars(__('form.password_placeholder')) ?>" />
-          <p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
+          <p id="password-error" class="invalid-feedback"></p>
         </div>
 
         <div>

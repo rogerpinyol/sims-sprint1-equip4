@@ -16,6 +16,7 @@ $title = isset($title) ? (string)$title : 'EcoMotion';
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <link rel="stylesheet" href="/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/cookie-manager.css" />
 </head>
 <body class="bg-slate-100 text-[color:var(--brand-text)] font-sans flex flex-col min-h-screen">
   <?= $content ?>
@@ -26,5 +27,6 @@ $title = isset($title) ? (string)$title : 'EcoMotion';
   <?php endif; ?>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/assets/js/cookie-manager.js"></script>
 </body>
 </html>

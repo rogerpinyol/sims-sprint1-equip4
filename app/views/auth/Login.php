@@ -30,19 +30,19 @@ $old = $old ?? [];
 				</div>
 			<?php endif; ?>
 
-			   <form id="login-form" method="post" action="/auth/login" class="space-y-4">
+			   <form id="login-form" method="post" action="/auth/login" class="space-y-4" data-validate="true" novalidate>
 				<input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
 				<div>
 				<label class="block text-sm font-medium text-slate-700" for="email"><?= htmlspecialchars(__('form.email')) ?></label>
 				<input id="email" name="email" type="email" value="<?= e($old['email'] ?? '') ?>" required class="input mt-1" placeholder="<?= htmlspecialchars(__('form.email_placeholder')) ?>" />
-					<p id="email-error" class="mt-1 text-sm text-red-600 hidden"></p>
+					<p id="email-error" class="invalid-feedback"></p>
 				</div>
 
 				<div>
 				<label class="block text-sm font-medium text-slate-700" for="password"><?= htmlspecialchars(__('form.password')) ?></label>
-				<input id="password" name="password" type="password" required class="input mt-1" placeholder="<?= htmlspecialchars(__('form.password_placeholder')) ?>" />
-					<p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
+				<input id="password" name="password" type="password" required minlength="6" class="input mt-1" placeholder="<?= htmlspecialchars(__('form.password_placeholder')) ?>" />
+					<p id="password-error" class="invalid-feedback"></p>
 				</div>
 
 				<div>

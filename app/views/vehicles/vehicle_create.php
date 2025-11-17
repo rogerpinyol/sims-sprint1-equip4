@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/cookie-manager.css" />
   <style>
     .btn {
       display: inline-flex;
@@ -74,25 +75,25 @@ $active = 'vehicles';
         <!-- Flash alerts are shown centrally under the navbar (partials/navbar.php) -->
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <form action="/vehicle/store" method="POST" class="bg-white shadow-lg rounded-lg p-4 space-y-4">
+        <form action="/vehicle/store" method="POST" class="bg-white shadow-lg rounded-lg p-4 space-y-4" novalidate>
         <?php if (!empty($_SESSION['csrf_token'])): ?>
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
         <?php endif; ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block font-bold mb-1">VIN (17 caràcters)</label>
-                <input type="text" name="vin" maxlength="17" required class="w-full px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="WF0XXXXXXXXXXXXXX">
+                <input type="text" name="vin" maxlength="17" minlength="17" required class="w-full px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="WF0XXXXXXXXXXXXXX" pattern="[A-HJ-NPR-Z0-9]{17}" title="17 alphanumeric characters (no I, O, Q)">
             </div>
             <div>
                 <label class="block font-bold mb-1">Model</label>
-                <input type="text" name="model" required class="w-full px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Model 3">
+                <input type="text" name="model" required minlength="2" maxlength="100" class="w-full px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Model 3">
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block font-bold mb-1">Capacitat Bateria (kWh)</label>
-                <input type="number" step="0.1" name="battery_capacity" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="75">
+                <input type="number" step="0.1" min="0.1" max="200" name="battery_capacity" required class="w-full px-3 py-1.5 border rounded-lg" placeholder="75">
             </div>
             <div>
                 <label class="block font-bold mb-1">Estat</label>
@@ -215,6 +216,8 @@ $active = 'vehicles';
 </script>
 
 <script src="/assets/js/leaflet-check.js"></script>
+<script src="/assets/js/cookie-manager.js"></script>
+<script src="/assets/js/vehicle-form.js"></script>
 
 </script>
 

@@ -20,6 +20,7 @@ unset($baseQuery['lang']);
     ?>
     <a
       href="<?= htmlspecialchars($href) ?>"
+      data-lang="<?= htmlspecialchars($localeCode) ?>"
       class="text-xs font-medium <?= $isCurrent ? 'text-indigo-600 font-semibold underline' : 'text-slate-600 hover:text-indigo-600' ?>"
     ><?= htmlspecialchars($label) ?></a>
     <?php if ($index < count($locales) - 1): ?>
