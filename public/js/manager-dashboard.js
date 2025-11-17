@@ -36,7 +36,7 @@
             var marker = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map);
             var model = v.model ? String(v.model) : '';
             var batt = (v.battery_level !== undefined && v.battery_level !== null) ? (v.battery_level + '%') : 'N/A';
-            marker.bindPopup('<b>' + model + '</b><br>Batería: ' + batt);
+            marker.bindPopup('<b>' + model + '</b><br>Battery: ' + batt);
           }
         });
       }

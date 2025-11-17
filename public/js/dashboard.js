@@ -60,22 +60,22 @@
     const tableWrap = document.getElementById('vehiclesTableWrap');
     if (!listEl) return;
     if (!vehicles.length) {
-      listEl.innerHTML = '<div class="text-slate-500">No hay vehículos.</div>';
-      if (tableWrap) tableWrap.innerHTML = '<div class="text-slate-500 text-sm">No hay vehículos.</div>';
+      listEl.innerHTML = '<div class="text-slate-500">No vehicles available.</div>';
+      if (tableWrap) tableWrap.innerHTML = '<div class="text-slate-500 text-sm">No vehicles available.</div>';
       return;
     }
     listEl.innerHTML = vehicles.map(v => {
       const battery = (v.battery_level != null) ? Math.round(v.battery_level)+'%' : '—';
       return `<div class="card group">
         <div class="flex items-start justify-between">
-          <div class="font-medium text-slate-700 text-sm">${escapeHtml(v.model || 'Vehículo')}</div>
+          <div class="font-medium text-slate-700 text-sm">${escapeHtml(v.model || 'Vehicle')}</div>
           <span class="${statusBadge(v.status)}">${escapeHtml(v.status)}</span>
         </div>
         <div class="mt-1 text-xs text-slate-500 space-y-1">
           <div><span class="text-slate-400">ID:</span> ${v.id}</div>
-          <div><span class="text-slate-400">Batería:</span> ${battery}</div>
+          <div><span class="text-slate-400">Battery:</span> ${battery}</div>
           <div><span class="text-slate-400">VIN:</span> ${escapeHtml(v.vin || '')}</div>
-          <button data-pan="${v.id}" class="btn btn-primary w-full text-xs py-1">Ver en mapa</button>
+          <button data-pan="${v.id}" class="btn btn-primary w-full text-xs py-1">View on map</button>
         </div>
       </div>`;
     }).join('');
@@ -85,11 +85,11 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Modelo</th>
-            <th>Estado</th>
-            <th>Batería</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Battery</th>
             <th>VIN</th>
-            <th>Acción</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -97,11 +97,11 @@
             const battery = (v.battery_level != null) ? Math.round(v.battery_level)+'%' : '—';
             return `<tr>
               <td>${v.id}</td>
-              <td>${escapeHtml(v.model || 'Vehículo')}</td>
+              <td>${escapeHtml(v.model || 'Vehicle')}</td>
               <td><span class="${statusBadge(v.status)}">${escapeHtml(v.status)}</span></td>
               <td>${battery}</td>
               <td>${escapeHtml(v.vin || '')}</td>
-              <td><button data-pan="${v.id}" class="btn btn-primary text-xs py-1">Ver</button></td>
+              <td><button data-pan="${v.id}" class="btn btn-primary text-xs py-1">View</button></td>
             </tr>`;
           }).join('')}
         </tbody>
@@ -178,9 +178,9 @@
       if (typeof v.lat !== 'number' || typeof v.lng !== 'number') return;
       const marker = L.marker([v.lat, v.lng], {icon: carIcon});
       const battery = (v.battery_level != null) ? Math.round(v.battery_level)+'%' : '—';
-      marker.bindPopup(`<div class='text-sm'><div class='font-semibold mb-1'>${escapeHtml(v.model || 'Vehículo')}</div>
-        <div class='text-xs'>Estado: ${escapeHtml(v.status)}</div>
-        <div class='text-xs'>Batería: ${battery}</div>
+      marker.bindPopup(`<div class='text-sm'><div class='font-semibold mb-1'>${escapeHtml(v.model || 'Vehicle')}</div>
+        <div class='text-xs'>Status: ${escapeHtml(v.status)}</div>
+        <div class='text-xs'>Battery: ${battery}</div>
         <div class='text-xs'>VIN: ${escapeHtml(v.vin || '')}</div></div>`);
       clusterLayer.addLayer(marker);
       v.__marker = marker;
