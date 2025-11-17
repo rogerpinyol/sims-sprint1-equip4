@@ -165,9 +165,18 @@
     if (!clusterLayer) return;
     clusterLayer.clearLayers();
     vehiclesById.clear();
+    
+    // Custom icon using EcoMotion logo
+    const carIcon = L.icon({
+      iconUrl: '/images/Logo%20EcoMotion%20Transparent%202.png',
+      iconSize: [40, 25],
+      iconAnchor: [20, 25],
+      popupAnchor: [0, -25]
+    });
+    
     vehicles.forEach(v => {
       if (typeof v.lat !== 'number' || typeof v.lng !== 'number') return;
-      const marker = L.marker([v.lat, v.lng]);
+      const marker = L.marker([v.lat, v.lng], {icon: carIcon});
       const battery = (v.battery_level != null) ? Math.round(v.battery_level)+'%' : '—';
       marker.bindPopup(`<div class='text-sm'><div class='font-semibold mb-1'>${escapeHtml(v.model || 'Vehículo')}</div>
         <div class='text-xs'>Estado: ${escapeHtml(v.status)}</div>

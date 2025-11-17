@@ -23,9 +23,17 @@
           maxZoom: 19,
           attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+        
+        var carIcon = L.icon({
+          iconUrl: '/images/Logo%20EcoMotion%20Transparent%202.png',
+          iconSize: [40, 25],
+          iconAnchor: [20, 25],
+          popupAnchor: [0, -25]
+        });
+        
         vehicles.forEach(function(v){
           if (typeof v.lat === 'number' && typeof v.lng === 'number') {
-            var marker = L.marker([v.lat, v.lng]).addTo(map);
+            var marker = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map);
             var model = v.model ? String(v.model) : '';
             var batt = (v.battery_level !== undefined && v.battery_level !== null) ? (v.battery_level + '%') : 'N/A';
             marker.bindPopup('<b>' + model + '</b><br>Batería: ' + batt);

@@ -162,12 +162,12 @@ $active = 'vehicles';
     let hoverMarker = null;
     let selectedMarker = null;
 
-    // Use project logo (stored at repo root) as marker icon
+    // Use project logo as marker icon
     const carIcon = L.icon({
-        iconUrl: '/Logo%20EcoMotion%20Transparent%202.png',
-        iconSize: [48, 30],
-        iconAnchor: [24, 30],
-        popupAnchor: [0, -28]
+        iconUrl: '/images/Logo%20EcoMotion%20Transparent%202.png',
+        iconSize: [40, 25],
+        iconAnchor: [20, 25],
+        popupAnchor: [0, -25]
     });
 
     function formatPoint(lat, lon){
