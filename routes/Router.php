@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../app/core/Controller.php'; // For HttpException class
+
 class Router
 {
     private array $routes = [];
@@ -82,8 +84,13 @@ class Router
                 }
                 try {
                     $instance->$methodName(...array_values($params));
+                } catch (HttpException $e) {
+                    // Handle HTTP exceptions with proper status codes and user-friendly messages
+                    $this->handleHttpException($e);
                 } catch (Throwable $e) {
-                    http_response_code(500); echo 'Controller error: ' . htmlspecialchars($e->getMessage());
+                    // Log internal errors but don't expose details to users
+                    error_log('Controller error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+                    $this->handleError(500, 'An unexpected error occurred. Please try again later.');
                 }
                 return;
             }
@@ -113,5 +120,72 @@ class Router
     {
         if (!preg_match_all('#\{([a-zA-Z_][a-zA-Z0-9_]*)\}#', $path, $m)) return [];
         return $m[1];
+    }
+
+    private function handleHttpException(HttpException $e): void
+    {
+        $statusCode = $e->getStatusCode();
+        $message = $e->getMessage();
+        
+        // Map status codes to user-friendly messages
+        $userMessages = [
+            400 => 'Bad Request',
+            401 => 'Unauthorized - Please log in',
+            403 => 'Access Denied - You do not have permission to access this resource',
+            404 => 'Page Not Found',
+            405 => 'Method Not Allowed',
+            500 => 'Internal Server Error',
+        ];
+        
+        $userMessage = $userMessages[$statusCode] ?? $message;
+        
+        // If 403, redirect to appropriate login page
+        if ($statusCode === 403) {
+            $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            if (str_starts_with($uri, '/admin')) {
+                header('Location: /admin/login?redirect=' . urlencode($uri));
+                exit;
+            } elseif (str_starts_with($uri, '/manager') || str_starts_with($uri, manager_base())) {
+                header('Location: /manager/login?redirect=' . urlencode($uri));
+                exit;
+            } else {
+                header('Location: /login?redirect=' . urlencode($uri));
+                exit;
+            }
+        }
+        
+        $this->handleError($statusCode, $userMessage);
+    }
+
+    private function handleError(int $statusCode, string $message): void
+    {
+        http_response_code($statusCode);
+        
+        // Try to render error view if available
+        $errorViewPath = __DIR__ . '/../app/views/errors/error.php';
+        if (is_file($errorViewPath)) {
+            $error = $message;
+            $layout = __DIR__ . '/../app/views/layouts/app.php';
+            include $errorViewPath;
+        } else {
+            // Fallback to plain HTML
+            echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+            echo '<title>Error ' . $statusCode . '</title>';
+            echo '<style>body{font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto;}';
+            echo 'h1{color:#dc2626;}</style></head><body>';
+            echo '<h1>Error ' . $statusCode . '</h1>';
+            echo '<p>' . htmlspecialchars($message) . '</p>';
+            echo '<p><a href="/">Return to Home</a></p>';
+            echo '</body></html>';
+        }
+    }
+}
+
+if (!function_exists('manager_base')) {
+    function manager_base(): string {
+        $base = getenv('MANAGER_BASE');
+        if (!is_string($base) || trim($base) === '') return '/ecomotion-manager';
+        if ($base[0] !== '/') $base = '/' . $base;
+        return rtrim($base, '/');
     }
 }

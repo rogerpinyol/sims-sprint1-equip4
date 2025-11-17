@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ca">
+<html lang="<?= htmlspecialchars(I18n::locale()) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>EcoMotion</title>
+    <title><?= htmlspecialchars(__('app.name')) ?></title>
         <!-- Using Tailwind CDN with project palette (no local build required) -->
         <script src="https://cdn.tailwindcss.com"></script>
         <script>

@@ -1,0 +1,112 @@
+<?php
+
+return [
+    // General
+    'app.name' => 'EcoMotion',
+    'locale.en' => 'Anglès',
+    'locale.ca' => 'Català',
+    'common.logo_alt' => "Logotip d'EcoMotion",
+
+    // Home
+    'home.title' => 'Benvinguts - Plataforma EcoMotion',
+    'home.heading' => 'Benvinguts a la plataforma EcoMotion',
+    'home.description' => 'Aquesta és una plataforma SaaS multi-llogater per a la gestió de flotes de vehicles.',
+    'home.link.super_admin_dashboard' => 'Panell de superadministrador (gestió de llogaters)',
+
+    // Errors
+    'error.title' => 'Error',
+    'error.default_message' => "S'ha produït un error.",
+    'error.back_to_tenants' => 'Torna als llogaters',
+
+    // Navbar
+    'navbar.add_vehicle' => 'Afegeix vehicle',
+    'navbar.vehicles' => 'Vehicles',
+    'navbar.close_alert' => "Tanca l'alerta",
+
+    // Footer
+    'footer.copyright' => '© {year} EcoMotion. Tots els drets reservats.',
+    'footer.modal.title' => 'Esteu segurs?',
+    'footer.modal.initial_body' => 'Aquest element s’eliminarà permanentment.',
+    'footer.modal.confirm_body' => 'Segur que voleu eliminar "{name}"? Aquesta acció no es pot desfer.',
+    'footer.modal.cancel' => 'Cancel·la',
+    'footer.modal.confirm' => 'Eliminar',
+    'footer.modal.default_item' => 'vehicle',
+
+    // Forms
+    'form.email' => 'Correu electrònic',
+    'form.email_placeholder' => 'tu@exemple.com',
+    'form.password' => 'Contrasenya',
+    'form.password_placeholder' => 'Introdueix la teva contrasenya',
+    'form.full_name' => 'Nom complet',
+    'form.full_name_placeholder' => 'Nom i cognoms',
+    'form.full_name_title' => 'Només lletres i espais',
+    'form.work_email' => 'Correu corporatiu',
+    'form.work_email_placeholder' => 'nom@empresa.com',
+
+    // Auth - Client Login
+    'auth.login.heading' => 'Accés de clients',
+    'auth.common.success' => 'Compte creat correctament! Ja pots iniciar sessió.',
+    'auth.common.sign_in' => 'Inicia sessió',
+    'auth.login.no_account' => 'No tens compte?',
+    'auth.login.register_link' => "Registra't aquí",
+
+    // Auth - Manager Login
+    'auth.manager.heading' => 'Inici de sessió de gestors',
+
+    // Auth - Tenant Admin Login
+    'auth.tenant_admin.heading' => "Inici de sessió d'administrador", 
+
+    // Auth - Validation
+    'auth.validation.enter_valid_email' => 'Introdueix un correu vàlid.',
+    'auth.validation.password_required' => 'Cal una contrasenya.',
+
+    // Auth - Register
+    'auth.register.heading' => 'Crea el teu compte',
+    'auth.register.subtitle' => 'Comença la prova gratuïta — no cal targeta',
+    'auth.register.fix_errors' => 'Corregiu el següent:',
+    'auth.register.submit' => 'Crea el compte',
+    'auth.register.has_account' => 'Ja tens un compte?',
+    'auth.register.sign_in' => 'Inicia sessió',
+
+    // Common links
+    'common.privacy' => 'Privadesa',
+    'common.terms' => 'Condicions',
+
+    // Landing page
+    'landing.meta_title' => 'EcoMotion - SaaS de gestió de flotes per a empreses',
+    'landing.meta_description' => 'EcoMotion és la plataforma integral per a empreses per gestionar, optimitzar i escalar les seves flotes de vehicles.',
+    'landing.header.login' => 'Inicia sessió',
+    'landing.header.contact' => 'Contacte',
+    
+    'landing.hero.title' => 'SaaS de gestió de flotes per a empreses',
+    'landing.hero.description' => 'EcoMotion és la plataforma integral per a empreses per gestionar, optimitzar i escalar les seves flotes de vehicles. Accedeix al tauler de la teva empresa o contacta amb el nostre equip per començar.',
+    'landing.hero.features_btn' => 'Funcionalitats',
+    'landing.hero.contact_btn' => 'Contacta amb els administradors',
+    'landing.hero.dashboard_preview_alt' => 'Vista prèvia del tauler',
+    
+    'landing.features.title' => 'Tot el que necessita la teva empresa per gestionar una flota moderna',
+    'landing.features.description' => 'Des del seguiment en temps real fins al manteniment automatitzat i la facturació unificada: EcoMotion és la teva font única de veritat per a les operacions de flotes.',
+    'landing.features.tracking.title' => 'Seguiment de vehicles en directe',
+    'landing.features.tracking.description' => 'Monitoritza la ubicació, la salut de la bateria i l\'estat en temps real de tota la teva flota.',
+    'landing.features.scheduling.title' => 'Programació intel·ligent',
+    'landing.features.scheduling.description' => 'Optimitza les reserves i l\'enviament amb regles que equilibren la utilització i la càrrega de la bateria.',
+    'landing.features.maintenance.title' => 'Automatització del manteniment',
+    'landing.features.maintenance.description' => 'Preveu intervals de servei i activa fluxos de treball abans que els problemes afectin les operacions.',
+    'landing.features.billing.title' => 'Facturació unificada',
+    'landing.features.billing.description' => 'Consolida el pagament per ús, les subscripcions i les factures de socis en un sol llibre major net.',
+    'landing.features.analytics.title' => 'Anàlisi i informes',
+    'landing.features.analytics.description' => 'Comprèn costos, utilització i rendiment amb informes predefinits i personalitzats.',
+    'landing.features.api.title' => 'Amigable per a desenvolupadors',
+    'landing.features.api.description' => 'API robusta i webhooks per integrar EcoMotion al teu stack existent.',
+    
+    'landing.contact.title' => 'Contacta amb els administradors',
+    'landing.contact.name_label' => 'Nom',
+    'landing.contact.email_label' => 'Correu electrònic',
+    'landing.contact.message_label' => 'Missatge',
+    'landing.contact.submit_btn' => 'Envia el missatge',
+    
+    'landing.footer.copyright' => '© {year} EcoMotion. Tots els drets reservats.',
+    'landing.footer.privacy' => 'Privadesa',
+    'landing.footer.terms' => 'Condicions',
+    'landing.footer.contact' => 'Contacte',
+];

@@ -1,11 +1,14 @@
 <nav class="bg-neutral-900 p-4 text-white">
-    <div class="container mx-auto flex items-center justify-between">
-        <a href="/" class="text-xl font-bold normal-case">EcoMotion</a>
+    <div class="container mx-auto flex items-center justify-between gap-4">
+        <a href="/" class="text-xl font-bold normal-case"><?= htmlspecialchars(__('app.name')) ?></a>
         <div class="flex items-center gap-4">
+            <div class="hidden sm:block">
+                <?php include __DIR__ . '/lang-switcher.php'; ?>
+            </div>
             <a href="/vehicle/create" class="inline-block px-3 py-1 border border-brand text-brand rounded hover:bg-brand hover:text-white transition">
-                Afegir Vehicle
+                <?= htmlspecialchars(__('navbar.add_vehicle')) ?>
             </a>
-            <a href="/vehicles" class="px-3 hover:text-brand">Vehicles</a>
+            <a href="/vehicles" class="px-3 hover:text-brand"><?= htmlspecialchars(__('navbar.vehicles')) ?></a>
         </div>
     </div>
 </nav>
@@ -41,7 +44,7 @@ if ($flash):
 <div class="container mx-auto mt-4 px-4">
     <div class="relative <?= $c ?> px-4 py-3 rounded-lg js-flash" role="alert" aria-live="polite">
         <!-- Close button top-right -->
-        <button type="button" class="absolute top-2 right-3 text-current hover:opacity-80 js-flash-close" aria-label="Tancar alerta">
+    <button type="button" class="absolute top-2 right-3 text-current hover:opacity-80 js-flash-close" aria-label="<?= htmlspecialchars(__('navbar.close_alert')) ?>">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10 3.636 5.05A1 1 0 015.05 3.636L10 8.586z" clip-rule="evenodd" />
             </svg>

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/I18n.php';
+
 class HttpException extends RuntimeException
 {
     private int $statusCode;

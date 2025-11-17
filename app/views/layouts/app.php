@@ -3,7 +3,7 @@
 $title = isset($title) ? (string)$title : 'EcoMotion';
 ?>
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="<?= htmlspecialchars(I18n::locale()) ?>" class="h-full">
 <head>
   <meta charset="utf-8">
   <title><?= e($title) ?></title>

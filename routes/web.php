@@ -59,6 +59,10 @@ $router->add('POST', $MB . '/vehicle/update', ['VehicleController','update'], $t
 $router->add('POST', $MB . '/vehicle/delete', ['VehicleController','delete'], $tenantMw);
 
 // Super admin tenant management (no tenant middleware - root entity)
+$router->add('GET',  '/admin', function() {
+    header('Location: /admin/login');
+    exit;
+});
 $router->add('GET',  '/admin/login',   ['auth/TenantAdminAuthController','loginForm']);
 $router->add('POST', '/admin/login',   ['auth/TenantAdminAuthController','login']);
 $router->add('POST', '/admin/logout',  ['auth/TenantAdminAuthController','logout']);

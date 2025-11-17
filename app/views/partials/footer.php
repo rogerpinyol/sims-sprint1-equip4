@@ -1,5 +1,5 @@
     <footer class="mt-auto bg-neutral-900 text-white p-4 text-center">
-        <p>&copy; <?= date('Y') ?> EcoMotion. Tots els drets reservats.</p>
+        <p><?= htmlspecialchars(__('footer.copyright', ['year' => date('Y')])) ?></p>
     </footer>
 
     <!-- Delete confirmation modal (hidden by default) -->
@@ -7,11 +7,13 @@
         <div class="absolute inset-0 bg-black opacity-50 z-40"></div>
         <div class="relative bg-white rounded-lg shadow-lg z-50 max-w-lg w-full mx-4">
             <div class="p-6">
-                <h2 class="text-xl font-semibold mb-2">Esteu segurs?</h2>
-                <p id="delete-modal-msg" class="text-sm text-neutral-900 mb-4">Aquest vehicle s'eliminarà permanentment.</p>
+                <h2 class="text-xl font-semibold mb-2"><?= htmlspecialchars(__('footer.modal.title')) ?></h2>
+                <p id="delete-modal-msg" data-template="<?= htmlspecialchars(__('footer.modal.confirm_body')) ?>" class="text-sm text-neutral-900 mb-4">
+                    <?= htmlspecialchars(__('footer.modal.initial_body')) ?>
+                </p>
                 <div class="flex justify-end gap-3">
-                    <button id="delete-cancel" class="px-4 py-2 rounded border border-neutral-900 text-neutral-900">Cancel·la</button>
-                    <button id="delete-confirm" class="px-4 py-2 rounded bg-red-600 text-white">Eliminar</button>
+                    <button id="delete-cancel" class="px-4 py-2 rounded border border-neutral-900 text-neutral-900"><?= htmlspecialchars(__('footer.modal.cancel')) ?></button>
+                    <button id="delete-confirm" class="px-4 py-2 rounded bg-red-600 text-white"><?= htmlspecialchars(__('footer.modal.confirm')) ?></button>
                 </div>
             </div>
         </div>
@@ -28,12 +30,14 @@
         const btnCancel = qs('#delete-cancel');
         let targetHref = null;
 
+        const defaultName = <?= json_encode(__('footer.modal.default_item')) ?>;
         qsa('.js-delete').forEach(btn => {
             btn.addEventListener('click', function(e){
                 e.preventDefault();
                 targetHref = this.getAttribute('data-href');
-                const name = this.getAttribute('data-name') || 'vehicle';
-                modalMsg.textContent = `Segur que voleu eliminar "${name}"? Aquesta acció no es pot desfer.`;
+                const name = this.getAttribute('data-name') || defaultName;
+                const template = modalMsg.getAttribute('data-template') || '';
+                modalMsg.textContent = template.replace('{name}', name);
                 modal.classList.remove('hidden');
             });
         });
