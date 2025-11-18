@@ -86,7 +86,7 @@ I18n::init($locale);
 				</div>
 				<div class="hidden lg:block">
 					<div class="relative bg-white rounded-2xl shadow-md">
-						<img src="/images/adminDashboard.png" alt="<?= htmlspecialchars(__('landing.hero.dashboard_preview_alt')) ?>" class="rounded-lg">
+						<img src="/images/adminDashboard.png" alt="<?= htmlspecialchars(__('landing.hero.dashboard_preview_alt')) ?>" class="rounded-lg shadow-2xl" style="box-shadow:0 8px 32px 0 rgba(31,38,135,0.25);">
 					</div>
 				</div>
 			</div>

@@ -85,8 +85,8 @@
                     </div>
                 </div>
                 <div class="hidden lg:block">
-					<div class="relative bg-white rounded-lg shadow-sm">
-						<img src="/images/phoneDashboard.png" alt="Dashboard preview" class="w-80 h-auto object-contain rounded-lg mx-auto">
+					<div class="relative">
+						<img src="/images/phoneDashboard.png" alt="Dashboard preview" class="w-80 h-auto object-contain rounded-lg mx-auto shadow-2xl" style="box-shadow:0 8px 32px 0 rgba(31, 38, 135, 0.25);">
 					</div>
 				</div>
             </div>
