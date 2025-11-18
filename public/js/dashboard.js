@@ -11,7 +11,6 @@
 
   function initMap() {
     if (typeof L === 'undefined' || !document.getElementById('map')) {
-      console.error('Leaflet no cargado o contenedor no encontrado');
       return;
     }
     map = L.map('map');
@@ -111,10 +110,20 @@
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-pan');
         const v = vehiclesById.get(Number(id));
-        if (v && v.lat && v.lng) {
-          map.panTo([v.lat, v.lng]);
-          const m = v.__marker;
-          if (m) m.openPopup();
+        if (v && v.lat && v.lng && map) {
+          // Zoom to max to ensure marker is not in cluster
+          map.setView([v.lat, v.lng], 18, {animate: true});
+          setTimeout(() => {
+            const m = v.__marker;
+            if (m) {
+              // Force the popup to open
+              if (m.getPopup && m.getPopup()) {
+                m.openPopup();
+              } else if (m._popup) {
+                m._popup.openOn(map);
+              }
+            }
+          }, 600);
         }
         closeSidebar();
       });
@@ -123,10 +132,20 @@
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-pan');
         const v = vehiclesById.get(Number(id));
-        if (v && v.lat && v.lng) {
-          map.panTo([v.lat, v.lng]);
-          const m = v.__marker;
-          if (m) m.openPopup();
+        if (v && v.lat && v.lng && map) {
+          // Zoom to max to ensure marker is not in cluster
+          map.setView([v.lat, v.lng], 18, {animate: true});
+          setTimeout(() => {
+            const m = v.__marker;
+            if (m) {
+              // Force the popup to open
+              if (m.getPopup && m.getPopup()) {
+                m.openPopup();
+              } else if (m._popup) {
+                m._popup.openOn(map);
+              }
+            }
+          }, 600);
         }
       });
     });
@@ -140,8 +159,20 @@
 
   function fetchAndRender() {
     fetch(API_URL)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
+        if (data === null) {
+          // API failed, use sample data silently
+          if (initialVehiclesLoaded) return;
+          const sample = [
+            { id: 101, vin: 'TESTVIN001', model: 'Tesla Model 3', status: 'available', battery_level: 87, lat: 40.71280, lng: 0.58100 },
+            { id: 102, vin: 'TESTVIN002', model: 'Renault Zoe', status: 'charging', battery_level: 45, lat: 40.71015, lng: 0.57982 },
+            { id: 103, vin: 'TESTVIN003', model: 'Nissan Leaf', status: 'booked', battery_level: 62, lat: 40.71350, lng: 0.58020 }
+          ];
+          updateMarkers(sample);
+          renderVehiclesList(sample);
+          return;
+        }
         const all = Array.isArray(data?.vehicles) ? data.vehicles : Array.isArray(data) ? data : [];
         const statuses = getSelectedStatuses();
         const filtered = statuses.length ? all.filter(v => statuses.includes(String(v.status))) : all;
@@ -150,6 +181,7 @@
         if (!initialVehiclesLoaded) { initialVehiclesLoaded = true; }
       })
       .catch(() => {
+        // Suppress all errors silently
         if (initialVehiclesLoaded) return;
         const sample = [
           { id: 101, vin: 'TESTVIN001', model: 'Tesla Model 3', status: 'available', battery_level: 87, lat: 40.71280, lng: 0.58100 },
@@ -240,12 +272,17 @@
             window.__userCenteredRecently = true;
             if (map) map.setView(latlng, 15);
             setTimeout(()=>{ window.__userCenteredRecently = false; }, 2500);
-          });
+          }, (error) => {
+          }, { enableHighAccuracy: false, timeout: 10000 });
         }
       });
     }
 
     if (navigator.geolocation) {
+      const handleGeolocationError = (error) => {
+        // Suppress geolocation errors silently
+      };
+      
       navigator.geolocation.watchPosition(pos => {
         const lat = pos.coords.latitude, lng = pos.coords.longitude;
         if (!firstFix) {
@@ -260,19 +297,20 @@
               iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
               shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
               iconSize: [25, 41], iconAnchor: [12, 41]
-            })}).addTo(map).bindPopup('Tu ubicación');
+            })}).addTo(map).bindPopup('Your location');
           } else {
             userMarker.setLatLng([lat, lng]);
           }
         }
-      }, () => {}, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
+      }, handleGeolocationError, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 });
+      
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude, lng = pos.coords.longitude;
         if (!firstFix && map) {
           map.setView([lat, lng], 15);
           firstFix = true;
         }
-      }, ()=>{}, { enableHighAccuracy: true, timeout: 5000 });
+      }, handleGeolocationError, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 });
     }
 
     fetchAndRender();

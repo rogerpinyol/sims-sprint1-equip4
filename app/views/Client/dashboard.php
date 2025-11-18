@@ -73,8 +73,5 @@ $user = $user ?? ['name' => 'Client', 'email' => '']; ?>
   
   <!-- Cookie Manager CSS for validation styles -->
   <link rel="stylesheet" href="/assets/css/cookie-manager.css" />
-  
-  <!-- Dashboard Enhancement Script -->
-  <script src="/assets/js/dashboard.js"></script>
 </body>
 </html>
