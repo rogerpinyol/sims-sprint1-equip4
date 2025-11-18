@@ -111,19 +111,13 @@
         const id = btn.getAttribute('data-pan');
         const v = vehiclesById.get(Number(id));
         if (v && v.lat && v.lng && map) {
-          // Zoom to max to ensure marker is not in cluster
           map.setView([v.lat, v.lng], 18, {animate: true});
           setTimeout(() => {
             const m = v.__marker;
-            if (m) {
-              // Force the popup to open
-              if (m.getPopup && m.getPopup()) {
-                m.openPopup();
-              } else if (m._popup) {
-                m._popup.openOn(map);
-              }
+            if (m && m.openPopup) {
+              m.openPopup();
             }
-          }, 600);
+          }, 500);
         }
         closeSidebar();
       });
@@ -133,19 +127,13 @@
         const id = btn.getAttribute('data-pan');
         const v = vehiclesById.get(Number(id));
         if (v && v.lat && v.lng && map) {
-          // Zoom to max to ensure marker is not in cluster
           map.setView([v.lat, v.lng], 18, {animate: true});
           setTimeout(() => {
             const m = v.__marker;
-            if (m) {
-              // Force the popup to open
-              if (m.getPopup && m.getPopup()) {
-                m.openPopup();
-              } else if (m._popup) {
-                m._popup.openOn(map);
-              }
+            if (m && m.openPopup) {
+              m.openPopup();
             }
-          }, 600);
+          }, 500);
         }
       });
     });
@@ -234,6 +222,8 @@
   const overlay = document.getElementById('sidebarOverlay');
   const btnOpen = document.getElementById('btnOpenSidebar');
   const btnClose = document.getElementById('btnCloseSidebar');
+  const resizeHandle = document.getElementById('resizeHandle');
+  
   function openSidebar(){
     if (sidebar) sidebar.classList.remove('-translate-x-full');
     if (overlay){ overlay.classList.remove('pointer-events-none','opacity-0'); overlay.classList.add('opacity-100'); }
@@ -243,6 +233,42 @@
     if (sidebar) sidebar.classList.add('-translate-x-full');
     if (overlay){ overlay.classList.add('pointer-events-none','opacity-0'); overlay.classList.remove('opacity-100'); }
     if (map) setTimeout(()=> map.invalidateSize(), 250);
+  }
+
+  // Resize functionality
+  if (resizeHandle && sidebar) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = sidebar.offsetWidth;
+      sidebar.classList.add('resizing');
+      sidebar.style.transition = 'none';
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const diff = e.clientX - startX;
+      const newWidth = Math.min(Math.max(startWidth + diff, 250), 600);
+      sidebar.style.width = newWidth + 'px';
+      if (map) map.invalidateSize();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        sidebar.classList.remove('resizing');
+        sidebar.style.transition = '';
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {

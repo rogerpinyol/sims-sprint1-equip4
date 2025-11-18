@@ -9,6 +9,24 @@ $user = $user ?? ['name' => 'Client', 'email' => '']; ?>
     <title>EcoMotion</title>
     <link rel="stylesheet" href="/path/to/your/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+      .resize-handle {
+        width: 5px;
+        cursor: ew-resize;
+        background: transparent;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+      }
+      .resize-handle:hover {
+        background: rgba(59, 130, 246, 0.5);
+      }
+      .resizing .resize-handle {
+        background: rgba(59, 130, 246, 0.8);
+      }
+    </style>
 </head>
 <body class="bg-gray-100">
 <div class="h-full min-h-screen flex flex-col" id="appBody">
@@ -33,6 +51,7 @@ $user = $user ?? ['name' => 'Client', 'email' => '']; ?>
 
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-[color:var(--brand-green-light)] z-40 transform -translate-x-full transition-transform duration-200 absolute inset-y-0 left-0 md:translate-x-0 md:relative md:flex md:flex-col shadow-lg md:shadow-none flex-shrink-0">
+      <div class="resize-handle" id="resizeHandle"></div>
       <div class="flex flex-col h-full">
         <div class="flex items-center justify-between px-4 py-3 border-b border-[color:var(--brand-green-light)] bg-slate-50 shrink-0">
           <div class="font-medium text-slate-700">Nearby Vehicles</div>

@@ -12,13 +12,16 @@
 
   // Leaflet map for vehicles (data embedded in DOM)
   var mapDiv = document.getElementById('vehiclesMap');
+  var map = null;
+  var markers = {};
+  
   if (typeof L !== 'undefined' && mapDiv) {
     try {
       var vehicles = [];
       var dataAttr = mapDiv.getAttribute('data-vehicles');
       if (dataAttr) vehicles = JSON.parse(dataAttr);
       if (Array.isArray(vehicles) && vehicles.length) {
-        var map = L.map('vehiclesMap').setView([40.713, 0.581], 14);
+        map = L.map('vehiclesMap').setView([40.713, 0.581], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '© OpenStreetMap contributors'
@@ -37,9 +40,32 @@
             var model = v.model ? String(v.model) : '';
             var batt = (v.battery_level !== undefined && v.battery_level !== null) ? (v.battery_level + '%') : 'N/A';
             marker.bindPopup('<b>' + model + '</b><br>Battery: ' + batt);
+            markers[v.id] = marker;
           }
         });
       }
     } catch(e) { /* ignore JSON/map errors */ }
   }
+  
+  // Handle View button clicks to locate vehicles on map
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.hasAttribute('data-locate')) {
+      var vehicleId = e.target.getAttribute('data-locate');
+      var lat = parseFloat(e.target.getAttribute('data-lat'));
+      var lng = parseFloat(e.target.getAttribute('data-lng'));
+      var model = e.target.getAttribute('data-model');
+      var battery = e.target.getAttribute('data-battery');
+      
+      if (map && !isNaN(lat) && !isNaN(lng)) {
+        map.setView([lat, lng], 18, {animate: true});
+        
+        setTimeout(function() {
+          var marker = markers[vehicleId];
+          if (marker) {
+            marker.openPopup();
+          }
+        }, 500);
+      }
+    }
+  });
 })();

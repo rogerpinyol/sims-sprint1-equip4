@@ -62,6 +62,7 @@ $dailyRevenue = $dailyRevenue ?? 1230;
                     <th>Battery</th>
                     <th>Lat</th>
                     <th>Lng</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -86,6 +87,7 @@ $dailyRevenue = $dailyRevenue ?? 1230;
                     <td><?= e($v['battery_level']) ?>%</td>
                     <td><?= e($v['lat']) ?></td>
                     <td><?= e($v['lng']) ?></td>
+                    <td><button class="btn btn-primary text-xs py-1" data-locate="<?= e($v['id']) ?>" data-lat="<?= e($v['lat']) ?>" data-lng="<?= e($v['lng']) ?>" data-model="<?= e($v['model']) ?>" data-battery="<?= e($v['battery_level']) ?>">View</button></td>
                   </tr>
                   <?php endforeach; ?>
                 </tbody>
