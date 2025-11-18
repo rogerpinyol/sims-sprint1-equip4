@@ -43,21 +43,18 @@ class ManagerAuthController extends Controller
             $this->failLogin($valErrors, $email);
             return;
         }
-        $tenantId = (int)($_SESSION['tenant_id'] ?? 0);
-        $row = $svc->authenticate($tenantId, $email, $password);
+        // Always authenticate across all tenants for managers
+        $row = $svc->authenticate(0, $email, $password);
         if (!$row) {
-            $msg = ($tenantId <= 0) ? 'No se pudo resolver tu empresa automáticamente. Añade ?tenant o ?tenant_id.' : 'Email o contraseña incorrectos';
-            $this->failLogin([$msg], $email);
+            $this->failLogin(['Email o contraseña incorrectos'], $email);
             return;
         }
         if (!$svc->ensureManagerRole($row)) {
             $this->failLogin(['Only users with Manager role can log in here.'], $email);
             return;
         }
-        // Resolve tenant id to keep across session regeneration
-        if ($tenantId <= 0 && isset($row['tenant_id'])) {
-            $tenantId = (int)$row['tenant_id'];
-        }
+        // Get tenant from authenticated user
+        $tenantId = isset($row['tenant_id']) ? (int)$row['tenant_id'] : 0;
         // Preserve actual role (could be manager or tenant_admin) and harden session
         $this->resetSessionSecurity();
         if ($tenantId > 0) {
